@@ -27,7 +27,7 @@ interface ButtonBaseProps {
 }
 
 type ButtonAsButton = ButtonBaseProps & ButtonHTMLAttributes<HTMLButtonElement> & {
-    href?: undefined;
+    href?: never;
 };
 
 type ButtonAsLink = ButtonBaseProps & AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -72,10 +72,7 @@ function buildClassName(
 }
 
 function isLinkButton(props: ButtonProps): props is ButtonAsLink {
-    // Pastikan ini return boolean, bukan void
-    return (props as ButtonAsLink).href !== undefined;
-    // ATAU lebih aman:
-    // return 'href' in props && props.href !== undefined;
+    return 'href' in props && typeof props.href === 'string';
 }
 
 export function Button(props: ButtonProps) {
@@ -88,8 +85,7 @@ export function Button(props: ButtonProps) {
         className = "",
         children,
         ...rest
-
-    } = props as ButtonBaseProps & { href?: string };
+    } = props;
 
     const classes = buildClassName(variant, size, fullWidth, className);
 
@@ -102,25 +98,45 @@ export function Button(props: ButtonProps) {
     );
 
     if (isLinkButton(props)) {
-        const { href, ...linkRest } = rest;
+        
+        const { href, target, rel, ...anchorRest } = props;
         return (
             <Link
                 href={href}
+                target={target}
+                rel={rel}
                 className={classes}
-                {...linkRest}
+                {...anchorRest}
             >
                 {content}
             </Link>
         );
     }
 
+    const {
+        type = "button",
+        disabled,
+        onClick,
+        onFocus,
+        onBlur,
+        onMouseEnter,
+        onMouseLeave,
+        ...buttonRest
+    } = rest as ButtonHTMLAttributes<HTMLButtonElement>;
+
     return (
         <button
+            type={type}
+            disabled={disabled}
+            onClick={onClick}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
             className={classes}
-            {...rest}
+            {...buttonRest}
         >
             {content}
         </button>
     );
 }
-
