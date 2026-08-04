@@ -1,7 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
-import { Role } from "@/generated/prisma/client";
 
-export default {
+export const authConfig = {
+  pages: {
+    signIn: "/login",
+  },
   providers: [],
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
@@ -12,8 +14,8 @@ export default {
       if (isOnAdmin) {
         if (!isLoggedIn) return false;
 
-        const userRole = auth?.user?.role;
-        if (userRole !== Role.SUPER_ADMIN && userRole !== Role.ADMIN) {
+        const userRole = auth?.user?.role as string | undefined;
+        if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN") {
           return Response.redirect(new URL("/login", nextUrl));
         }
 
