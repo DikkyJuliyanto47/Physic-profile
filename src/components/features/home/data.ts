@@ -77,6 +77,16 @@ export const galleryItems: GalleryItem[] = [
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
   },
+  {
+    id: "gallery-2",
+    date: "27 Juli 2026",
+    caption: "Dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    id: "gallery-3",
+    date: "27 Juli 2026",
+    caption: "Dolor sit amet, consectetur adipiscing elit.",
+  },
 ];
 
 // Data untuk Agenda

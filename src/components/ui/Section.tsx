@@ -5,10 +5,11 @@
  * @Last Modified time: 2026-08-02 08:54:02
  */
 
+import { cn } from "@/utils";
 import type { HTMLAttributes, ReactNode } from "react";
 
 type SectionTone = "default" | "muted" | "dark";
-type SectionPadding = "compact" | "normal" | "large" | "none";
+type SectionPadding = "none" | "compact" | "normal" | "large";
 
 interface SectionProps extends HTMLAttributes<HTMLElement> {
   tone?: SectionTone;
@@ -16,37 +17,35 @@ interface SectionProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
 }
 
-const toneClasses: Record<SectionTone, string> = {
+const toneClasses = {
   default: "bg-background text-foreground",
   muted: "bg-background-muted text-foreground",
   dark: "bg-primary-950 text-white",
 };
 
-const paddingClasses: Record<SectionPadding, string> = {
-  compact: "py-4 sm:py-6 md:py-8",
-  normal: "py-12 sm:py-16 lg:py-20",
-  large: "py-16 sm:py-20 lg:py-24",
-  none: "py-0",
+const paddingClasses = {
+  none: "",
+  compact: "py-8 md:py-10",
+  normal: "py-14 lg:py-18",
+  large: "py-20 lg:py-28",
 };
 
 export function Section({
   tone = "default",
-  className = "",
-  padding = "large",
+  padding = "normal",
+  className,
   children,
-  ...rest
+  ...props
 }: SectionProps) {
-  const classes = [
-    "py-16 sm:py-20 lg:py-24",
-    toneClasses[tone],
-    paddingClasses[padding],
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <section className={classes} {...rest}>
+    <section
+      className={cn(
+        toneClasses[tone],
+        paddingClasses[padding],
+        className
+      )}
+      {...props}
+    >
       {children}
     </section>
   );
