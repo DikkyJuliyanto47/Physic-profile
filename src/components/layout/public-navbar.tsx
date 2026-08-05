@@ -7,18 +7,16 @@
 
 import Link from "next/link";
 import { Button, Container } from "@/components/ui";
-import { publicNav} from "@/config/site";
+import { publicNav } from "@/config/site";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { PublicMobileNav } from "./public-mobile-nav";
 
 export function PublicNavbar() {
     return (
-        <header className="relative border-b border-border bg-background">
+        <header className="sticky top-0 z-50 border-b border-border bg-background">
             <Container className="flex h-16 items-center justify-between gap-4 sm:h-20">
-                <Link 
-                href="/" 
-                className="shrink-0">
-                <BrandMark />
+                <Link href="/" className="shrink-0">
+                    <BrandMark />
                 </Link>
 
                 <nav className="hidden items-center gap-6 lg:flex">
@@ -33,7 +31,7 @@ export function PublicNavbar() {
                     ))}
                 </nav>
 
-                <div className="hidden lg:block">
+                <div className="hidden lg:block lg:-translate-x-4">
                     <Button href="/kontak" size="small">
                         Hubungi Kami
                     </Button>
@@ -41,6 +39,7 @@ export function PublicNavbar() {
 
                 <PublicMobileNav items={publicNav} />
             </Container>
-        </header>   
-    )
+        </header>
+    );
 }
+

@@ -36,7 +36,7 @@ export function AboutSection() {
                                     {highlight.title}
                                 </span>
                                 <span className="text-xs text-foreground-muted">
-                                    {highlight.description}
+                                    {highlight.description}Se
                                 </span>
                             </div>
                         ))}

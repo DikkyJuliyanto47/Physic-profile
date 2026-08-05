@@ -29,6 +29,12 @@ export const latestNews: NewsItem[] = [
         excerpt: "Dolor sit amet, consectetur adipiscing elit.",
         href: "/berita",
     },
+    {
+        id: "news-3",
+        date: "27 Juli 2026",
+        excerpt: "Dolor sit amet, consectetur adipiscing elit.",
+        href: "/berita",
+    },
 ];
 
 // Data untuk About
