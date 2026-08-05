@@ -105,7 +105,7 @@ export function Button(props: ButtonProps) {
         const { href, ...linkRest } = rest;
         return (
             <Link
-                href={href}
+                href={href!}
                 className={classes}
                 {...linkRest}
             >

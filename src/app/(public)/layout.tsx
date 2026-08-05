@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
-
-// TODO: import PublicNavbar from "@/components/layout"
-// TODO: import PublicFooter from "@/components/layout"
+import { PublicNavbar } from "@/components/layout/PublicNavbar";
+import { PublicFooter } from "@/components/layout/PublicFooter";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      {/* TODO: <PublicNavbar /> */}
-      <main>{children}</main>
-      {/* TODO: <PublicFooter /> */}
-    </>
+    <div className="flex min-h-screen flex-col">
+      <PublicNavbar />
+      <main className="flex-1">{children}</main>
+      <PublicFooter />
+    </div>
   );
 }
