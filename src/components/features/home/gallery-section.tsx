@@ -45,7 +45,6 @@ export function GallerySection() {
         </div>
 
         <div className="relative w-full max-w-3xl">
-          {/* Tombol Sebelumnya */}
           <button
             type="button"
             onClick={prev}
@@ -65,10 +64,8 @@ export function GallerySection() {
             </svg>
           </button>
 
-          {/* Area Gambar */}
           <div className="aspect-video w-full rounded-xl bg-neutral-200 transition-all duration-300" />
 
-          {/* Tombol Berikutnya */}
           <button
             type="button"
             onClick={next}

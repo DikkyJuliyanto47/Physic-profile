@@ -44,10 +44,27 @@ export interface AboutHighlight {
   description: string;
 }
 
+export interface AboutHighlight {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface GalleryImage {
+  id: number;
+  label: string;
+}
+
 export const aboutHighlights: AboutHighlight[] = [
   { id: "highlight-1", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
   { id: "highlight-2", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
   { id: "highlight-3", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
+];
+
+export const galleryImages: GalleryImage[] = [
+  { id: 1, label: "Gambar 1" },
+  { id: 2, label: "Gambar 2" },
+  { id: 3, label: "Gambar 3" },
 ];
 
 // Data untuk Statistic
