@@ -2,32 +2,55 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-07 19:26:35 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-07 19:31:46
+ * @Last Modified time: 2026-08-07 22:48:18
  */
 
 import { Container } from "./Container";
 import { Section } from "./Section";
+import { PageBreadcrumb, type BreadcrumbItem } from "./PageBreadcrumb";
 
 interface PageHeaderProps {
-    eyebrow: string;
-    title: string;
-    description?: string;
+  breadcrumb?: BreadcrumbItem[];
+
+  eyebrow: string;
+  title: string;
+  description?: string;
+
+  children?: React.ReactNode;
 }
 
-export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
-    return (
-        <Section tone="muted" padding="compact">
-            <Container className="flex flex-col gap-3">
-                <span className="text-sm font-semibold uppercase tracking-wide text-primary-600">
-                    {eyebrow}
-                </span>
-                <h1 className="text-3xl font-bold text-foreground sm:text-4xl">
-                    {title}
-                </h1>
-                {description ? (
-                    <p className="max-w-2xl text-foreground-muted">{description}</p>
-                ) : null}
-            </Container>
-        </Section>
-    )
+export function PageHeader({
+  breadcrumb,
+  eyebrow,
+  title,
+  description,
+  children,
+}: PageHeaderProps) {
+  return (
+    <Section className="py-12 md:py-16">
+      <Container>
+        {breadcrumb && (
+          <PageBreadcrumb items={breadcrumb} />
+        )}
+
+        <div className="mt-6 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
+            {eyebrow}
+          </p>
+
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+            {title}
+          </h1>
+
+          {description && (
+            <p className="mt-5 text-lg leading-8 text-foreground-muted">
+              {description}
+            </p>
+          )}
+
+          {children}
+        </div>
+      </Container>
+    </Section>
+  );
 }
