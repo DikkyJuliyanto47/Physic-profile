@@ -5,6 +5,4 @@
  * @Last Modified time: 2026-08-07 18:33:04
  */
 
-export { HistorySection } from "./history-section";
 export { VisionMissionSection } from "./vision-mission-section";
-export { ValuesSection } from "./values-section";

@@ -7,8 +7,6 @@
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
-  HistorySection,
-  ValuesSection,
   VisionMissionSection,
 } from "@/components/features/about";
 import { JoinCtaSection } from "@/components/features/home";
@@ -22,9 +20,7 @@ export default function Page() {
         description="Mengenal sejarah, visi-misi, dan nilai yang menjadi landasan Physical Society of Indonesia Cabang Surabaya."
     />
 
-      <HistorySection />
       <VisionMissionSection />
-      <ValuesSection />
       <JoinCtaSection />
     </>
   );

@@ -47,15 +47,3 @@ export const missionPoints: MissionPoint[] = [
   { id: "mission-3", text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris." },
 ];
 
-export interface ValueItem {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export const values: ValueItem[] = [
-  { id: "value-1", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-  { id: "value-2", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-  { id: "value-3", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-  { id: "value-4", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-];
