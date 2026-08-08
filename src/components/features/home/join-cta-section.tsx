@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-02 09:18:12 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 09:19:04
+ * @Last Modified time: 2026-08-08 08:30:55
  */
 
 import { Button, Container, Section } from "@/components/ui/index";
@@ -22,7 +22,7 @@ export function JoinCtaSection() {
           imperdiet, nulla et dictum interdum, nisi lorem egestas odio, vitae
           scelerisque enim ligula venenatis dolor.
         </p>
-        <Button href="/kontak" variant="ghost">
+        <Button href="/kontak" variant="white">
           Daftar sebagai Anggota
         </Button>
       </Container>

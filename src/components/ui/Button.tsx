@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-01 08:10:06 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-01 08:36:09
+ * @Last Modified time: 2026-08-08 08:29:56
  */
 
 import Link from "next/link";
@@ -13,7 +13,7 @@ import {
     ReactNode,
 } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "white";
 type ButtonSize = "small" | "medium" | "large";
 
 interface ButtonBaseProps {
@@ -46,6 +46,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   secondary: "bg-primary-950 text-white hover:bg-primary-900",
   outline: "border border-border text-foreground hover:bg-background-muted",
   ghost: "text-primary-600 hover:bg-primary-50",
+  white: "bg-white text-primary-600 hover:bg-neutral-100 cursor-pointer",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

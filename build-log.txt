@@ -1,0 +1,18 @@
+▲ Next.js 16.2.12 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.0s
+  Running TypeScript ...
+Failed to type check.
+
+./src/components/features/management/management-section.tsx:8:21
+Type error: Module '"@/components/ui"' has no exported member 'PersonCard'.
+
+  [90m 6 |[0m [90m */[0m
+  [90m 7 |[0m
+[31m[1m>[0m [90m 8 |[0m [36mimport[0m { [33mContainer[0m, [33mPersonCard[0m, [33mSection[0m } [36mfrom[0m [32m"@/components/ui"[0m;
+  [90m   |[0m                     [31m[1m^[0m
+  [90m 9 |[0m [36mimport[0m { managementMembers } [36mfrom[0m [32m"./data"[0m;
+  [90m10 |[0m
+  [90m11 |[0m [36mexport[0m [36mfunction[0m [33mManagementSection[0m() {
+Next.js build worker exited with code: 1 and signal: null

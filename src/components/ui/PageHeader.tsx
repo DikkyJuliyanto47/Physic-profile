@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-07 19:26:35 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-07 22:48:18
+ * @Last Modified time: 2026-08-08 07:56:31
  */
 
 import { Container } from "./Container";
@@ -11,11 +11,9 @@ import { PageBreadcrumb, type BreadcrumbItem } from "./PageBreadcrumb";
 
 interface PageHeaderProps {
   breadcrumb?: BreadcrumbItem[];
-
   eyebrow: string;
   title: string;
   description?: string;
-
   children?: React.ReactNode;
 }
 
