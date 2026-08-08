@@ -2,18 +2,31 @@
  * @Author: galhkoernia
  * @Date: 2026-08-02 09:04:55
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 09:09:45
+ * @Last Modified time: 2026-08-08 10:00:00
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Container, Section } from "@/components/ui";
 import { galleryItems } from "./data";
 
+// Gradient fallback dipakai saat item belum memiliki asset foto
+const FALLBACK_GRADIENTS = [
+  "from-primary-700 via-primary-600 to-primary-800",
+  "from-primary-800 via-primary-700 to-primary-900",
+  "from-primary-900 via-primary-700 to-primary-600",
+];
+
 export function GallerySection() {
   const [current, setCurrent] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const next = () => {
     setCurrent((prev) => (prev + 1) % galleryItems.length);
@@ -23,93 +36,161 @@ export function GallerySection() {
     setCurrent((prev) => (prev === 0 ? galleryItems.length - 1 : prev - 1));
   };
 
-  useEffect(() => {
-    const timer = setInterval(next, 5000);
+  const goTo = (index: number) => {
+    setCurrent(index);
+  };
 
-    return () => clearInterval(timer);
-  }, []);
+  // Auto-rotate, berhenti sementara saat hover/di-hover pointer
+  useEffect(() => {
+    if (isPaused || galleryItems.length <= 1) return;
+    timerRef.current = setInterval(next, 5000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPaused]);
+
+  const handleTouchStart = (e: React.TouchEvent): void => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setTouchEnd(null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent): void => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (): void => {
+    if (touchStart === null || touchEnd === null) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) next();
+    else if (distance < -50) prev();
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
 
   const item = galleryItems[current];
 
   return (
-    <Section tone="muted">
-      <Container className="flex flex-col items-center gap-8 text-center">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold uppercase tracking-[0.3em] text-foreground sm:text-3xl">
-            Galeri
-          </h2>
+    <Section tone="muted" padding="none" className="overflow-hidden">
+      <div
+        className="relative mt-6 w-full"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="relative h-80 w-full overflow-hidden sm:h-100 md:h-115 lg:h-130 xl:h-140">
+          {galleryItems.map((galleryItem, index) => (
+            <div
+              key={galleryItem.id}
+              aria-hidden={index !== current}
+              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+                index === current ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+            >
+              {galleryItem.image ? (
+                <Image
+                  src={galleryItem.image}
+                  alt={galleryItem.caption}
+                  fill
+                  priority={index === 0}
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              ) : (
+                <div
+                  className={`h-full w-full bg-linear-to-br ${FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]}`}
+                />
+              )}
 
-          <p className="text-primary-600">
-            Dolor sit amet, consectetur adipiscing elit.
-          </p>
-        </div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/0" />
+            </div>
+          ))}
 
-        <div className="relative w-full max-w-3xl">
+          <div className="absolute inset-x-0 bottom-0 z-10">
+            <Container className="pb-8 pt-16 sm:pb-10 md:pb-12">
+              <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm sm:text-sm">
+                {item.date}
+              </span>
+              <p className="mt-3 max-w-2xl text-lg font-semibold leading-snug text-white sm:text-xl md:text-2xl">
+                {item.caption}
+              </p>
+              {item.href && (
+                <Link
+                  href={item.href}
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white/90 hover:text-white"
+                >
+                  Lihat Selengkapnya
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              )}
+            </Container>
+          </div>
+
           <button
             type="button"
             onClick={prev}
             aria-label="Sebelumnya"
-            className="absolute -left-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition hover:bg-primary-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={galleryItems.length <= 1}
+            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:left-6 sm:h-11 sm:w-11"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
               strokeWidth={2}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
 
-          <div className="aspect-video w-full rounded-xl bg-neutral-200 transition-all duration-300" />
-
           <button
             type="button"
             onClick={next}
             aria-label="Berikutnya"
-            className="absolute -right-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition hover:bg-primary-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={galleryItems.length <= 1}
+            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:right-6 sm:h-11 sm:w-11"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
               strokeWidth={2}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
+
+          {galleryItems.length > 1 && (
+            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 sm:bottom-6 sm:right-8">
+              {galleryItems.map((galleryItem, index) => (
+                <button
+                  key={galleryItem.id}
+                  type="button"
+                  onClick={() => goTo(index)}
+                  aria-label={`Slide ${index + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    current === index ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
-        {/* Indikator Dot */}
-        <div className="flex items-center gap-2">
-          {galleryItems.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setCurrent(index)}
-              aria-label={`Gallery ${index + 1}`}
-              className={`h-2 w-2 rounded-full transition ${
-                current === index ? "bg-primary-600 w-4" : "bg-neutral-300"
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Caption */}
-        <span className="text-sm font-semibold text-primary-600">
-          {item.date}
-        </span>
-
-        <p className="max-w-xl text-sm text-foreground-muted">
-          {item.caption}
-        </p>
-      </Container>
+      </div>
     </Section>
   );
 }

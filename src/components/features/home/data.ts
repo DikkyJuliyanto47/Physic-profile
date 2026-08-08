@@ -5,36 +5,66 @@
  * @Last Modified time: 2026-08-02 09:12:38
  */
 
-
 // PlaceHolder data LandingPage
+
+export interface HeroImage {
+  id: string;
+  src: string;
+  alt: string;
+}
+
+export const heroImages: HeroImage[] = [
+  {
+    id: "hero-1",
+    src: "/assets/landing/hero-community.jpg",
+    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+  },
+  {
+    id: "hero-2",
+    src: "/assets/landing/pkm-prodi-pendidikan.jpg",
+    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+  },
+  {
+    id: "hero-3",
+    src: "/assets/landing/hero-community.jpg",
+    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+  },
+];
 
 // Data untuk Berita
 export interface NewsItem {
-    id: string;
-    date: string;
-    excerpt: string;
-    href: string;
+  id: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  href: string;
 }
 
 export const latestNews: NewsItem[] = [
-    {
-        id: "news-1",
-        date: "27 Juli 2026",
-        excerpt: "Dolor sit amet, consectetur adipiscing elit.",
-        href: "/berita",
-    },
-     {
-        id: "news-2",
-        date: "27 Juli 2026",
-        excerpt: "Dolor sit amet, consectetur adipiscing elit.",
-        href: "/berita",
-    },
-    {
-        id: "news-3",
-        date: "27 Juli 2026",
-        excerpt: "Dolor sit amet, consectetur adipiscing elit.",
-        href: "/berita",
-    },
+  {
+    id: "news-1",
+    title: "Seminar Nasional Fisika Terapan",
+    date: "12 Agustus 2026",
+    excerpt:
+      "Informasi dan persiapan kegiatan Seminar Nasional Fisika Terapan yang akan diselenggarakan bersama komunitas fisika.",
+    href: "/berita",
+  },
+  {
+    id: "news-2",
+    title: "Workshop Instrumentasi Laboratorium",
+    date: "20 Agustus 2026",
+    excerpt:
+      "Kegiatan workshop instrumentasi laboratorium sebagai ruang berbagi pengetahuan dan pengalaman di bidang fisika.",
+    href: "/berita",
+  },
+  {
+    id: "news-3",
+    title: "Diskusi Ilmiah Riset Material Maju",
+    date: "5 September 2026",
+    excerpt:
+      "Diskusi ilmiah mengenai perkembangan riset material maju dan kontribusinya terhadap perkembangan ilmu fisika.",
+    href: "/berita",
+  },
 ];
 
 // Data untuk About
@@ -86,6 +116,8 @@ export interface GalleryItem {
   id: string;
   date: string;
   caption: string;
+  image?: string;
+  href?: string;
 }
 
 export const galleryItems: GalleryItem[] = [
@@ -93,28 +125,58 @@ export const galleryItems: GalleryItem[] = [
     id: "gallery-1",
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
+    href: "/gallery",
   },
   {
     id: "gallery-2",
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
+    href: "/gallery",
   },
   {
     id: "gallery-3",
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
+    href: "/gallery",
   },
 ];
 
 // Data untuk Agenda
 export interface AgendaItem {
   id: string;
+  title: string;
+  date: string;
+  time?: string;
+  location: string;
+  image?: string;
+  href?: string;
 }
 
 export const upcomingAgenda: AgendaItem[] = [
-  { id: "agenda-1" },
-  { id: "agenda-2" },
-  { id: "agenda-3" },
+  {
+    id: "agenda-1",
+    title: "Seminar Nasional Fisika Terapan",
+    date: "12 Agustus 2026",
+    time: "09.00 WIB",
+    location: "Universitas Negeri Surabaya",
+    href: "/kegiatan",
+  },
+  {
+    id: "agenda-2",
+    title: "Workshop Instrumentasi Laboratorium",
+    date: "20 Agustus 2026",
+    time: "13.00 WIB",
+    location: "Institut Teknologi Sepuluh Nopember",
+    href: "/kegiatan",
+  },
+  {
+    id: "agenda-3",
+    title: "Diskusi Ilmiah Riset Material Maju",
+    date: "5 September 2026",
+    time: "10.00 WIB",
+    location: "Universitas Jember",
+    href: "/kegiatan",
+  },
 ];
 
 // Data untuk Member
@@ -134,13 +196,57 @@ export const members: Member[] = Array.from({ length: 5 }, (_, index) => ({
 
 
 // Data untuk Universitas
-export interface UniversityPlaceholder {
+export interface University {
   id: string;
-  tone: "light" | "solid";
+  name: string;
+  logo: string;
+  href?: string;
 }
 
-export const universities: UniversityPlaceholder[] = [
-  { id: "university-1", tone: "light" },
-  { id: "university-2", tone: "solid" },
-  { id: "university-3", tone: "light" },
+export const universities: University[] = [
+  {
+    id: "unesa",
+    name: "Universitas Negeri Surabaya",
+    logo: "/assets/logo/universitas/unesa.png",
+  },
+  {
+    id: "unair",
+    name: "Universitas Airlangga",
+    logo: "/assets/logo/universitas/unair.png",
+  },
+  {
+    id: "its",
+    name: "Institut Teknologi Sepuluh Nopember",
+    logo: "/assets/logo/universitas/its.webp",
+  },
+  {
+    id: "upn-jatim",
+    name: "UPN Veteran Jawa Timur",
+    logo: "/assets/logo/universitas/upnvjt.png",
+  },
+  {
+    id: "ukwm-surabaya",
+    name: "Universitas Katolik Widya Mandala Surabaya",
+    logo: "/assets/logo/universitas/ukwms.png",
+  },
+  {
+    id: "unej",
+    name: "Universitas Jember",
+    logo: "/assets/logo/universitas/unej.png",
+  },
+  {
+    id: "uim",
+    name: "Universitas Islam Madura",
+    logo: "/assets/logo/universitas/uim.png",
+  },
+  {
+    id: "unbilf",
+    name: "Universitas Bilfath",
+    logo: "/assets/logo/universitas/ubilf.png",
+  },
+  {
+    id: "unu-pasuruan",
+    name: "Universitas NU Pasuruan",
+    logo: "/assets/logo/universitas/unup.png",
+  },
 ];

@@ -10,21 +10,21 @@ import {
   GallerySection,
   HeroSection,
   JoinCtaSection,
-  MembersSection,
+  LatestNewsPanel,
   StatisticsSection,
   UniversitiesSection,
-  EventsSection,
+  EventsSection
 } from "@/components/features/home/index";
 
 export default function Page() {
   return (
     <>
+      <GallerySection />
       <HeroSection />
       <AboutSection />
       <StatisticsSection />
-      <GallerySection />
       <EventsSection />
-      <MembersSection />
+      <LatestNewsPanel />
       <UniversitiesSection />
       <JoinCtaSection />
     </>

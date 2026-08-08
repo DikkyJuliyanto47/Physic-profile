@@ -5,6 +5,7 @@
  * @Last Modified time: 2026-08-02 09:14:26 
  */
 
+import Link from "next/link";
 import { Container, Section, SectionHeading } from "@/components/ui/index";
 import { members } from "./data";
 
@@ -12,7 +13,18 @@ export function MembersSection() {
   return (
     <Section tone="muted">
       <Container className="flex flex-col gap-8">
-        <SectionHeading eyebrow="Anggota" title="Anggota PSI Surabaya" />
+        <SectionHeading
+          eyebrow="Anggota"
+          title="Anggota PSI Surabaya"
+          action={
+            <Link
+              href="/anggota"
+              className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+            >
+              Lihat Semua Anggota →
+            </Link>
+          }
+        />
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
           {members.map((member) => (
             <div

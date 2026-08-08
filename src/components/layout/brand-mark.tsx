@@ -18,10 +18,10 @@ export function BrandMark({
   className = "",
   showText = true 
 }: BrandMarkProps) {
-  // Tentukan logo berdasarkan variant
+  // Logo berdasarkan variant
   const logoSrc = variant === "dark" 
-    ? "/assets/logo/psi-indonesia.png" 
-    : "/assets/logo/psi-indonesia.png";     
+    ? "/assets/logo/navbar/psi-indonesia.png" 
+    : "/assets/logo/navbar/psi-indonesia.png";     
 
   // Warna teks berdasarkan variant
   const titleColor = variant === "dark" ? "text-white" : "text-foreground";

@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-01 21:20:55 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-01 21:32:27
+ * @Last Modified time: 2026-08-08 08:35:27
  */
 
 "use client";
@@ -26,12 +26,40 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
         aria-label={isOpen ? "Tutup menu" : "Buka menu"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground"
+        className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
       >
-        <i
-          className={isOpen ? "fa-solid fa-xmark" : "fa-solid fa-bars"}
-          aria-hidden="true"
-        />
+        {isOpen ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+            aria-hidden="true"
+          >
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+            aria-hidden="true"
+          >
+            <path d="M4 6h16" />
+            <path d="M4 12h16" />
+            <path d="M4 18h16" />
+          </svg>
+        )}
       </button>
 
       {isOpen ? (
@@ -51,6 +79,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
               href="/kontak"
               size="small"
               fullWidth
+              variant="primary"
               onClick={() => setIsOpen(false)}
             >
               Hubungi Kami

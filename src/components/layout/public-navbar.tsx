@@ -19,22 +19,24 @@ export function PublicNavbar() {
                     <BrandMark />
                 </Link>
 
-                <nav className="hidden items-center gap-6 lg:flex">
-                    {publicNav.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className="text-sm font-medium text-foreground-muted transition-colors hover:text-primary-600"
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
-                </nav>
+                <div className="ml-auto flex items-center gap-6">
+                    <nav className="hidden items-center gap-6 lg:flex">
+                        {publicNav.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="text-sm font-medium text-foreground-muted transition-colors hover:text-primary-600"
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
+                    </nav>
 
-                <div className="hidden lg:block lg:-translate-x-4">
-                    <Button href="/kontak" size="small">
-                        Hubungi Kami
-                    </Button>
+                    <div className="hidden lg:block">
+                        <Button href="/kontak" size="small">
+                            Hubungi Kami
+                        </Button>
+                    </div>
                 </div>
 
                 <PublicMobileNav items={publicNav} />
@@ -42,4 +44,3 @@ export function PublicNavbar() {
         </header>
     );
 }
-
