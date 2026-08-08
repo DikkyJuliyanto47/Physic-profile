@@ -1,10 +1,27 @@
-// TODO: Implement "riset-publikasi" page
-// Scope: Public/Admin scaffolding phase — no business logic, no data fetching yet.
+/*
+ * @Author: galhkoernia 
+ * @Date: 2026-08-08 11:05:21 
+ * @Last Modified by: galhkoernia
+ * @Last Modified time: 2026-08-08 11:12:55
+ */
 
-export default function Page() {
+import { PageHeader } from "@/components/ui";
+import { ResearchPublicationSection } from "@/components/features/research/index";
+
+export default function RisetPublikasiPage() {
   return (
-    <div>
-      {/* TODO: riset-publikasi content goes here */}
-    </div>
+    <>
+      <PageHeader
+        breadcrumb={[
+          { label: "Beranda", href: "/" },
+          { label: "Penelitian & Publikasi" },
+        ]}
+        eyebrow="PENELITIAN & PUBLIKASI"
+        title="Pusat Penelitian dan Publikasi"
+        description="Pusat informasi penelitian, publikasi ilmiah, HKI, buku, prosiding, dan kolaborasi penelitian anggota PSI."
+      />
+
+      <ResearchPublicationSection />
+    </>
   );
 }
