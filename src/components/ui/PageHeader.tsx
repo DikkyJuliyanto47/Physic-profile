@@ -1,13 +1,16 @@
 /*
- * @Author: galhkoernia 
- * @Date: 2026-08-07 19:26:35 
+ * @Author: galhkoernia
+ * @Date: 2026-08-07 19:26:35
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 07:56:31
+ * @Last Modified time: 2026-08-08 10:06:31
  */
 
 import { Container } from "./Container";
 import { Section } from "./Section";
-import { PageBreadcrumb, type BreadcrumbItem } from "./PageBreadcrumb";
+import {
+  PageBreadcrumb,
+  type BreadcrumbItem,
+} from "./PageBreadcrumb";
 
 interface PageHeaderProps {
   breadcrumb?: BreadcrumbItem[];
@@ -24,29 +27,31 @@ export function PageHeader({
   description,
   children,
 }: PageHeaderProps) {
-  return (
-    <Section className="py-12 md:py-16">
+return (
+    <Section padding="compact">
       <Container>
-        {breadcrumb && (
-          <PageBreadcrumb items={breadcrumb} />
-        )}
-
-        <div className="mt-6 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-            {eyebrow}
-          </p>
-
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {title}
-          </h1>
-
-          {description && (
-            <p className="mt-5 text-lg leading-8 text-foreground-muted">
-              {description}
-            </p>
+        <div>
+          {breadcrumb && (
+            <PageBreadcrumb items={breadcrumb} />
           )}
 
-          {children}
+          <div className="mt-6 max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
+              {eyebrow}
+            </p>
+
+            <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+              {title}
+            </h1>
+
+            {description && (
+              <p className="mt-5 text-lg leading-8 text-foreground-muted">
+                {description}
+              </p>
+            )}
+
+            {children}
+          </div>
         </div>
       </Container>
     </Section>

@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-01 21:07:02 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 08:04:07
+ * @Last Modified time: 2026-08-08 10:09:16
  */
 
 import type { NavItem, SocialLink } from "@/types";
@@ -19,10 +19,8 @@ export const publicNav: NavItem[] = [
   { label: "Tentang Kami", href: "/tentang" },
   { label: "Kepengurusan", href: "/kepengurusan" },
   { label: "Anggota", href: "/anggota" },
-  { label: "Akademik", href: "/akademik" },
   { label: "Riset & Publikasi", href: "/riset-publikasi" },
   { label: "Galeri", href: "/galeri" },
-  { label: "Kontak", href: "/kontak" },
 ];
 
 export const footerNav: Record<"tentang" | "jelajahi", NavItem[]> = {
