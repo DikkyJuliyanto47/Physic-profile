@@ -7,6 +7,7 @@
 
 import { PageHeader } from "@/components/ui";
 import { ResearchPublicationSection } from "@/components/features/research/index";
+import { JoinCtaSection } from "@/components/features/home";
 
 export default function RisetPublikasiPage() {
   return (
@@ -22,6 +23,7 @@ export default function RisetPublikasiPage() {
       />
 
       <ResearchPublicationSection />
+      <JoinCtaSection />
     </>
   );
 }
