@@ -1,0 +1,5 @@
+-- AlterTable: Expand Gallery with new columns
+ALTER TABLE "Gallery" ADD COLUMN "category" TEXT,
+ADD COLUMN "isFeatured" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "sortOrder" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

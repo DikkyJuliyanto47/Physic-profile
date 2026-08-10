@@ -7,10 +7,255 @@ datasource db {
   provider = "postgresql"
 }
 
+// ==========================================
+// ENUMS & ROLES
+// ==========================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum NewsCategory {
+  ORGANISASI
+  SEMINAR
+  WORKSHOP
+  PERTEMUAN_RUTIN
+  KERJASAMA
+  PRESTASI_ANGGOTA
+}
+
+enum EventCategory {
+  SEMINAR_NASIONAL
+  KULIAH_TAMU
+  WEBINAR
+  WORKSHOP
+  MUSYAWARAH_ANGGOTA
+}
+
+enum PublicationType {
+  JURNAL
+  BUKU
+  HKI
+  PROSIDING
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+// ==========================================
+// AUTH & USER MANAGEMENT
+// ==========================================
+
 model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(MEMBER)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  memberProfile MemberProfile?
+  newsCreated   News[]              @relation("NewsAuthor")
+  eventsCreated Event[]             @relation("EventAuthor")
+  documentsUploaded DocumentResource[] @relation("DocumentUploader")
+}
+
+// ==========================================
+// DIREKTORI ANGGOTA & PERGURUAN TINGGI
+// ==========================================
+
+model University {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String?  @unique
+  shortName   String?
+  address     String?
+  deptUrl     String?
+  websiteUrl  String?
+  logoUrl     String?
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members MemberProfile[]
+}
+
+model MemberProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  institutionId    String?
+  institution      University? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  
+  photoUrl         String?
+  nidn             String?
+  position         String?
+  fieldOfExpertise String?
+  emailPublic      String?
+  
+  // Academic Profiles
+  googleScholarUrl String?
+  scopusUrl        String?
+  orcidUrl         String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  managementPositions ManagementPosition[]
+
+  @@index([fieldOfExpertise])
+}
+
+// ==========================================
+// KEPENGURUSAN
+// ==========================================
+
+model ManagementPeriod {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  period    String   @unique
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  positions ManagementPosition[]
+}
+
+model ManagementPosition {
+  id               String           @id @default(cuid())
+  periodId         String
+  period           ManagementPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  
+  memberProfileId  String?
+  memberProfile    MemberProfile?   @relation(fields: [memberProfileId], references: [id], onDelete: SetNull)
+  
+  title            String
+  department       String?
+  order            Int              @default(0)
+  createdAt        DateTime         @default(now())
+}
+
+// ==========================================
+// KONTEN: BERITA & AGENDA
+// ==========================================
+
+model News {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  category    NewsCategory
+  excerpt     String?       @db.Text
+  content     String        @db.Text
+  imageUrl    String?
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  
+  authorId    String
+  author      User          @relation("NewsAuthor", fields: [authorId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([category, status])
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  category    EventCategory
+  description String        @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  location    String
+  linkUrl     String?
+  imageUrl    String?
+  status      ContentStatus @default(DRAFT)
+
+  authorId    String
+  author      User          @relation("EventAuthor", fields: [authorId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([startDate, category])
+}
+
+// ==========================================
+// PUBLIKASI & DOKUMEN DOWNLOAD
+// ==========================================
+
+model Publication {
+  id          String          @id @default(cuid())
+  title       String
+  type        PublicationType
+  description String?         @db.Text
+  externalUrl String?
+  fileUrl     String?
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model DocumentResource {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  description String?  @db.Text
+  fileUrl     String
+  fileType    String?
+  fileSize    String?
+  isPublic    Boolean  @default(true)
+  
+  uploaderId  String?
+  uploader    User?    @relation("DocumentUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// GALERI & PENGADUAN / KONTAK
+// ==========================================
+
+model Gallery {
+  id          String    @id @default(cuid())
+  title       String
+  mediaType   MediaType @default(PHOTO)
+  mediaUrl    String
+  category    String?
+  description String?   @db.Text
+  isFeatured  Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ContactMessage {
+  id        String              @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String              @db.Text
+  isRead    Boolean             @default(false)
+  status    MessageStatus       @default(UNREAD)
+  createdAt DateTime            @default(now())
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
 }

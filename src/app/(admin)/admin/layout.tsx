@@ -1,17 +1,25 @@
-import type { ReactNode } from "react";
+"use client";
 
-// TODO: import AdminSidebar from "@/components/layout"
-// TODO: import AdminTopbar from "@/components/layout"
-// NOTE: route protection/auth guard is OUT OF SCOPE for this phase.
+import { SessionProvider } from "next-auth/react";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { AdminTopbar } from "@/components/layout/AdminTopbar";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      {/* TODO: <AdminSidebar /> */}
-      <div>
-        {/* TODO: <AdminTopbar /> */}
-        <main>{children}</main>
+    <SessionProvider>
+      <div className="min-h-screen bg-neutral-50">
+        <AdminSidebar />
+
+        <div className="lg:pl-72">
+          <AdminTopbar />
+
+          <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        </div>
       </div>
-    </div>
+    </SessionProvider>
   );
 }
