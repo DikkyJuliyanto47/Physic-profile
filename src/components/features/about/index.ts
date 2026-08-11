@@ -5,4 +5,4 @@
  * @Last Modified time: 2026-08-07 18:33:04
  */
 
-export { VisionMissionSection } from "./vision-mission-section";
+export { VisionMissionSection } from "./VisionMissionSection";
