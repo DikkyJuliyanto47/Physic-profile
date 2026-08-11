@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui";
 import { footerNav, siteConfig, socialLinks } from "@/config/site";
 import type { NavItem } from "@/types";
-import { BrandMark } from "./brand-mark";
+import { BrandMark } from "./BrandMark";
 
 const affiliationLines = [
   "Universitas Negeri Surabaya",

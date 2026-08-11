@@ -8,4 +8,4 @@
 export { PublicNavbar } from './public-navbar';
 export { PublicFooter } from './public-footer';
 export { PublicMobileNav } from './public-mobile-nav';
-export { BrandMark } from './brand-mark';
+export { BrandMark } from './BrandMark';

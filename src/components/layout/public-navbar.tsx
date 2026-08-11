@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { Button, Container } from "@/components/ui";
 import { publicNav } from "@/config/site";
-import { BrandMark } from "@/components/layout/brand-mark";
+import { BrandMark } from "@/components/layout/BrandMark";
 import { PublicMobileNav } from "./public-mobile-nav";
 
 export function PublicNavbar() {
