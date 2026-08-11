@@ -5,7 +5,7 @@
  * @Last Modified time: 2026-08-08 09:33:27
  */
 
-export { MembersSection } from "./members-section";
+export { MembersSection } from "./MembersSection";
 export { members } from "./data";
 
 export type { Member } from "./data";
