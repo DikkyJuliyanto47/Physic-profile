@@ -10,10 +10,10 @@ import { statistics } from "./data";
 
 export function StatisticsSection() {
   return (
-    <Section tone="dark" padding="compact">
+    <Section tone="dark" padding="compact" className="py-6 md:py-8">
       <Container className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
         {statistics.map((stat) => (
-          <div key={stat.id} className="flex flex-col gap-1">
+          <div key={stat.id} className="flex flex-col gap-0">
             <span className="text-3xl font-bold text-white sm:text-4xl">
               {stat.value}
             </span>
