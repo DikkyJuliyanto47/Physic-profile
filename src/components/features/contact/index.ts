@@ -1,4 +1,4 @@
-export { ConnectSection } from "./connect-section";
-export { CollaborationCta } from "./collaboration-cta";
-export { LocationSection } from "./location-section";
-export { SocialSection } from "./social-section";
+export { ConnectSection } from "./ConnectSection";
+export { CollaborationCta } from "./CollaborationCta";
+export { LocationSection } from "./LocationSection";
+export { SocialSection } from "./SocialSection";
