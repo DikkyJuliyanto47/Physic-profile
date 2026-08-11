@@ -1,1 +1,1 @@
-export { ManagementSection } from "./management-section";
+export { ManagementSection } from "./ManagementSection";
