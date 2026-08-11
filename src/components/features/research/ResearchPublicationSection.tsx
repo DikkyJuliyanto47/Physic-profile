@@ -6,12 +6,12 @@
  */
 
 import { Container, Section } from "@/components/ui";
-import { ResearchSearchBar } from "./research-search-bar";
-import { ResearchStats } from "./research-stats";
-import { FeaturedResearch } from "./featured-research";
-import { JournalDirectory } from "./journal-directory";
-import { RecentPublications } from "./recent-publications";
-import { ResearchCollaborationCta } from "./research-collaboration-cta";
+import { ResearchSearchBar } from "./ResearchSearchBar";
+import { ResearchStats } from "./ResearchStats";
+import { FeaturedResearch } from "./FeaturedResearch";
+import { JournalDirectory } from "./JournalDirectory";
+import { RecentPublications } from "./RecentPublications";
+import { ResearchCollaborationCta } from "./ResearchCollaborationCta";
 
 export function ResearchPublicationSection() {
   return (
