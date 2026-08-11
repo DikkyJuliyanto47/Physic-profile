@@ -5,12 +5,12 @@
  * @Last Modified time: 2026-08-02 09:31:19
  */
 
-export { GallerySection } from "./gallery-section";
-export { AboutSection } from "./about-section";
-export { EventsSection } from "./events-section";
-export { HeroSection } from "./hero-section";
-export { JoinCtaSection } from "./join-cta-section";
-export { MembersSection } from "./members-section";
-export { StatisticsSection } from "./statistics-section";
-export { UniversitiesSection } from "./universities-section";
-export { LatestNewsPanel } from "./latest-news-panel";
+export { GallerySection } from "./GallerySection";
+export { AboutSection } from "./AboutSection";
+export { EventsSection } from "./EventsSection";
+export { HeroSection } from "./HeroSection";
+export { JoinCtaSection } from "./JoinCtaSection";
+export { MembersSection } from "./MembersSection";
+export { StatisticsSection } from "./StatisticsSection";
+export { UniversitiesSection } from "./UniversitiesSection";
+export { LatestNewsPanel } from "./LatestNewsPanel";
