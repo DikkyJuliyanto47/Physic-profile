@@ -9,7 +9,7 @@
 
 import { useMemo, useState } from "react";
 import { Container, Section } from "@/components/ui";
-import { GalleryItemCard } from "./gallery-item-card";
+import { GalleryItemCard } from "./GalleryItemCard";
 import type { DocumentationItem, DocumentationType } from "./data";
 
 type FilterValue = "all" | DocumentationType;

@@ -1,3 +1,4 @@
-export { DocumentationGrid } from "./documentation-grid";
-export { GalleryCategorySection } from "./category-section";
-export { GalleryContributionCta } from "./contribution-cta";
+export { DocumentationGrid } from "./DocumentationGrid";
+export { GalleryCategorySection } from "./GalleryCategorySection";
+export { GalleryContributionCta } from "./GalleryContributionCta";
+export { GalleryItemCard } from "./GalleryItemCard";
