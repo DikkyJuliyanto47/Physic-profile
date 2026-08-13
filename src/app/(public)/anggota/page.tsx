@@ -1,33 +1,60 @@
 /*
- * @Author: galhkoernia 
- * @Date: 2026-08-08 09:24:00 
+ * @Author: galhkoernia
+ * @Date: 2026-08-08 09:24:00
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 09:25:02
-*/
+ * @Last Modified time: 2026-08-13 15:00:00
+ */
 
-import { PageHeader } from "@/components/ui/PageHeader";
+import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { MembersSection } from "@/components/features/members";
 import { JoinCtaSection } from "@/components/features/home";
+import {
+  LatestNewsWidget,
+  AgendaWidget,
+  CategoryWidget,
+  latestNews,
+} from "@/components/features/news";
 
 export default function Page() {
   return (
     <>
-      <PageHeader
-        breadcrumb={[
-          {
-            label: "Beranda",
-            href: "/",
-          },
-          {
-            label: "Anggota",
-          },
-        ]}
-        eyebrow="ANGGOTA PSI CABANG SURABAYA"
-        title="Direktori Anggota PSI Cabang Surabaya"
-        description="Temukan anggota PSI Cabang Surabaya berdasarkan perguruan tinggi dan bidang keahlian."
-      />
+      <Section padding="compact">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] lg:items-start lg:gap-12">
+            <div className="flex flex-col gap-8">
+              <PageBreadcrumb
+                items={[
+                  { label: "Beranda", href: "/" },
+                  { label: "Anggota" },
+                ]}
+              />
 
-      <MembersSection />
+              <div className="max-w-3xl">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
+                  ANGGOTA PSI CABANG SURABAYA
+                </p>
+
+                <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+                  Direktori Anggota PSI Cabang Surabaya
+                </h1>
+
+                <p className="mt-5 text-lg leading-8 text-foreground-muted">
+                  Temukan anggota PSI Cabang Surabaya berdasarkan perguruan tinggi
+                  dan bidang keahlian.
+                </p>
+              </div>
+
+              <MembersSection />
+            </div>
+
+            <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">
+              <LatestNewsWidget items={latestNews} />
+              <AgendaWidget />
+              <CategoryWidget />
+            </aside>
+          </div>
+        </Container>
+      </Section>
 
       <JoinCtaSection />
     </>
