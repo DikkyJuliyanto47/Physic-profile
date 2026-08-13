@@ -5,6 +5,13 @@
  * @Last Modified time: 2026-08-08 11:04:51
  */
 
+export const STAT_STRIP_IDS: ResearchStat["id"][] = [
+  "kolaboratif",
+  "buku",
+  "hki",
+  "jurnal",
+];
+
 export interface ResearchStat {
   id: string;
   icon: string;
@@ -25,6 +32,7 @@ export interface FeaturedResearch {
   leadResearcher: string;
   institutions: string;
   href: string;
+  thumbnail: string;
 }
 
 export type JournalAffiliation = "psi" | "physics";
@@ -98,33 +106,33 @@ export const FEATURED_RESEARCH: FeaturedResearch[] = [
     year: 2025,
     status: "ongoing",
     title: "Pengembangan Sensor Magnetik Berbasis IoT untuk Edukasi Fisika",
-    description:
-      "Penelitian pengembangan sensor medan magnet berbasis IoT untuk mendukung praktikum fisika modern.",
+    description: "Penelitian pengembangan sensor medan magnet berbasis IoT untuk mendukung praktikum fisika modern.",
     leadResearcher: "Prof. Dr. Budi Santoso",
     institutions: "ITS, UNAIR, UNESA",
     href: "/riset-publikasi/penelitian/sensor-magnetik-iot",
+    thumbnail: "/images/research/sensor-magnetik-iot.jpg",
   },
   {
     id: "material-nano-energi",
     year: 2024,
     status: "completed",
     title: "Material Fungsional Berbasis Nano untuk Energi Terbarukan",
-    description:
-      "Studi material fungsional berbasis nano untuk meningkatkan efisiensi perangkat energi terbarukan.",
+    description: "Studi material fungsional berbasis nano untuk meningkatkan efisiensi perangkat energi terbarukan.",
     leadResearcher: "Dr. Rina Yuliana",
     institutions: "UNEJ, UPN Jatim",
     href: "/riset-publikasi/penelitian/material-nano-energi",
+    thumbnail: "/images/research/material-nano-energi.jpg",
   },
   {
     id: "ai-fisika-partikel",
     year: 2025,
     status: "ongoing",
     title: "AI dalam Analisis Data Eksperimen Fisika Partikel",
-    description:
-      "Pemanfaatan machine learning untuk analisis data eksperimen pada fisika partikel berenergi tinggi.",
+    description: "Pemanfaatan machine learning untuk analisis data eksperimen pada fisika partikel berenergi tinggi.",
     leadResearcher: "Dr. Ahmad Faisal",
     institutions: "UKWMS, ITS",
     href: "/riset-publikasi/penelitian/ai-fisika-partikel",
+    thumbnail: "/images/research/ai-fisika-partikel.jpg",
   },
 ];
 

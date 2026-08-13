@@ -6,7 +6,7 @@
  */
 
 import Link from "next/link";
-import { Badge, Card, SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/ui";
 import { JOURNALS, type JournalAffiliation } from "./data";
 
 const GROUP_TITLE: Record<JournalAffiliation, string> = {
@@ -14,56 +14,28 @@ const GROUP_TITLE: Record<JournalAffiliation, string> = {
   physics: "Jurnal yang berafiliasi Fisika",
 };
 
-const GROUP_BADGE: Record<JournalAffiliation, { label: string; tone: "primary" | "neutral" }> = {
-  psi: { label: "Dikelola PSI", tone: "primary" },
-  physics: { label: "Afiliasi Fisika", tone: "neutral" },
-};
-
 function JournalGroup({ affiliation }: { affiliation: JournalAffiliation }) {
-  const journals = JOURNALS.filter((journal) => journal.affiliation === affiliation);
-  const badge = GROUP_BADGE[affiliation];
+  const journals = JOURNALS.filter((j) => j.affiliation === affiliation);
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-foreground">
-        {GROUP_TITLE[affiliation]}
-      </h3>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {journals.map((journal) => (
-          <Card key={journal.id} className="flex gap-4 p-5">
-            <span
-              className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-primary-950 text-primary-200"
-              aria-hidden="true"
-            >
-              <i className="fa-solid fa-book-open" />
-            </span>
-            <div className="flex flex-1 flex-col">
-              <h4 className="text-sm font-semibold leading-snug text-foreground">
-                {journal.name}
-              </h4>
-              <div className="mt-1">
-                <Badge tone={badge.tone}>{badge.label}</Badge>
-              </div>
-              <p className="mt-1 text-xs text-foreground-muted">
-                ISSN {journal.issn}
-              </p>
-              <p className="mt-2 text-sm text-foreground-muted">
-                {journal.description}
-              </p>
-              <Link
-                href={journal.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 text-sm font-medium text-primary-600 hover:text-primary-700"
-              >
-                Kunjungi Jurnal
-                <i
-                  className="fa-solid fa-arrow-up-right-from-square ml-2 text-xs"
-                  aria-hidden="true"
-                />
-              </Link>
+      <h3 className="text-sm font-semibold text-foreground">{GROUP_TITLE[affiliation]}</h3>
+      <div className="mt-3 rounded-md border border-border">
+        {journals.map((journal, i) => (
+          <div key={journal.id} className={`p-4 ${i !== journals.length - 1 ? "border-b border-border" : ""}`}>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+              <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium text-neutral-700">
+                Dikelola PSI
+              </span>
+              <span className="text-foreground-muted">ISSN {journal.issn}</span>
             </div>
-          </Card>
+            <p className="mt-1.5 text-sm font-medium text-foreground">{journal.name}</p>
+            <p className="mt-1 text-sm text-foreground-muted">{journal.description}</p>
+            <Link href={journal.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-medium text-primary-600 hover:text-primary-700">
+              Kunjungi Jurnal
+              <i className="fa-solid fa-arrow-up-right-from-square ml-2 text-xs" aria-hidden="true" />
+            </Link>
+          </div>
         ))}
       </div>
     </div>
@@ -76,17 +48,12 @@ export function JournalDirectory() {
       <SectionHeading
         title="Jurnal Ilmiah"
         action={
-          <Link
-            href="/riset-publikasi/jurnal"
-            className="text-sm font-medium text-primary-600 hover:text-primary-700"
-          >
+          <Link href="/riset-publikasi/jurnal" className="text-sm font-medium text-primary-600 hover:text-primary-700">
             Lihat semua jurnal
-            <i className="fa-solid fa-arrow-right ml-2" aria-hidden="true" />
           </Link>
         }
       />
-
-      <div className="mt-8 space-y-8">
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         <JournalGroup affiliation="psi" />
         <JournalGroup affiliation="physics" />
       </div>
