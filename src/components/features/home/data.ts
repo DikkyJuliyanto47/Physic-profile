@@ -2,7 +2,7 @@
  * @Author: galhkoernia 
  * @Date: 2026-08-02 07:43:24 
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 09:12:38
+ * @Last Modified time: 2026-08-13 10:00:00
  */
 
 // PlaceHolder data LandingPage
@@ -37,6 +37,7 @@ export interface NewsItem {
   title: string;
   date: string;
   excerpt: string;
+  image: string;
   href: string;
 }
 
@@ -47,6 +48,7 @@ export const latestNews: NewsItem[] = [
     date: "12 Agustus 2026",
     excerpt:
       "Informasi dan persiapan kegiatan Seminar Nasional Fisika Terapan yang akan diselenggarakan bersama komunitas fisika.",
+    image: "/assets/landing/pkm-prodi-pendidikan.jpg",
     href: "/berita",
   },
   {
@@ -55,6 +57,7 @@ export const latestNews: NewsItem[] = [
     date: "20 Agustus 2026",
     excerpt:
       "Kegiatan workshop instrumentasi laboratorium sebagai ruang berbagi pengetahuan dan pengalaman di bidang fisika.",
+    image: "/assets/landing/hero-community.jpg",
     href: "/berita",
   },
   {
@@ -63,17 +66,12 @@ export const latestNews: NewsItem[] = [
     date: "5 September 2026",
     excerpt:
       "Diskusi ilmiah mengenai perkembangan riset material maju dan kontribusinya terhadap perkembangan ilmu fisika.",
+    image: "/assets/landing/hero-community.jpg",
     href: "/berita",
   },
 ];
 
 // Data untuk About
-export interface AboutHighlight {
-  id: string;
-  title: string;
-  description: string;
-}
-
 export interface AboutHighlight {
   id: string;
   title: string;
@@ -115,6 +113,8 @@ export const statistics: Statistic[] = [
 export interface GalleryItem {
   id: string;
   date: string;
+  /** Judul singkat kegiatan (opsional). Jika tidak ada, caption dipakai sebagai judul. */
+  title?: string;
   caption: string;
   image?: string;
   href?: string;
@@ -124,7 +124,8 @@ export const galleryItems: GalleryItem[] = [
   {
     id: "gallery-1",
     date: "27 Juli 2026",
-    caption: "Dolor sit amet, consectetur adipiscing elit.",
+    title: "Koordinasi Pengurus PSI Cabang Surabaya",
+    caption: "Dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     href: "/gallery",
   },
   {
@@ -148,7 +149,11 @@ export interface AgendaItem {
   date: string;
   time?: string;
   location: string;
+  /** Deskripsi singkat untuk tampilan featured event (opsional). */
+  description?: string;
   image?: string;
+  /** Jumlah views untuk tampilan featured event (opsional). */
+  views?: number;
   href?: string;
 }
 
@@ -159,6 +164,10 @@ export const upcomingAgenda: AgendaItem[] = [
     date: "12 Agustus 2026",
     time: "09.00 WIB",
     location: "Universitas Negeri Surabaya",
+    description:
+      "Kegiatan seminar nasional yang membahas perkembangan fisika terapan serta kontribusinya terhadap dunia pendidikan dan industri.",
+    image: "/assets/landing/pkm-prodi-pendidikan.jpg",
+    views: 10,
     href: "/kegiatan",
   },
   {
@@ -167,6 +176,9 @@ export const upcomingAgenda: AgendaItem[] = [
     date: "20 Agustus 2026",
     time: "13.00 WIB",
     location: "Institut Teknologi Sepuluh Nopember",
+    description:
+      "Kegiatan workshop instrumentasi laboratorium sebagai ruang berbagi pengetahuan dan pengalaman di bidang fisika.",
+    image: "/assets/landing/hero-community.jpg",
     href: "/kegiatan",
   },
   {
@@ -175,6 +187,9 @@ export const upcomingAgenda: AgendaItem[] = [
     date: "5 September 2026",
     time: "10.00 WIB",
     location: "Universitas Jember",
+    description:
+      "Diskusi ilmiah mengenai perkembangan riset material maju dan kontribusinya terhadap perkembangan ilmu fisika.",
+    image: "/assets/landing/hero-community.jpg",
     href: "/kegiatan",
   },
 ];

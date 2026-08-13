@@ -1,125 +1,186 @@
 /*
- * @Author: galhkoernia 
- * @Date: 2026-08-02 09:11:53 
- * @Last Modified by:   galhkoernia 
- * @Last Modified time: 2026-08-02 09:11:53 
+ * @Author: galhkoernia
+ * @Date: 2026-08-02 09:11:53
+ * @Last Modified by: galhkoernia
+ * @Last Modified time: 2026-08-13 12:00:00
  */
 
+"use client";
+
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Card, Container, Section, SectionHeading } from "@/components/ui/index";
+import { FaCalendarAlt } from "react-icons/fa";
+import {
+  Button,
+  Card,
+  Container,
+  Section,
+  SectionHeading,
+} from "@/components/ui";
 import { upcomingAgenda } from "./data";
 
-const FALLBACK_GRADIENTS = [
-  "from-primary-600 to-primary-800",
-  "from-primary-700 to-primary-900",
-  "from-primary-800 to-primary-950",
-];
-
 export function EventsSection() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    const track = trackRef.current;
+
+    if (!track || track.clientWidth === 0) return;
+
+    const index = Math.round(track.scrollLeft / track.clientWidth);
+
+    setActiveIndex(
+      Math.min(Math.max(index, 0), upcomingAgenda.length - 1)
+    );
+  };
+
+  const goToSlide = (index: number) => {
+    const track = trackRef.current;
+
+    if (!track) return;
+
+    track.scrollTo({
+      left: index * track.clientWidth,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <Section>
-      <Container className="flex flex-col gap-8">
-        <div className="border-t border-border pt-8">
+    <Section
+      tone="muted"
+      className="relative overflow-hidden"
+    >
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          left-1/2
+          top-1/2
+          h-64
+          w-[80%]
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          bg-primary-600/5
+          blur-3xl
+        "
+      />
+
+      <Container className="relative z-10 flex flex-col items-center gap-8">
+        <div className="text-center">
           <SectionHeading
-            eyebrow="Agenda Kegiatan"
-            title="Agenda Terdekat"
-            action={
-              <Link
-                href="/kegiatan"
-                className="text-sm font-semibold text-primary-600 hover:text-primary-700"
-              >
-                Lihat Semua Kegiatan →
-              </Link>
-            }
+            eyebrow="Kegiatan Terbaru"
+            title="Kegiatan Terbaru PSI Cabang Surabaya"
+            align="center"
           />
+
+          <div className="mx-auto mt-3 h-0.5 w-16 bg-primary-600" />
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {upcomingAgenda.map((item, index) => (
+        <div
+          ref={trackRef}
+          onScroll={handleScroll}
+          className="
+            flex w-full snap-x snap-mandatory gap-5 overflow-x-auto
+            scroll-smooth pb-1
+            sm:grid sm:snap-none sm:grid-cols-3 sm:gap-5
+            sm:overflow-visible
+            [&::-webkit-scrollbar]:hidden
+          "
+          style={{ scrollbarWidth: "none" }}
+        >
+          {upcomingAgenda.map((item) => (
             <Card
               key={item.id}
               padded={false}
-              className="flex h-full flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-lg"
+              className="
+                group
+                flex min-w-full shrink-0 snap-center flex-col
+                overflow-hidden
+                rounded-md
+                border-border/70
+                shadow-sm
+                transition-transform duration-200
+                hover:-translate-y-1
+                active:scale-[0.99]
+                sm:min-w-0
+                sm:shrink
+              "
             >
-              <div className="relative h-40 w-full">
-                {item.image ? (
+              <div className="relative h-40 w-full overflow-hidden">
+                {item.image && (
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="
+                      object-cover
+                      transition-transform duration-300
+                      group-hover:scale-[1.02]
+                    "
                   />
-                ) : (
-                  <div
-                    className={`flex h-full w-full items-center justify-center bg-linear-to-br ${
-                      FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]
-                    }`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-10 w-10 text-white/70"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
                 )}
               </div>
 
-              <div className="flex flex-1 flex-col gap-3 p-5">
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+              <div className="flex flex-1 flex-col p-4">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-primary-600">
+                  <FaCalendarAlt
+                    className="h-3 w-3"
+                    aria-hidden="true"
+                  />
                   {item.date}
-                  {item.time ? ` • ${item.time}` : ""}
                 </span>
 
-                <h3 className="text-base font-semibold leading-snug text-foreground">
+                <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 text-foreground">
                   {item.title}
                 </h3>
 
-                <div className="flex items-center gap-1.5 text-sm text-foreground-muted">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <span className="line-clamp-1">{item.location}</span>
-                </div>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-foreground-muted">
+                  {item.description ?? item.location}
+                </p>
 
                 {item.href && (
                   <Link
                     href={item.href}
-                    className="mt-auto pt-2 text-sm font-semibold text-primary-600 hover:text-primary-700"
+                    className="
+                      mt-auto pt-3
+                      text-xs font-semibold text-primary-600
+                      transition-colors hover:text-primary-700
+                    "
                   >
-                    Lihat Detail →
+                    Baca Selengkapnya →
                   </Link>
                 )}
               </div>
             </Card>
           ))}
         </div>
+
+        {upcomingAgenda.length > 1 && (
+          <div className="flex items-center gap-1.5 sm:hidden">
+            {upcomingAgenda.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => goToSlide(index)}
+                aria-label={`Kegiatan ${index + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-200 ${
+                  activeIndex === index
+                    ? "w-6 bg-primary-600"
+                    : "w-1.5 bg-border"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        <Button href="/kegiatan" size="medium">
+          Lihat Semua Kegiatan →
+        </Button>
       </Container>
     </Section>
   );

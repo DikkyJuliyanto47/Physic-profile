@@ -2,7 +2,7 @@
  * @Author: galhkoernia
  * @Date: 2026-08-02 09:04:55
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 10:00:00
+ * @Last Modified time: 2026-08-13 10:00:00
  */
 
 "use client";
@@ -72,7 +72,7 @@ export function GallerySection() {
   return (
     <Section tone="muted" padding="none" className="overflow-hidden">
       <div
-        className="relative mt-6 w-full"
+        className="relative w-full"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={handleTouchStart}
@@ -91,7 +91,7 @@ export function GallerySection() {
               {galleryItem.image ? (
                 <Image
                   src={galleryItem.image}
-                  alt={galleryItem.caption}
+                  alt={galleryItem.title ?? galleryItem.caption}
                   fill
                   priority={index === 0}
                   sizes="100vw"
@@ -109,12 +109,27 @@ export function GallerySection() {
 
           <div className="absolute inset-x-0 bottom-0 z-10">
             <Container className="pb-8 pt-16 sm:pb-10 md:pb-12">
-              <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm sm:text-sm">
-                {item.date}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm sm:text-sm">
+                  {item.date}
+                </span>
+                {item.title && (
+                  <span className="inline-block rounded-full bg-primary-600 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white sm:text-sm">
+                    Kegiatan Terkini
+                  </span>
+                )}
+              </div>
+
               <p className="mt-3 max-w-2xl text-lg font-semibold leading-snug text-white sm:text-xl md:text-2xl">
-                {item.caption}
+                {item.title ?? item.caption}
               </p>
+
+              {item.title && (
+                <p className="mt-1.5 max-w-xl line-clamp-2 text-sm leading-6 text-white/80 sm:text-base">
+                  {item.caption}
+                </p>
+              )}
+
               {item.href && (
                 <Link
                   href={item.href}

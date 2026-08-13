@@ -10,10 +10,9 @@ import {
   GallerySection,
   HeroSection,
   JoinCtaSection,
-  LatestNewsPanel,
-  StatisticsSection,
   UniversitiesSection,
-  EventsSection
+  EventsSection,
+  LatestNewsPanel,
 } from "@/components/features/home/index";
 
 export default function Page() {
@@ -22,9 +21,8 @@ export default function Page() {
       <GallerySection />
       <HeroSection />
       <AboutSection />
-      <StatisticsSection />
       <EventsSection />
-      <LatestNewsPanel />
+      <LatestNewsPanel />s
       <UniversitiesSection />
       <JoinCtaSection />
     </>

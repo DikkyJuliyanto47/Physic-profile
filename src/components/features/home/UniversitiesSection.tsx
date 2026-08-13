@@ -2,36 +2,28 @@
  * @Author: galhkoernia
  * @Date: 2026-08-02 09:16:31
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 13:00:00
+ * @Last Modified time: 2026-08-13 10:00:00
  */
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { Container, Section, SectionHeading } from "@/components/ui/index";
 import { universities } from "./data";
 
 export function UniversitiesSection() {
-  // Duplikasi list agar animasi marquee dapat berjalan.
   const track = [...universities, ...universities];
 
   return (
     <Section>
-      <Container>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <SectionHeading
-              eyebrow="PERGURUAN TINGGI"
-              title="Perguruan Tinggi Anggota"
-            />
-          </div>
+      <Container className="flex flex-col items-center gap-8">
+        <div className="text-center">
+          <SectionHeading
+            eyebrow="PERGURUAN TINGGI"
+            title="Perguruan Tinggi Anggota"
+            align="center"
+          />
 
-          <Link
-            href="/perguruan-tinggi"
-            className="shrink-0 whitespace-nowrap text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
-          >
-            Lihat Semua Perguruan Tinggi →
-          </Link>
+          <div className="mx-auto mt-3 h-0.5 w-16 bg-primary-600" />
         </div>
 
         <div className="relative mt-10 overflow-hidden">
@@ -43,15 +35,21 @@ export function UniversitiesSection() {
             {track.map((university, index) => (
               <div
                 key={`${university.id}-${index}`}
-                className="flex h-14 w-28 shrink-0 items-center justify-center grayscale transition duration-300 hover:grayscale-0 sm:h-16 sm:w-32"
+                className="flex shrink-0 items-center gap-3"
               >
-                <Image
-                  src={university.logo}
-                  alt={university.name}
-                  width={160}
-                  height={80}
-                  className="h-full w-full object-contain"
-                />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center sm:h-16 sm:w-16">
+                  <Image
+                    src={university.logo}
+                    alt={university.name}
+                    width={64}
+                    height={64}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+
+                <span className="max-w-36 text-sm font-semibold leading-tight text-foreground">
+                  {university.name}
+                </span>
               </div>
             ))}
           </div>

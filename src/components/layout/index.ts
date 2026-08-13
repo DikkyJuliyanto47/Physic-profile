@@ -5,7 +5,7 @@
  * @Last Modified time: 2026-08-01 21:55:36
  */
 
-export { PublicNavbar } from './public-navbar';
-export { PublicFooter } from './public-footer';
-export { PublicMobileNav } from './public-mobile-nav';
+export { PublicNavbar } from './PublicNavbar';
+export { PublicFooter } from './PublicFooter';
+export { PublicMobileNav } from './PublicMobileNav';
 export { BrandMark } from './BrandMark';
