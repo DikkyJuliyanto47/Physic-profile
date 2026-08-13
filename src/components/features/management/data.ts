@@ -36,11 +36,5 @@ export const managementMembers: ManagementMember[] = [
         name: "Lorem Ipsum",
         role: "Koordinator Bidang 1",
         description: "Dolor sit amet, consectur adipiscing",
-    },
-    {
-        id: "management-5",
-        name: "Lorem Ipsum",
-        role: "Koordinator Bidang 2",
-        description: "Dolor sit amet, consectur adipiscing",
     }
 ]
