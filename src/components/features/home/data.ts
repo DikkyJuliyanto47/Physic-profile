@@ -16,17 +16,17 @@ export interface HeroImage {
 export const heroImages: HeroImage[] = [
   {
     id: "hero-1",
-    src: "/assets/landing/hero-community.jpg",
+    src: "/assets/hero/pertemuan-07-27-01.jpeg",
     alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
   },
   {
     id: "hero-2",
-    src: "/assets/landing/pkm-prodi-pendidikan.jpg",
+    src: "/assets/hero/pertemuan-07-27-02.jpeg",
     alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
   },
   {
     id: "hero-3",
-    src: "/assets/landing/hero-community.jpg",
+    src: "/assets/hero/pertemuan-07-27-01.jpeg",
     alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
   },
 ];
@@ -113,7 +113,6 @@ export const statistics: Statistic[] = [
 export interface GalleryItem {
   id: string;
   date: string;
-  /** Judul singkat kegiatan (opsional). Jika tidak ada, caption dipakai sebagai judul. */
   title?: string;
   caption: string;
   image?: string;
@@ -127,18 +126,21 @@ export const galleryItems: GalleryItem[] = [
     title: "Koordinasi Pengurus PSI Cabang Surabaya",
     caption: "Dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     href: "/gallery",
+    image: "/assets/gallery/pertemuan-07-27-01.jpeg"
   },
   {
     id: "gallery-2",
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
     href: "/gallery",
+    image: "/assets/gallery/pertemuan-07-27-02.jpeg"
   },
   {
     id: "gallery-3",
     date: "27 Juli 2026",
     caption: "Dolor sit amet, consectetur adipiscing elit.",
     href: "/gallery",
+    image: "/assets/gallery/pertemuan-07-27-01.jpeg"
   },
 ];
 
@@ -149,10 +151,8 @@ export interface AgendaItem {
   date: string;
   time?: string;
   location: string;
-  /** Deskripsi singkat untuk tampilan featured event (opsional). */
   description?: string;
   image?: string;
-  /** Jumlah views untuk tampilan featured event (opsional). */
   views?: number;
   href?: string;
 }
