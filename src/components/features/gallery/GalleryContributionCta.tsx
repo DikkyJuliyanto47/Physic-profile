@@ -1,8 +1,8 @@
 /*
- * @Author: galhkoernia 
- * @Date: 2026-08-09 09:48:51 
- * @Last Modified by:   galhkoernia 
- * @Last Modified time: 2026-08-09 09:48:51 
+ * @Author: galhkoernia
+ * @Date: 2026-08-09 09:48:51
+ * @Last Modified by: galhkoernia
+ * @Last Modified time: 2026-08-13 15:00:00
  */
 
 import { Button, Container, Section } from "@/components/ui";
@@ -27,16 +27,14 @@ export function GalleryContributionCta() {
             </div>
           </div>
 
-          <div className="bg-blue-100 p-4 rounded-lg inline-block">
-            <Button
-              href="/kontak"
-              icon={<i className="fa-solid fa-arrow-right" aria-hidden="true" />}
-              iconPosition="right"
-              className="shrink-0"
-            >
-              Kirim Dokumentasi
-            </Button>
-          </div>
+          <Button
+            href="/kontak"
+            icon={<i className="fa-solid fa-arrow-right" aria-hidden="true" />}
+            iconPosition="right"
+            className="shrink-0"
+          >
+            Kirim Dokumentasi
+          </Button>
         </div>
       </Container>
     </Section>

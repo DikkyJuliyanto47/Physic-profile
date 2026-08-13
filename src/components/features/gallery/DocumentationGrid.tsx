@@ -1,23 +1,22 @@
 /*
- * @Author: galhkoernia 
- * @Date: 2026-08-09 09:48:00 
+ * @Author: galhkoernia
+ * @Date: 2026-08-09 09:48:00
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-09 10:35:12
+ * @Last Modified time: 2026-08-13 15:00:00
  */
 
 "use client";
 
 import { useMemo, useState } from "react";
-import { Container, Section } from "@/components/ui";
 import { GalleryItemCard } from "./GalleryItemCard";
 import type { DocumentationItem, DocumentationType } from "./data";
 
 type FilterValue = "all" | DocumentationType;
 
 const FILTERS: { value: FilterValue; label: string; icon: string }[] = [
-  { value: "all", label: "Semua", icon: "fa-solid fa-grip" },
-  { value: "photo", label: "Foto", icon: "fa-regular fa-image" },
-  { value: "video", label: "Video", icon: "fa-solid fa-circle-play" },
+  { value: "all", label: "Semua", icon: "fa-solid fa-list" },
+  { value: "photo", label: "Foto", icon: "fa-regular fa-folder-open" },
+  { value: "video", label: "Video", icon: "fa-solid fa-play" },
 ];
 
 interface DocumentationGridProps {
@@ -45,71 +44,62 @@ export function DocumentationGrid({ items }: DocumentationGridProps) {
   }, [items, filter, query]);
 
   return (
-    <Section>
-      <Container className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-2" role="group" aria-label="Filter tipe dokumentasi">
-            {FILTERS.map((item) => {
-              const isActive = filter === item.value;
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setFilter(item.value)}
-                  aria-pressed={isActive}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary-600 text-white"
-                      : "border border-border text-foreground-muted hover:bg-background-muted"
-                  }`}
-                >
-                  <i className={item.icon} aria-hidden="true" />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2.5">
+        <i
+          className="fa-solid fa-magnifying-glass text-foreground-muted"
+          aria-hidden="true"
+        />
+        <label htmlFor="gallery-search" className="sr-only">
+          Cari dokumentasi
+        </label>
+        <input
+          id="gallery-search"
+          type="text"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Cari Judul....."
+          className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-muted"
+        />
+      </div>
 
-          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 lg:w-80">
-            <i
-              className="fa-solid fa-magnifying-glass text-foreground-muted"
-              aria-hidden="true"
-            />
-            <label htmlFor="gallery-search" className="sr-only">
-              Cari dokumentasi
-            </label>
-            <input
-              id="gallery-search"
-              type="text"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cari kegiatan, acara, atau kata kunci..."
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-muted"
-            />
-          </div>
+      <div
+        className="flex flex-wrap items-center gap-2"
+        role="group"
+        aria-label="Filter tipe dokumentasi"
+      >
+        {FILTERS.map((item) => {
+          const isActive = filter === item.value;
+          return (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => setFilter(item.value)}
+              aria-pressed={isActive}
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                isActive
+                  ? "border-primary-200 bg-primary-100 text-primary-700"
+                  : "border-border bg-background text-foreground-muted hover:bg-background-muted"
+              }`}
+            >
+              <i className={item.icon} aria-hidden="true" />
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredItems.length > 0 ? (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {filteredItems.map((item) => (
+            <GalleryItemCard key={item.id} item={item} />
+          ))}
         </div>
-
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="text-base font-semibold text-foreground">
-            Dokumentasi Terbaru
-          </span>
-          <span className="text-sm font-semibold text-primary-600">
-            Lihat semua
-          </span>
-        </div>
-
-        {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredItems.map((item) => (
-              <GalleryItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-foreground-muted">
-            Tidak ada dokumentasi yang cocok dengan pencarian.
-          </p>
-        )}
-      </Container>
-    </Section>
+      ) : (
+        <p className="text-sm text-foreground-muted">
+          Tidak ada dokumentasi yang cocok dengan pencarian.
+        </p>
+      )}
+    </div>
   );
 }
