@@ -25,10 +25,16 @@ export function AboutSection() {
             </div>
 
             <p className="mt-6 max-w-2xl text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">
-              Physical Society of Indonesia Cabang Surabaya merupakan wadah
-              kolaborasi akademisi, peneliti, dan pendidik fisika untuk
-              membangun jejaring keilmuan serta mendorong perkembangan
-              pendidikan dan penelitian fisika.
+                PSI Cabang Surabaya merupakan bagian dari Physical Society of Indonesia (PSI)
+                yang menjadi wadah bagi insan fisika di wilayah Surabaya dan sekitarnya untuk
+                membangun komunikasi, kolaborasi, serta pengembangan ilmu dan pendidikan
+                fisika.
+                <br />
+                <br />
+                Melalui berbagai kegiatan akademik dan keorganisasian, PSI Cabang Surabaya
+                berupaya memperkuat jejaring antaranggota dan perguruan tinggi serta mendorong
+                kontribusi insan fisika bagi perkembangan pendidikan, penelitian, dan
+                masyarakat.
             </p>
 
             <div className="mt-8">
@@ -36,7 +42,7 @@ export function AboutSection() {
                 href="/tentang"
                 variant="outline"
                 size="large"
-                className="border-border px-6 py-3.5 text-base sm:px-7 sm:py-4 sm:text-lg"
+                className="border border-gray-400"
               >
                 Selengkapnya →
               </Button>

@@ -15,7 +15,6 @@ import {
 } from "@/components/features/news";
 import {
   DocumentationGrid,
-  GalleryCategorySection,
   GalleryContributionCta,
 } from "@/components/features/gallery";
 import { documentationItems } from "@/components/features/gallery/data";
@@ -59,7 +58,6 @@ export default function GaleriPage() {
         </Container>
       </Section>
 
-      <GalleryCategorySection />
       <GalleryContributionCta />
       <JoinCtaSection />
     </>

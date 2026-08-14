@@ -19,7 +19,7 @@ export function LocationSection() {
 
         <div className="flex flex-col gap-1">
           <h3 className="text-2xl font-bold text-foreground sm:text-3xl">
-            Lokasi Sekretariat
+            Lokasi
           </h3>
           <span className="text-base font-semibold text-foreground">
             {secretariat.name}

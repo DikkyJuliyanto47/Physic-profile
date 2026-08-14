@@ -15,7 +15,15 @@ import {
   latestNews,
 } from "@/components/features/news";
 
-export default function Page() {
+interface MembersPageProps {
+  searchParams: Promise<{
+    q?: string;
+  }>;
+}
+
+export default async function Page({ searchParams }: MembersPageProps) {
+  const { q = "" } = await searchParams;
+
   return (
     <>
       <Section padding="compact">
@@ -44,7 +52,7 @@ export default function Page() {
                 </p>
               </div>
 
-              <MembersSection />
+              <MembersSection query={q} />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">

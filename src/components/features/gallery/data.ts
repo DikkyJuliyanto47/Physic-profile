@@ -10,76 +10,49 @@ export interface GalleryStats {
     totalVideos: number;
 };
 
-export const galleryStats: GalleryStats = {
-    totalPhotos: 48,
-    totalVideos: 12,
-};
 
 export type DocumentationType = "photo" | "video";
 
 export interface DocumentationItem {
-    id: string;
-    type: DocumentationType;
-    countLabel: string;
-    date: string;
-    title: string;
-    location: string;
-    href: string;
+  id: string;
+  type: "photo" | "video";
+  image: string;
+  countLabel: string;
+  date: string;
+  title: string;
+  location: string;
+  href: string;
 }
 
 export const documentationItems: DocumentationItem[] = [
   {
     id: "doc-1",
     type: "photo",
-    countLabel: "12 Foto",
-    date: "27 Juli 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
-    location: "Surabaya",
-    href: "/galeri",
-  },
-  {
-    id: "doc-2",
-    type: "video",
-    countLabel: "18:42",
-    date: "14 Juni 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
+    image: "/assets/gallery/pertemuan-07-27-01.jpeg",
+    countLabel: "1 Foto",
+    date: "27 Juli 2025",
+    title: "Pertemuan Rutin PSI Cabang Surabaya",
     location: "Surabaya",
     href: "/galeri",
   },
   {
     id: "doc-3",
     type: "photo",
-    countLabel: "9 Foto",
-    date: "02 Mei 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
+    image: "/assets/gallery/pertemuan-07-27-02.jpeg",
+    countLabel: "1 Foto",
+    date: "24 November 2025",
+    title: "Pertemuan Rutin PSI Cabang Surabaya",
     location: "Surabaya",
     href: "/galeri",
   },
   {
-    id: "doc-4",
+    id: "doc-3",
     type: "photo",
-    countLabel: "15 Foto",
-    date: "20 April 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
-    location: "Sidoarjo",
-    href: "/galeri",
-  },
-  {
-    id: "doc-5",
-    type: "video",
-    countLabel: "09:15",
-    date: "11 Maret 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
+    image: "/assets/gallery/pertemuan-07-27-03.jpeg",
+    countLabel: "1 Foto",
+    date: "24 November 2025",
+    title: "Pertemuan Rutin PSI Cabang Surabaya",
     location: "Surabaya",
-    href: "/galeri",
-  },
-  {
-    id: "doc-6",
-    type: "photo",
-    countLabel: "20 Foto",
-    date: "25 Januari 2026",
-    title: "Lorem Ipsum Dolor Sit Amet",
-    location: "Malang",
     href: "/galeri",
   },
 ];

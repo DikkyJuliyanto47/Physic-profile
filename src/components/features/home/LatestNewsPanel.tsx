@@ -30,14 +30,17 @@ export function LatestNewsPanel() {
           <div className="mx-auto mt-3 h-0.5 w-16 bg-primary-600" />
         </div>
 
-        <div className="grid w-full max-w-5xl gap-5 sm:grid-cols-3">
-          {latestNews.map((item) => (
+        <div
+          className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 scrollbar-none [-ms-overflow-style:none] sm:flex-wrap sm:justify-center sm:snap-none sm:overflow-visible [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {latestNews.slice(0, 3).map((item) => (
             <Card
               key={item.id}
               padded={false}
               className="
                 group
-                flex h-full min-h-120 flex-col
+                flex min-h-120 w-full min-w-0 basis-full shrink-0 snap-center flex-col
                 overflow-hidden
                 rounded-md
                 border-border/70
@@ -45,6 +48,10 @@ export function LatestNewsPanel() {
                 transition-transform duration-200
                 hover:-translate-y-1
                 active:scale-[0.99]
+                sm:basis-75
+                sm:max-w-75
+                sm:flex-none
+                sm:justify-center
               "
             >
               <div className="relative h-52 w-full shrink-0 overflow-hidden">
@@ -94,7 +101,7 @@ export function LatestNewsPanel() {
 
         <Button 
           href="/berita" size="medium">
-          Lihat Lainnya →
+          Lihat Informasi Lainnya →
         </Button>
       </Container>
     </Section>

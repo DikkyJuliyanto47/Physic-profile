@@ -17,17 +17,17 @@ export const heroImages: HeroImage[] = [
   {
     id: "hero-1",
     src: "/assets/hero/pertemuan-07-27-01.jpeg",
-    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
   },
   {
     id: "hero-2",
     src: "/assets/hero/pertemuan-07-27-02.jpeg",
-    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
   },
   {
     id: "hero-3",
-    src: "/assets/hero/pertemuan-07-27-01.jpeg",
-    alt: "Kegiatan komunitas Physical Society of Indonesia Surabaya",
+    src: "/assets/hero/pertemuan-07-27-02.jpeg",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
   },
 ];
 
@@ -44,31 +44,22 @@ export interface NewsItem {
 export const latestNews: NewsItem[] = [
   {
     id: "news-1",
-    title: "Seminar Nasional Fisika Terapan",
-    date: "12 Agustus 2026",
+    title: "Penyelarasan Kurikulum: Asesmen OBE",
+    date: "29 Juli 2025",
     excerpt:
-      "Informasi dan persiapan kegiatan Seminar Nasional Fisika Terapan yang akan diselenggarakan bersama komunitas fisika.",
-    image: "/assets/landing/pkm-prodi-pendidikan.jpg",
+      "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya",
+    image: "/assets/activity/penyelarasan-kurikulum.jpeg",
     href: "/berita",
   },
   {
     id: "news-2",
-    title: "Workshop Instrumentasi Laboratorium",
-    date: "20 Agustus 2026",
+    title: "Pertemuan Rutin Anggota Physical Society of Indonesia",
+    date: "24 November 2025",
     excerpt:
-      "Kegiatan workshop instrumentasi laboratorium sebagai ruang berbagi pengetahuan dan pengalaman di bidang fisika.",
-    image: "/assets/landing/hero-community.jpg",
+      "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya",
+    image: "/assets/news/pertemuan-07-27-01.jpeg",
     href: "/berita",
-  },
-  {
-    id: "news-3",
-    title: "Diskusi Ilmiah Riset Material Maju",
-    date: "5 September 2026",
-    excerpt:
-      "Diskusi ilmiah mengenai perkembangan riset material maju dan kontribusinya terhadap perkembangan ilmu fisika.",
-    image: "/assets/landing/hero-community.jpg",
-    href: "/berita",
-  },
+  }
 ];
 
 // Data untuk About
@@ -122,25 +113,27 @@ export interface GalleryItem {
 export const galleryItems: GalleryItem[] = [
   {
     id: "gallery-1",
-    date: "27 Juli 2026",
-    title: "Koordinasi Pengurus PSI Cabang Surabaya",
-    caption: "Dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    date: "24 November 2026",
+    title: "Pertemuan Rutin PSI",
+    caption: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
     href: "/gallery",
     image: "/assets/gallery/pertemuan-07-27-01.jpeg"
   },
   {
     id: "gallery-2",
-    date: "27 Juli 2026",
-    caption: "Dolor sit amet, consectetur adipiscing elit.",
+    date: "24 November 2026",
+    title: "Pertemuan Rutin PSI",
+    caption: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
     href: "/gallery",
     image: "/assets/gallery/pertemuan-07-27-02.jpeg"
   },
   {
     id: "gallery-3",
-    date: "27 Juli 2026",
-    caption: "Dolor sit amet, consectetur adipiscing elit.",
+    date: "24 November 2026",
+    title: "Pertemuan Rutin PSI",
+    caption: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
     href: "/gallery",
-    image: "/assets/gallery/pertemuan-07-27-01.jpeg"
+    image: "/assets/gallery/pertemuan-07-27-03.jpeg"
   },
 ];
 
@@ -160,36 +153,26 @@ export interface AgendaItem {
 export const upcomingAgenda: AgendaItem[] = [
   {
     id: "agenda-1",
-    title: "Seminar Nasional Fisika Terapan",
-    date: "12 Agustus 2026",
-    time: "09.00 WIB",
-    location: "Universitas Negeri Surabaya",
+    title: "Penyelerasan Kurikulum: Asesmen OBE",
+    date: "29 Juli 2025",
+    time: "09.30 - 12.30 WIB",
+    location: "Ruang Meeting Rumpun Fisika, Gedung C3 Lantai 1, Universitas Negeri Surabaya",
     description:
-      "Kegiatan seminar nasional yang membahas perkembangan fisika terapan serta kontribusinya terhadap dunia pendidikan dan industri.",
-    image: "/assets/landing/pkm-prodi-pendidikan.jpg",
+      "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya.",
+    image: "/assets/activity/penyelarasan-kurikulum.jpeg",
     views: 10,
     href: "/kegiatan",
   },
   {
     id: "agenda-2",
-    title: "Workshop Instrumentasi Laboratorium",
-    date: "20 Agustus 2026",
-    time: "13.00 WIB",
-    location: "Institut Teknologi Sepuluh Nopember",
+    title: "Pertemuan Rutin PSI",
+    date: "24 November 2025",
+    time: "09.30 - 12.30 WIB",
+    location: "Universitas Airlangga",
     description:
-      "Kegiatan workshop instrumentasi laboratorium sebagai ruang berbagi pengetahuan dan pengalaman di bidang fisika.",
-    image: "/assets/landing/hero-community.jpg",
-    href: "/kegiatan",
-  },
-  {
-    id: "agenda-3",
-    title: "Diskusi Ilmiah Riset Material Maju",
-    date: "5 September 2026",
-    time: "10.00 WIB",
-    location: "Universitas Jember",
-    description:
-      "Diskusi ilmiah mengenai perkembangan riset material maju dan kontribusinya terhadap perkembangan ilmu fisika.",
-    image: "/assets/landing/hero-community.jpg",
+      "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya.",
+    image: "/assets/activity/pertemuan-07-27-01.jpeg",
+    views: 10,
     href: "/kegiatan",
   },
 ];

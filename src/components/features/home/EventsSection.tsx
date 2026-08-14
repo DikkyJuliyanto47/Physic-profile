@@ -85,29 +85,24 @@ export function EventsSection() {
           onScroll={handleScroll}
           className="
             flex w-full snap-x snap-mandatory gap-5 overflow-x-auto
-            scroll-smooth pb-1
-            sm:grid sm:snap-none sm:grid-cols-3 sm:gap-5
-            sm:overflow-visible
-            [&::-webkit-scrollbar]:hidden
+            scroll-smooth pb-1 scrollbar-none
+            [-ms-overflow-style:none] sm:flex-wrap sm:justify-center
+            sm:snap-none sm:overflow-visible [&::-webkit-scrollbar]:hidden
           "
           style={{ scrollbarWidth: "none" }}
         >
-          {upcomingAgenda.map((item) => (
+          {upcomingAgenda.slice(0, 3).map((item) => (
             <Card
               key={item.id}
               padded={false}
               className="
                 group
-                flex min-w-full shrink-0 snap-center flex-col
-                overflow-hidden
-                rounded-md
-                border-border/70
-                shadow-sm
+                flex w-full min-w-0 basis-full shrink-0 snap-center flex-col
+                overflow-hidden rounded-md
+                border-border/70 shadow-sm
                 transition-transform duration-200
-                hover:-translate-y-1
-                active:scale-[0.99]
-                sm:min-w-0
-                sm:shrink
+                hover:-translate-y-1 active:scale-[0.99]
+                sm:basis-75 sm:max-w-75 sm:flex-none
               "
             >
               <div className="relative h-40 w-full overflow-hidden">
