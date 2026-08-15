@@ -1,21 +1,48 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  MOCK_AUTH_USER,
+  clearMockAuthCookie,
+  isMockAuthEnabled,
+} from "@/lib/mock-auth";
 
 export function AdminTopbar() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMockMode = isMockAuthEnabled();
 
-  const user = session?.user;
+  const user = session?.user ?? (isMockMode ? MOCK_AUTH_USER : undefined);
+
+  async function handleLogout() {
+    if (isMockMode) {
+      clearMockAuthCookie();
+      router.push("/login");
+      router.refresh();
+      return;
+    }
+
+    await signOut({ callbackUrl: "/login" });
+  }
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-neutral-200 bg-white px-4 sm:px-6 lg:px-8">
-      <div className="lg:hidden">
+      <div className="flex items-center gap-3 lg:hidden">
         <span className="text-sm font-bold text-primary-900">PSI Surabaya</span>
       </div>
 
       <div className="flex-1" />
+
+      {isMockMode && (
+        <div className="hidden items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700 sm:flex">
+          <span className="h-2 w-2 rounded-full bg-amber-500" />
+          <span>TEST MODE</span>
+          <span className="text-amber-600">Admin PSI</span>
+        </div>
+      )}
 
       <div className="relative">
         <button
@@ -62,7 +89,7 @@ export function AdminTopbar() {
                 <p className="text-xs text-neutral-500">{user?.email}</p>
               </div>
               <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={handleLogout}
                 className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
               >
                 <svg

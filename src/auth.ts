@@ -1,15 +1,16 @@
+import { cookies } from "next/headers";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
+import {
+  MOCK_AUTH_USER,
+  hasMockAuthCookieStore,
+  isMockAuthEnabled,
+} from "@/lib/mock-auth";
 
-export const {
-  handlers,
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
+const nextAuth = NextAuth({
   ...authConfig,
   secret: process.env.AUTH_SECRET,
   session: { strategy: "jwt" },
@@ -68,3 +69,24 @@ export const {
     },
   },
 });
+
+export const { handlers, signIn, signOut } = nextAuth;
+
+export async function auth() {
+  const session = await nextAuth.auth();
+
+  if (session || !isMockAuthEnabled()) {
+    return session;
+  }
+
+  const cookieStore = await cookies();
+
+  if (hasMockAuthCookieStore(cookieStore)) {
+    return {
+      user: { ...MOCK_AUTH_USER },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    };
+  }
+
+  return null;
+}
