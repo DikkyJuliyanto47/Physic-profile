@@ -22,7 +22,7 @@ export default function Page() {
       <HeroSection />
       <AboutSection />
       <EventsSection />
-      <LatestNewsPanel />s
+      <LatestNewsPanel />
       <UniversitiesSection />
       <JoinCtaSection />
     </>

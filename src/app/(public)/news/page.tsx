@@ -11,10 +11,12 @@ import {
   LatestNewsWidget,
   AgendaWidget,
   CategoryWidget,
-  latestNews,
+  getLatestNews,
 } from "@/components/features/news";
 
-export default function BeritaPage() {
+export default async function BeritaPage() {
+  const latestNews = await getLatestNews();
+
   return (
     <Section className="pt-10 lg:pt-12">
       <Container>

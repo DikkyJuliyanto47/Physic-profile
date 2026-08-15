@@ -11,5 +11,5 @@ export { SidebarSection } from "./SidebarSection";
 export { LatestNewsWidget } from "./LatestNewsWidget";
 export { AgendaWidget } from "./AgendaWidget";
 export { CategoryWidget } from "./CategoryWidget";
-export { latestNews } from "./data";
+export { getLatestNews } from "./data";
 export type { NewsItem } from "./data";

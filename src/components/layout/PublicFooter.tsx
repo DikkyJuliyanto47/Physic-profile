@@ -53,7 +53,7 @@ export function PublicFooter() {
           </p>
         </div>
 
-        <FooterColumn title="Tentang" items={footerNav.tentang} />
+        <FooterColumn title="Tentang" items={footerNav.about} />
         <FooterColumn title="Jelajahi" items={footerNav.jelajahi} />
 
         <div className="flex flex-col gap-4">

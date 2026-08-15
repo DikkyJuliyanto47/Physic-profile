@@ -17,6 +17,7 @@ export type UniversityInput = {
   shortName?: string;
   slug?: string;
   address?: string;
+  deptUrl?: string;
   websiteUrl?: string;
   logoUrl?: string;
   description?: string;
@@ -54,12 +55,14 @@ export async function createUniversity(
         slug,
         shortName: data.shortName?.trim() || null,
         address: data.address?.trim() || null,
+        deptUrl: data.deptUrl?.trim() || null,
         websiteUrl: data.websiteUrl?.trim() || null,
         logoUrl: data.logoUrl?.trim() || null,
         description: data.description?.trim() || null,
       },
     });
 
+    revalidatePath("/admin/perguruan-tinggi");
     revalidatePath("/admin/universities");
     return { success: true };
   } catch {
@@ -99,13 +102,16 @@ export async function updateUniversity(
         slug,
         shortName: data.shortName?.trim() || null,
         address: data.address?.trim() || null,
+        deptUrl: data.deptUrl?.trim() || null,
         websiteUrl: data.websiteUrl?.trim() || null,
         logoUrl: data.logoUrl?.trim() || null,
         description: data.description?.trim() || null,
       },
     });
 
+    revalidatePath("/admin/perguruan-tinggi");
     revalidatePath("/admin/universities");
+    revalidatePath(`/admin/perguruan-tinggi/${id}/edit`);
     revalidatePath(`/admin/universities/${id}/edit`);
     return { success: true };
   } catch {
@@ -133,6 +139,7 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
 
     await prisma.university.delete({ where: { id } });
 
+    revalidatePath("/admin/perguruan-tinggi");
     revalidatePath("/admin/universities");
     return { success: true };
   } catch {

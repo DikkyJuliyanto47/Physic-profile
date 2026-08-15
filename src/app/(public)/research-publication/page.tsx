@@ -1,21 +1,24 @@
+// page.tsx
 /*
  * @Author: galhkoernia
- * @Date: 2026-08-08 08:16:48
+ * @Date: 2026-08-08 11:05:21
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:00:00
+ * @Last Modified time: 2026-08-13 15:20:00
  */
 
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
-import { ManagementSection } from "@/components/features/management";
+import { ResearchPublicationSection } from "@/components/features/research";
 import { JoinCtaSection } from "@/components/features/home";
 import {
   LatestNewsWidget,
   AgendaWidget,
   CategoryWidget,
-  latestNews,
+  getLatestNews,
 } from "@/components/features/news";
 
-export default function Page() {
+export default async function RisetPublikasiPage() {
+  const latestNews = await getLatestNews();
+
   return (
     <>
       <Section padding="compact">
@@ -25,27 +28,26 @@ export default function Page() {
               <PageBreadcrumb
                 items={[
                   { label: "Beranda", href: "/" },
-                  { label: "Kepengurusan" },
+                  { label: "Penelitian & Publikasi" },
                 ]}
               />
 
               <div className="max-w-3xl">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  PENGURUS PSI CABANG SURABAYA
+                  PENELITIAN & PUBLIKASI
                 </p>
 
                 <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                  Pengurus PSI Cabang Surabaya
+                  Pusat Penelitian dan Publikasi
                 </h1>
 
                 <p className="mt-5 text-lg leading-8 text-foreground-muted">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Vestibulum ac diam sit amet quam vehicula elementum sed sit
-                  amet dui.
+                  Pusat informasi penelitian, publikasi ilmiah, HKI, buku,
+                  prosiding, dan kolaborasi penelitian anggota PSI.
                 </p>
               </div>
 
-              <ManagementSection />
+              <ResearchPublicationSection />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">

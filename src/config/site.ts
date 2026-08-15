@@ -16,23 +16,23 @@ export const siteConfig = {
 
 export const publicNav: NavItem[] = [
   { label: "Beranda", href: "/" },
-  { label: "Tentang Kami", href: "/tentang" },
-  { label: "Kepengurusan", href: "/kepengurusan" },
-  { label: "Anggota", href: "/anggota" },
-  { label: "Riset & Publikasi", href: "/riset-publikasi" },
-  { label: "Galeri", href: "/galeri" },
+  { label: "Tentang Kami", href: "/about" },
+  { label: "Kepengurusan", href: "/managements" },
+  { label: "Anggota", href: "/members" },
+  { label: "Riset & Publikasi", href: "/research-publication" },
+  { label: "Galeri", href: "/gallery" },
 ];
 
-export const footerNav: Record<"tentang" | "jelajahi", NavItem[]> = {
-  tentang: [
-    { label: "Sejarah PSI", href: "/tentang" },
-    { label: "Visi & Misi", href: "/tentang" },
-    { label: "Kepengurusan", href: "kepengurusan" },
+export const footerNav: Record<"about" | "jelajahi", NavItem[]> = {
+  about: [
+    { label: "Sejarah PSI", href: "/about" },
+    { label: "Visi & Misi", href: "/about" },
+    { label: "Kepengurusan", href: "/managements" },
   ],
   jelajahi: [
-    { label: "Direktori Anggota", href: "/anggota" },
-    { label: "Perguruan Tinggi", href: "/perguruan-tinggi" },
-    { label: "Berita & Agenda", href: "/berita" },
+    { label: "Direktori Anggota", href: "/members" },
+    { label: "Perguruan Tinggi", href: "/research-publication" },
+    { label: "Berita & Agenda", href: "/news" },
   ],
 };
 

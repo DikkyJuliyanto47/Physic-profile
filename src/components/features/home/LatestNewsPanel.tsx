@@ -14,9 +14,11 @@ import {
   Section,
   SectionHeading,
 } from "@/components/ui";
-import { latestNews } from "./data";
+import { getLatestNews } from "@/components/features/news";
 
-export function LatestNewsPanel() {
+export async function LatestNewsPanel() {
+  const latestNews = await getLatestNews(3);
+
   return (
     <Section padding="compact">
       <Container className="flex flex-col items-center gap-8">
@@ -34,7 +36,7 @@ export function LatestNewsPanel() {
           className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 scrollbar-none [-ms-overflow-style:none] sm:flex-wrap sm:justify-center sm:snap-none sm:overflow-visible [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none" }}
         >
-          {latestNews.slice(0, 3).map((item) => (
+          {latestNews.map((item) => (
             <Card
               key={item.id}
               padded={false}
@@ -99,8 +101,7 @@ export function LatestNewsPanel() {
           ))}
         </div>
 
-        <Button 
-          href="/berita" size="medium">
+        <Button href="/berita" size="medium">
           Lihat Informasi Lainnya →
         </Button>
       </Container>

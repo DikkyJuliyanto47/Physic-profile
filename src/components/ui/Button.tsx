@@ -99,15 +99,15 @@ export function Button(props: ButtonProps) {
     );
 
     if (isLinkButton(props)) {
-        const { href, target, rel, ...anchorRest } = props;
+        const { href, target, rel, icon, iconPosition, variant, size, fullWidth, className: _, ...anchorRest } = props;
 
         return (
             <Link
             href={href}
             target={target}
             rel={rel}
-            {...anchorRest}
             className={classes}
+            {...anchorRest}
             >
             {content}
             </Link>

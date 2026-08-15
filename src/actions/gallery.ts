@@ -19,7 +19,7 @@ export type ActionResponse = {
   error?: string;
 };
 
-export async function createGalleryItem(
+export async function createGallery(
   data: GalleryInput
 ): Promise<ActionResponse> {
   try {
@@ -42,6 +42,7 @@ export async function createGalleryItem(
       },
     });
 
+    revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
     return { success: true };
   } catch {
@@ -52,7 +53,7 @@ export async function createGalleryItem(
   }
 }
 
-export async function updateGalleryItem(
+export async function updateGallery(
   id: string,
   data: GalleryInput
 ): Promise<ActionResponse> {
@@ -82,7 +83,9 @@ export async function updateGalleryItem(
       },
     });
 
+    revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
+    revalidatePath(`/admin/galeri/${id}/edit`);
     revalidatePath(`/admin/gallery/${id}/edit`);
     return { success: true };
   } catch {
@@ -90,7 +93,7 @@ export async function updateGalleryItem(
   }
 }
 
-export async function deleteGalleryItem(
+export async function deleteGallery(
   id: string
 ): Promise<ActionResponse> {
   try {
@@ -100,9 +103,14 @@ export async function deleteGalleryItem(
     }
 
     await prisma.gallery.delete({ where: { id } });
+    revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus item galeri." };
   }
 }
+
+export const createGalleryItem = createGallery;
+export const updateGalleryItem = updateGallery;
+export const deleteGalleryItem = deleteGallery;

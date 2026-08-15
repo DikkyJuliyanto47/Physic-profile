@@ -1,22 +1,30 @@
-// page.tsx
 /*
  * @Author: galhkoernia
- * @Date: 2026-08-08 11:05:21
+ * @Date: 2026-08-08 09:24:00
  * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:20:00
+ * @Last Modified time: 2026-08-13 15:00:00
  */
 
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
-import { ResearchPublicationSection } from "@/components/features/research";
+import { MembersSection } from "@/components/features/members";
 import { JoinCtaSection } from "@/components/features/home";
 import {
   LatestNewsWidget,
   AgendaWidget,
   CategoryWidget,
-  latestNews,
+  getLatestNews,
 } from "@/components/features/news";
 
-export default function RisetPublikasiPage() {
+interface MembersPageProps {
+  searchParams: Promise<{
+    q?: string;
+  }>;
+}
+
+export default async function Page({ searchParams }: MembersPageProps) {
+  const { q = "" } = await searchParams;
+  const latestNews = await getLatestNews();
+
   return (
     <>
       <Section padding="compact">
@@ -26,26 +34,26 @@ export default function RisetPublikasiPage() {
               <PageBreadcrumb
                 items={[
                   { label: "Beranda", href: "/" },
-                  { label: "Penelitian & Publikasi" },
+                  { label: "Anggota" },
                 ]}
               />
 
               <div className="max-w-3xl">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  PENELITIAN & PUBLIKASI
+                  ANGGOTA PSI CABANG SURABAYA
                 </p>
 
                 <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                  Pusat Penelitian dan Publikasi
+                  Direktori Anggota PSI Cabang Surabaya
                 </h1>
 
                 <p className="mt-5 text-lg leading-8 text-foreground-muted">
-                  Pusat informasi penelitian, publikasi ilmiah, HKI, buku,
-                  prosiding, dan kolaborasi penelitian anggota PSI.
+                  Temukan anggota PSI Cabang Surabaya berdasarkan perguruan tinggi
+                  dan bidang keahlian.
                 </p>
               </div>
 
-              <ResearchPublicationSection />
+              <MembersSection query={q} />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">
