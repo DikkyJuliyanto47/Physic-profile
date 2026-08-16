@@ -80,9 +80,8 @@ export default async function GaleriPage() {
                 </h1>
 
                 <p className="mt-5 text-lg leading-8 text-foreground-muted">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  do eiusmod tempor incididunt ut labore et dolore magna
-                  aliqua.
+                  Rekam jejak kegiatan, pertemuan, dan kolaborasi PSI Cabang
+                  Surabaya bersama anggota serta mitra organisasi.
                 </p>
               </div>
 

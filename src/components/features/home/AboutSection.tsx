@@ -39,7 +39,7 @@ export function AboutSection() {
 
             <div className="mt-8">
               <Button
-                href="/tentang"
+                href="/about"
                 variant="outline"
                 size="large"
                 className="border border-gray-400"

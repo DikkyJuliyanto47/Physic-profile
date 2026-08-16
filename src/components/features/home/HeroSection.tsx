@@ -51,11 +51,11 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Button href="/kontak" size="large" icon={<FaUserPlus />} iconPosition="right">
+            <Button href="/contact" size="large" icon={<FaUserPlus />} iconPosition="right">
               Gabung sebagai anggota
             </Button>
 
-            <Button href="/tentang" variant="outline" size="large">
+            <Button href="/about" variant="outline" size="large">
               Pelajari Lebih Lanjut →
             </Button>
           </div>

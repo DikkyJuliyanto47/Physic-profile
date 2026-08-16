@@ -10,7 +10,6 @@ export { AboutSection } from "./AboutSection";
 export { EventsSection } from "./EventsSection";
 export { HeroSection } from "./HeroSection";
 export { JoinCtaSection } from "./JoinCtaSection";
-export { MembersSection } from "./MembersSection";
 export { StatisticsSection } from "./StatisticsSection";
 export { UniversitiesSection } from "./UniversitiesSection";
 export { LatestNewsPanel } from "./LatestNewsPanel";

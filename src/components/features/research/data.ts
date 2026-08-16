@@ -47,14 +47,14 @@ export interface Journal {
   url: string;
 }
 
-export type PublicationCategory = "buku" | "hki" | "jurnal" | "prosiding";
+export type PublicationCategory = "BUKU" | "HKI" | "JURNAL" | "PROSIDING";
 
 export interface Publication {
   id: string;
   category: PublicationCategory;
   title: string;
   meta: string[];
-  href: string;
+  href: string | null;
 }
 
 export const RESEARCH_STATS: ResearchStat[] = [
@@ -178,48 +178,10 @@ export const JOURNALS: Journal[] = [
   },
 ];
 
-export const PUBLICATIONS: Publication[] = [
-  {
-    id: "fisika-material-modern",
-    category: "buku",
-    title: "Fisika Material Modern",
-    meta: ["Penulis: Dr. Budi Santoso", "2025"],
-    href: "/research-publication",
-  },
-  {
-    id: "alat-ukur-medan-magnet",
-    category: "hki",
-    title: "Alat Ukur Medan Magnet Berbasis IoT",
-    meta: ["No. ID/0000/123456", "2025"],
-    href: "/research-publication",
-  },
-  {
-    id: "thin-film-properties",
-    category: "jurnal",
-    title: "Analysis of Thin Film Properties Using XRD",
-    meta: ["Surabaya Physics Journal", "Vol. 8 No. 1 (2025)"],
-    href: "/research-publication",
-  },
-  {
-    id: "icsp-2024",
-    category: "prosiding",
-    title: "Proceedings of the 2nd Surabaya Physics Symposium",
-    meta: ["ICSP 2024", "2024"],
-    href: "/research-publication",
-  },
-  {
-    id: "physics-ar",
-    category: "jurnal",
-    title: "Physics Learning with Augmented Reality",
-    meta: ["JPFI Vol. 7 No. 2 (2024)"],
-    href: "/research-publication",
-  },
-];
-
 export const PUBLICATION_FILTERS: { id: "semua" | PublicationCategory; label: string }[] = [
   { id: "semua", label: "Semua" },
-  { id: "buku", label: "Buku" },
-  { id: "hki", label: "HKI" },
-  { id: "jurnal", label: "Jurnal" },
-  { id: "prosiding", label: "Prosiding" },
+  { id: "BUKU", label: "Buku" },
+  { id: "HKI", label: "HKI" },
+  { id: "JURNAL", label: "Jurnal" },
+  { id: "PROSIDING", label: "Prosiding" },
 ];

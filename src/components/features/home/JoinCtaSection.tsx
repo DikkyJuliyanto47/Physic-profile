@@ -17,7 +17,7 @@ export function JoinCtaSection() {
         <p className="max-w-2xl text-white/80">
           Bergabunglah untuk mendapatkan informasi kegiatan, kesempatan kolaborasi, dan update komunitas.
         </p>
-        <Button href="/kontak" variant="white">
+        <Button href="/contact" variant="white">
           Daftar sebagai Anggota
         </Button>
       </Container>

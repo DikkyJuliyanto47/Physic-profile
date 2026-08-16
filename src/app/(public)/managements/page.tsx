@@ -85,9 +85,8 @@ export default async function Page() {
                 </h1>
 
                 <p className="mt-5 text-lg leading-8 text-foreground-muted">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Vestibulum ac diam sit amet quam vehicula elementum sed sit
-                  amet dui.
+                  Struktur pengurus yang menjalankan program kerja dan
+                  pelayanan organisasi PSI Cabang Surabaya pada periode aktif.
                 </p>
               </div>
 

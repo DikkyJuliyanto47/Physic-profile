@@ -15,9 +15,34 @@ import {
   CategoryWidget,
   getLatestNews,
 } from "@/components/features/news";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+function formatPublishedAt(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", { year: "numeric" }).format(date);
+}
 
 export default async function RisetPublikasiPage() {
-  const latestNews = await getLatestNews();
+  const now = new Date();
+  const [latestNews, publications] = await Promise.all([
+    getLatestNews(),
+    prisma.publication.findMany({
+      where: { publishedAt: { not: null, lte: now } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    }),
+  ]);
+
+  const publicationItems = publications.map((publication) => ({
+    id: publication.id,
+    category: publication.type,
+    title: publication.title,
+    meta: [
+      publication.description,
+      publication.publishedAt ? formatPublishedAt(publication.publishedAt) : null,
+    ].filter((item): item is string => Boolean(item)),
+    href: publication.externalUrl ?? publication.fileUrl,
+  }));
 
   return (
     <>
@@ -47,7 +72,7 @@ export default async function RisetPublikasiPage() {
                 </p>
               </div>
 
-              <ResearchPublicationSection />
+              <ResearchPublicationSection publications={publicationItems} />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">

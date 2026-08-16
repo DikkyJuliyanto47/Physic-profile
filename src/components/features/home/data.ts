@@ -5,8 +5,6 @@
  * @Last Modified time: 2026-08-13 10:00:00
  */
 
-// PlaceHolder data LandingPage
-
 export interface HeroImage {
   id: string;
   src: string;
@@ -29,30 +27,6 @@ export const heroImages: HeroImage[] = [
     src: "/assets/hero/pertemuan-07-27-02.jpeg",
     alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
   },
-];
-
-// Data untuk About
-export interface AboutHighlight {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export interface GalleryImage {
-  id: number;
-  label: string;
-}
-
-export const aboutHighlights: AboutHighlight[] = [
-  { id: "highlight-1", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-  { id: "highlight-2", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-  { id: "highlight-3", title: "Lorem Ipsum", description: "Lorem ipsum dolor sit amet, consectetur." },
-];
-
-export const galleryImages: GalleryImage[] = [
-  { id: 1, label: "Gambar 1" },
-  { id: 2, label: "Gambar 2" },
-  { id: 3, label: "Gambar 3" },
 ];
 
 // Data untuk Statistic
@@ -145,22 +119,6 @@ export const upcomingAgenda: AgendaItem[] = [
     href: "/agenda",
   },
 ];
-
-// Data untuk Member
-export interface Member {
-  id: string;
-  name: string;
-  affiliation: string;
-  tag: string;
-}
-
-export const members: Member[] = Array.from({ length: 5 }, (_, index) => ({
-  id: `member-${index + 1}`,
-  name: "Lorem Ipsum",
-  affiliation: "Dolor sit amet, consectetur adipiscing.",
-  tag: "Lorem Ipsum",
-}));
-
 
 // Data untuk Universitas
 export interface University {

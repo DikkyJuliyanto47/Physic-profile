@@ -31,7 +31,7 @@ export const footerNav: Record<"about" | "jelajahi", NavItem[]> = {
   ],
   jelajahi: [
     { label: "Direktori Anggota", href: "/members" },
-    { label: "Perguruan Tinggi", href: "/research-publication" },
+    { label: "Perguruan Tinggi", href: "/universities" },
     { label: "Berita & Agenda", href: "/news" },
   ],
 };

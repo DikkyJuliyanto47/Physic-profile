@@ -41,7 +41,8 @@ export async function createPublication(
       },
     });
 
-    revalidatePath("/admin/publikasi");
+    revalidatePath("/admin/publication");
+    revalidatePath("/research-publication");
     return { success: true };
   } catch {
     return {
@@ -83,8 +84,9 @@ export async function updatePublication(
       },
     });
 
-    revalidatePath("/admin/publikasi");
-    revalidatePath(`/admin/publikasi/${id}/edit`);
+    revalidatePath("/admin/publication");
+    revalidatePath("/research-publication");
+    revalidatePath(`/admin/publication/${id}/edit`);
     return { success: true };
   } catch {
     return { success: false, error: "Gagal memperbarui publikasi." };
@@ -101,7 +103,8 @@ export async function deletePublication(id: string): Promise<ActionResponse> {
     }
 
     await prisma.publication.delete({ where: { id } });
-    revalidatePath("/admin/publikasi");
+    revalidatePath("/admin/publication");
+    revalidatePath("/research-publication");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus publikasi." };

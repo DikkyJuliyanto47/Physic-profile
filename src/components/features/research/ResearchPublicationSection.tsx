@@ -9,13 +9,16 @@ import { ResearchSearchBar } from "./ResearchSearchBar";
 import { ResearchStats } from "./ResearchStats";
 import { FeaturedResearch } from "./FeaturedResearch";
 import { JournalDirectory } from "./JournalDirectory";
+import { RecentPublications } from "./RecentPublications";
+import type { Publication } from "./data";
 
-export function ResearchPublicationSection() {
+export function ResearchPublicationSection({ publications }: { publications: Publication[] }) {
   return (
     <div className="flex flex-col gap-8">
       <ResearchSearchBar />
       <ResearchStats />
       <FeaturedResearch />
+      <RecentPublications publications={publications} />
       <JournalDirectory />
     </div>
   );

@@ -11,31 +11,30 @@ import { useState } from "react";
 import Link from "next/link";
 import { Badge, Card, SectionHeading } from "@/components/ui";
 import {
-  PUBLICATIONS,
   PUBLICATION_FILTERS,
   type Publication,
   type PublicationCategory,
 } from "./data";
 
 const CATEGORY_ICON: Record<PublicationCategory, string> = {
-  buku: "fa-book",
-  hki: "fa-lightbulb",
-  jurnal: "fa-file-lines",
-  prosiding: "fa-layer-group",
+  BUKU: "fa-book",
+  HKI: "fa-lightbulb",
+  JURNAL: "fa-file-lines",
+  PROSIDING: "fa-layer-group",
 };
 
 const CATEGORY_LABEL: Record<PublicationCategory, string> = {
-  buku: "Buku",
-  hki: "HKI",
-  jurnal: "Jurnal",
-  prosiding: "Prosiding",
+  BUKU: "Buku",
+  HKI: "HKI",
+  JURNAL: "Jurnal",
+  PROSIDING: "Prosiding",
 };
 
 const CATEGORY_TONE: Record<PublicationCategory, "primary" | "neutral" | "dark"> = {
-  buku: "dark",
-  hki: "primary",
-  jurnal: "neutral",
-  prosiding: "primary",
+  BUKU: "dark",
+  HKI: "primary",
+  JURNAL: "neutral", 
+  PROSIDING: "primary",
 };
 
 function PublicationCard({ publication }: { publication: Publication }) {
@@ -60,26 +59,34 @@ function PublicationCard({ publication }: { publication: Publication }) {
           <li key={line}>{line}</li>
         ))}
       </ul>
-      <Link
-        href={publication.href}
-        className="mt-4 border-t border-border pt-3 text-sm font-medium text-primary-600 hover:text-primary-700"
-      >
-        Lihat Detail
-        <i className="fa-solid fa-arrow-right ml-2" aria-hidden="true" />
-      </Link>
+      {publication.href ? (
+        <a
+          href={publication.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 border-t border-border pt-3 text-sm font-medium text-primary-600 hover:text-primary-700"
+        >
+          Buka publikasi
+          <i className="fa-solid fa-arrow-up-right-from-square ml-2" aria-hidden="true" />
+        </a>
+      ) : (
+        <p className="mt-4 border-t border-border pt-3 text-sm text-foreground-muted">
+          Tautan publikasi belum tersedia.
+        </p>
+      )}
     </Card>
   );
 }
 
-export function RecentPublications() {
+export function RecentPublications({ publications }: { publications: Publication[] }) {
   const [activeFilter, setActiveFilter] = useState<(typeof PUBLICATION_FILTERS)[number]["id"]>(
     "semua"
   );
 
   const filtered =
     activeFilter === "semua"
-      ? PUBLICATIONS
-      : PUBLICATIONS.filter((publication) => publication.category === activeFilter);
+      ? publications
+      : publications.filter((publication) => publication.category === activeFilter);
 
   return (
     <div>
@@ -122,11 +129,17 @@ export function RecentPublications() {
         })}
       </div>
 
-      <div className="mt-6 flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
-        {filtered.map((publication) => (
-          <PublicationCard key={publication.id} publication={publication} />
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <div className="mt-6 rounded-lg border border-dashed border-border bg-background-muted px-5 py-10 text-center text-sm text-foreground-muted">
+          Belum ada publikasi yang diterbitkan untuk kategori ini.
+        </div>
+      ) : (
+        <div className="mt-6 flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
+          {filtered.map((publication) => (
+            <PublicationCard key={publication.id} publication={publication} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
