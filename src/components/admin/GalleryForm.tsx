@@ -84,7 +84,7 @@ export function GalleryForm({ mode, initialData }: Props) {
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/galeri");
+      router.push("/admin/gallery");
       router.refresh();
     } else {
       setError(result.error ?? "Terjadi kesalahan.");

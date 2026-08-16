@@ -70,7 +70,7 @@ export function ManagementPositionForm({
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push(`/admin/kepengurusan/${periodId}/edit`);
+      router.push(`/admin/managements/${periodId}/edit`);
       router.refresh();
       return;
     }
@@ -166,7 +166,7 @@ export function ManagementPositionForm({
         </button>
         <button
           type="button"
-          onClick={() => router.push(`/admin/kepengurusan/${periodId}/edit`)}
+          onClick={() => router.push(`/admin/managements/${periodId}/edit`)}
           className="rounded-lg border border-neutral-300 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
         >
           Batal

@@ -72,7 +72,7 @@ export const RESEARCH_STATS: ResearchStat[] = [
     title: "Buku",
     value: "18",
     label: "Buku",
-    href: "/riset-publikasi/publikasi?kategori=buku",
+    href: "/research-publication",
   },
   {
     id: "hki",
@@ -80,7 +80,7 @@ export const RESEARCH_STATS: ResearchStat[] = [
     title: "HKI",
     value: "9",
     label: "Kekayaan Intelektual",
-    href: "/riset-publikasi/publikasi?kategori=hki",
+    href: "/research-publication",
   },
   {
     id: "jurnal",
@@ -96,7 +96,7 @@ export const RESEARCH_STATS: ResearchStat[] = [
     title: "Prosiding",
     value: "36",
     label: "Artikel",
-    href: "/riset-publikasi/publikasi?kategori=prosiding",
+    href: "/research-publication",
   },
 ];
 
@@ -184,35 +184,35 @@ export const PUBLICATIONS: Publication[] = [
     category: "buku",
     title: "Fisika Material Modern",
     meta: ["Penulis: Dr. Budi Santoso", "2025"],
-    href: "/riset-publikasi/publikasi/fisika-material-modern",
+    href: "/research-publication",
   },
   {
     id: "alat-ukur-medan-magnet",
     category: "hki",
     title: "Alat Ukur Medan Magnet Berbasis IoT",
     meta: ["No. ID/0000/123456", "2025"],
-    href: "/riset-publikasi/publikasi/alat-ukur-medan-magnet",
+    href: "/research-publication",
   },
   {
     id: "thin-film-properties",
     category: "jurnal",
     title: "Analysis of Thin Film Properties Using XRD",
     meta: ["Surabaya Physics Journal", "Vol. 8 No. 1 (2025)"],
-    href: "/riset-publikasi/publikasi/thin-film-properties",
+    href: "/research-publication",
   },
   {
     id: "icsp-2024",
     category: "prosiding",
     title: "Proceedings of the 2nd Surabaya Physics Symposium",
     meta: ["ICSP 2024", "2024"],
-    href: "/riset-publikasi/publikasi/icsp-2024",
+    href: "/research-publication",
   },
   {
     id: "physics-ar",
     category: "jurnal",
     title: "Physics Learning with Augmented Reality",
     meta: ["JPFI Vol. 7 No. 2 (2024)"],
-    href: "/riset-publikasi/publikasi/physics-ar",
+    href: "/research-publication",
   },
 ];
 

@@ -18,7 +18,7 @@ export function MembersSection() {
           title="Anggota PSI Surabaya"
           action={
             <Link
-              href="/anggota"
+              href="/members"
               className="text-sm font-semibold text-primary-600 hover:text-primary-700"
             >
               Lihat Semua Anggota →

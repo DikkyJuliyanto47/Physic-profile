@@ -7,13 +7,15 @@
 
 import { Building2, Search } from "lucide-react";
 
-import { members } from "./data";
+import type { Member } from "./data";
 
 interface MembersSectionProps {
+  members: Member[];
   query?: string;
 }
 
 export function MembersSection({
+  members,
   query = "",
 }: MembersSectionProps) {
   const keyword = query.trim().toLowerCase();
@@ -38,7 +40,7 @@ export function MembersSection({
 
   return (
     <div className="space-y-6">
-      <form action="/anggota" className="relative">
+      <form action="/members" className="relative">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
 
         <input

@@ -87,7 +87,7 @@ export function RecentPublications() {
         title="Publikasi Terbaru"
         action={
           <Link
-            href="/riset-publikasi/publikasi"
+            href="/research-publication"
             className="text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             Lihat semua publikasi

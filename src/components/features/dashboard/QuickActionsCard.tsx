@@ -1,10 +1,10 @@
 import { Button, Card } from "@/components/ui";
 
 const quickActions = [
-  { label: "Tambah Berita", href: "/admin/berita/baru" },
+  { label: "Tambah Berita", href: "/admin/news/new" },
   { label: "Tambah Agenda", href: "/admin/agenda/baru" },
-  { label: "Kelola Anggota", href: "/admin/anggota" },
-  { label: "Kelola Publikasi", href: "/admin/publikasi" },
+  { label: "Kelola Anggota", href: "/admin/members" },
+  { label: "Kelola Publikasi", href: "/admin/publication" },
 ];
 
 export function QuickActionsCard() {

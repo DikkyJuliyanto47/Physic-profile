@@ -173,7 +173,7 @@ export function EventsSection() {
           </div>
         )}
 
-        <Button href="/kegiatan" size="medium">
+        <Button href="/agenda" size="medium">
           Lihat Semua Kegiatan →
         </Button>
       </Container>

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Card } from "@/components/ui";
 
-import type { ContentSummaryItem } from "./dummy-data";
+import type { ContentSummaryItem } from "./types";
 
 interface ContentSummaryGridProps {
   items: ContentSummaryItem[];

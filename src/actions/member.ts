@@ -75,6 +75,7 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
     });
 
     revalidatePath("/admin/members");
+    revalidatePath("/members");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat anggota. Silakan coba lagi." };
@@ -144,6 +145,7 @@ export async function updateMember(
     }
 
     revalidatePath("/admin/members");
+    revalidatePath("/members");
     revalidatePath(`/admin/members/${id}/edit`);
     return { success: true };
   } catch {
@@ -167,6 +169,7 @@ export async function deleteMember(id: string): Promise<ActionResponse> {
     await prisma.user.delete({ where: { id } });
 
     revalidatePath("/admin/members");
+    revalidatePath("/members");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus anggota." };
@@ -186,6 +189,7 @@ export async function toggleMemberActive(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath("/admin/members");
+    revalidatePath("/members");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal mengubah status anggota." };

@@ -44,7 +44,7 @@ export function ManagementPeriodForm({ mode, initialData }: Props) {
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/kepengurusan");
+      router.push("/admin/managements");
       router.refresh();
       return;
     }

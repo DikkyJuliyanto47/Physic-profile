@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui";
 
-import type { StatusSummaryRow } from "./dummy-data";
+import type { StatusSummaryRow } from "./types";
 
 interface StatusSummaryCardProps {
   rows: StatusSummaryRow[];

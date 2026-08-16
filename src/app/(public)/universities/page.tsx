@@ -50,7 +50,7 @@ export default async function PerguruanTinggiPage() {
             {universities.map((uni) => (
               <Link
                 key={uni.id}
-                href={`/perguruan-tinggi/${uni.slug ?? uni.id}`}
+                href={`/universities/${uni.slug ?? uni.id}`}
                 className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-card transition-all hover:border-primary-200 hover:shadow-elevated"
               >
                 {uni.logoUrl ? (

@@ -84,7 +84,7 @@ export function UniversityForm({ mode, initialData }: Props) {
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/perguruan-tinggi");
+      router.push("/admin/universities");
       router.refresh();
     } else {
       setError(result.error ?? "Terjadi kesalahan.");

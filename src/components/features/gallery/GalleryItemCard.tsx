@@ -4,7 +4,6 @@
  * @Last Modified by: galhkoernia
  */
 
-import Image from "next/image";
 import Link from "next/link";
 import type { DocumentationItem } from "./data";
 
@@ -24,12 +23,10 @@ export function GalleryItemCard({ item }: GalleryItemCardProps) {
       "
     >
       <div className="relative aspect-video w-full overflow-hidden rounded-md bg-neutral-200">
-        <Image
+        <img
           src={item.image}
           alt={item.title}
-          fill
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
         <span className="absolute left-2 top-2 flex items-center gap-1.5 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
@@ -65,6 +62,12 @@ export function GalleryItemCard({ item }: GalleryItemCardProps) {
         <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
           {item.title}
         </h3>
+
+        {item.description && (
+          <p className="line-clamp-2 text-xs text-foreground-muted">
+            {item.description}
+          </p>
+        )}
 
         <span className="flex items-center gap-1.5 text-xs text-foreground-muted">
           <i className="fa-solid fa-location-dot" aria-hidden="true" />

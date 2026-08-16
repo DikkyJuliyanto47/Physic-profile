@@ -7,6 +7,7 @@
 
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { MembersSection } from "@/components/features/members";
+import { prisma } from "@/lib/prisma";
 import { JoinCtaSection } from "@/components/features/home";
 import {
   LatestNewsWidget,
@@ -14,6 +15,8 @@ import {
   CategoryWidget,
   getLatestNews,
 } from "@/components/features/news";
+
+export const dynamic = "force-dynamic";
 
 interface MembersPageProps {
   searchParams: Promise<{
@@ -23,7 +26,44 @@ interface MembersPageProps {
 
 export default async function Page({ searchParams }: MembersPageProps) {
   const { q = "" } = await searchParams;
-  const latestNews = await getLatestNews();
+  const keyword = q.trim();
+  const [latestNews, members] = await Promise.all([
+    getLatestNews(),
+    prisma.memberProfile.findMany({
+      where: {
+        user: { isActive: true },
+        ...(keyword
+          ? {
+              OR: [
+                { user: { name: { contains: keyword, mode: "insensitive" } } },
+                {
+                  institution: {
+                    name: { contains: keyword, mode: "insensitive" },
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        photoUrl: true,
+        user: { select: { name: true } },
+        institution: { select: { name: true, shortName: true } },
+      },
+      orderBy: { user: { name: "asc" } },
+    }),
+  ]);
+
+  const memberItems = members.map((member) => ({
+    id: member.id,
+    name: member.user.name,
+    institution:
+      member.institution?.shortName ??
+      member.institution?.name ??
+      "Belum terafiliasi",
+    photo: member.photoUrl,
+  }));
 
   return (
     <>
@@ -53,7 +93,7 @@ export default async function Page({ searchParams }: MembersPageProps) {
                 </p>
               </div>
 
-              <MembersSection query={q} />
+              <MembersSection members={memberItems} query={q} />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">

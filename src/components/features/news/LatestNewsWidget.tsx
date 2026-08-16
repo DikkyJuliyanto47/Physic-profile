@@ -22,7 +22,7 @@ export function LatestNewsWidget({ items, limit = 2 }: LatestNewsWidgetProps) {
   if (visibleItems.length === 0) return null;
 
   return (
-    <SidebarSection title="Berita" action={{ label: "Lihat Selengkapnya", href: "/berita" }}>
+    <SidebarSection title="Berita" action={{ label: "Lihat Selengkapnya", href: "/news" }}>
       <div className="flex flex-col gap-5">
         {visibleItems.map((item) => (
           <div key={item.id} className="flex flex-col gap-2">

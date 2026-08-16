@@ -5,11 +5,11 @@ export { RecentNewsCard } from "./RecentNewsCard";
 export { UpcomingAgendaCard } from "./UpcomingAgendaCard";
 export { RecentMessagesCard } from "./RecentMessagesCard";
 
-export {
-  contentSummary,
-  statusSummary,
-  recentNews,
-  upcomingAgenda,
-  unreadMessages,
-  unreadMessageCount,
-} from "./dummy-data";
+export type {
+  ContentStatus,
+  ContentSummaryItem,
+  RecentMessageItem,
+  RecentNewsItem,
+  StatusSummaryRow,
+  UpcomingAgendaItem,
+} from "./types";

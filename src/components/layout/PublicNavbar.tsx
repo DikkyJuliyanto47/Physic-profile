@@ -33,7 +33,7 @@ export function PublicNavbar() {
                     </nav>
 
                     <div className="hidden lg:block">
-                        <Button href="/kontak" size="small">
+                        <Button href="/contact" size="small">
                             Hubungi Kami
                         </Button>
                     </div>

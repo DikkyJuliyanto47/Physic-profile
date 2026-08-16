@@ -130,7 +130,7 @@ export const upcomingAgenda: AgendaItem[] = [
       "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya.",
     image: "/assets/activity/penyelarasan-kurikulum.jpeg",
     views: 10,
-    href: "/kegiatan",
+    href: "/agenda",
   },
   {
     id: "agenda-2",
@@ -142,7 +142,7 @@ export const upcomingAgenda: AgendaItem[] = [
       "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya.",
     image: "/assets/activity/pertemuan-07-27-01.jpeg",
     views: 10,
-    href: "/kegiatan",
+    href: "/agenda",
   },
 ];
 

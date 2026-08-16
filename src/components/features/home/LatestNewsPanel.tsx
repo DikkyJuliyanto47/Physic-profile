@@ -101,7 +101,7 @@ export async function LatestNewsPanel() {
           ))}
         </div>
 
-        <Button href="/berita" size="medium">
+        <Button href="/news" size="medium">
           Lihat Informasi Lainnya →
         </Button>
       </Container>

@@ -84,7 +84,7 @@ export default async function PerguruanTinggiDetailPage({
       <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <Link
-            href="/perguruan-tinggi"
+            href="/universities"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-300 hover:text-white transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">

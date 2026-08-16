@@ -17,10 +17,48 @@ import {
   DocumentationGrid,
   GalleryContributionCta,
 } from "@/components/features/gallery";
-import { documentationItems } from "@/components/features/gallery/data";
+import type { DocumentationItem } from "@/components/features/gallery/data";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function getMediaPreview(mediaUrl: string, mediaType: "PHOTO" | "VIDEO"): string {
+  if (mediaType !== "VIDEO") return mediaUrl;
+
+  const match = mediaUrl.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
+  return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : mediaUrl;
+}
 
 export default async function GaleriPage() {
-  const latestNews = await getLatestNews();
+  const [latestNews, gallery] = await Promise.all([
+    getLatestNews(),
+    prisma.gallery.findMany({
+      orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
+    }),
+  ]);
+
+  const documentationItems: DocumentationItem[] = gallery.map((item) => ({
+    id: item.id,
+    type: item.mediaType === "VIDEO" ? "video" : "photo",
+    image: getMediaPreview(item.mediaUrl, item.mediaType),
+    countLabel: item.mediaType === "VIDEO" ? "Video" : "Foto",
+    date: formatDate(item.createdAt),
+    title: item.title,
+    location: item.category ?? "Dokumentasi PSI Surabaya",
+    href: item.mediaUrl,
+    description: item.description,
+    isFeatured: item.isFeatured,
+  }));
 
   return (
     <>

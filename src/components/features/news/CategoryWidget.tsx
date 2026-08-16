@@ -20,7 +20,7 @@ export function CategoryWidget() {
         {CATEGORIES.map((category) => (
           <Link
             key={category}
-            href={`/berita?kategori=${encodeURIComponent(category.toLowerCase())}`}
+            href={`/news?kategori=${encodeURIComponent(category.toLowerCase())}`}
             className="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-700"
           >
             {category}

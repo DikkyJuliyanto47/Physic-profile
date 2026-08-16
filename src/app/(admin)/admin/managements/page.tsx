@@ -34,6 +34,19 @@ export default async function ManagementPage() {
     prisma.managementPeriod.findFirst({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
+      include: {
+        positions: {
+          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+          include: {
+            memberProfile: {
+              include: {
+                user: { select: { name: true, email: true } },
+                institution: { select: { id: true, name: true, shortName: true } },
+              },
+            },
+          },
+        },
+      },
     }),
   ]);
 
@@ -50,7 +63,7 @@ export default async function ManagementPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href="/admin/kepengurusan/create"
+            href="/admin/managements/create"
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -126,7 +139,7 @@ export default async function ManagementPage() {
             </div>
             {selectedPeriod && (
               <Link
-                href={`/admin/kepengurusan/${selectedPeriod.id}/edit`}
+                href={`/admin/managements/${selectedPeriod.id}/edit`}
                 className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
               >
                 Kelola Posisi

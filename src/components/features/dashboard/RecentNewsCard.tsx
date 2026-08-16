@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Badge, Card } from "@/components/ui";
 
-import type { ContentStatus, RecentNewsItem } from "./dummy-data";
+import type { ContentStatus, RecentNewsItem } from "./types";
 
 interface RecentNewsCardProps {
   items: RecentNewsItem[];
@@ -28,7 +28,7 @@ export function RecentNewsCard({ items }: RecentNewsCardProps) {
           Berita Terbaru
         </h2>
         <Link
-          href="/admin/berita"
+          href="/admin/news"
           className="text-sm font-medium text-primary-600 hover:underline"
         >
           Lihat Semua

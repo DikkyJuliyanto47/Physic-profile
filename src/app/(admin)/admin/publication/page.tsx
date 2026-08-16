@@ -63,7 +63,7 @@ export default async function PublicationListPage({
           </p>
         </div>
         <Link
-          href="/admin/publikasi/new"
+          href="/admin/publication/new"
           className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg

@@ -64,6 +64,8 @@ export async function createUniversity(
 
     revalidatePath("/admin/perguruan-tinggi");
     revalidatePath("/admin/universities");
+    revalidatePath("/universities");
+    revalidatePath("/admin/universities");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat kampus. Silakan coba lagi." };
@@ -111,6 +113,8 @@ export async function updateUniversity(
 
     revalidatePath("/admin/perguruan-tinggi");
     revalidatePath("/admin/universities");
+    revalidatePath("/universities");
+    revalidatePath("/admin/universities");
     revalidatePath(`/admin/perguruan-tinggi/${id}/edit`);
     revalidatePath(`/admin/universities/${id}/edit`);
     return { success: true };
@@ -140,6 +144,8 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
     await prisma.university.delete({ where: { id } });
 
     revalidatePath("/admin/perguruan-tinggi");
+    revalidatePath("/admin/universities");
+    revalidatePath("/universities");
     revalidatePath("/admin/universities");
     return { success: true };
   } catch {

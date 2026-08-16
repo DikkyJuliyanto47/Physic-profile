@@ -7,6 +7,7 @@
 
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { ManagementSection } from "@/components/features/management";
+import { prisma } from "@/lib/prisma";
 import { JoinCtaSection } from "@/components/features/home";
 import {
   LatestNewsWidget,
@@ -15,8 +16,51 @@ import {
   getLatestNews,
 } from "@/components/features/news";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
-  const latestNews = await getLatestNews();
+  const [latestNews, activePeriod] = await Promise.all([
+    getLatestNews(),
+    prisma.managementPeriod.findFirst({
+      where: { isActive: true },
+      include: {
+        positions: {
+          orderBy: [{ department: "asc" }, { order: "asc" }, { createdAt: "asc" }],
+          include: {
+            memberProfile: {
+              include: {
+                user: { select: { name: true } },
+                institution: { select: { name: true, shortName: true } },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const groups = Array.from(
+    (activePeriod?.positions ?? []).reduce((result, position) => {
+      const department = position.department?.trim() || "Struktur Umum";
+      const group = result.get(department) ?? {
+        id: department.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        title: department,
+        members: [],
+      };
+
+      group.members.push({
+        id: position.id,
+        name: position.memberProfile?.user.name ?? "Belum ditetapkan",
+        role: position.title,
+        description:
+          position.memberProfile?.institution?.shortName ??
+          position.memberProfile?.institution?.name ??
+          position.title,
+      });
+      result.set(department, group);
+      return result;
+    }, new Map<string, { id: string; title: string; members: { id: string; name: string; role: string; description: string }[] }>()).values(),
+  );
 
   return (
     <>
@@ -47,7 +91,7 @@ export default async function Page() {
                 </p>
               </div>
 
-              <ManagementSection />
+              <ManagementSection groups={groups} />
             </div>
 
             <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">

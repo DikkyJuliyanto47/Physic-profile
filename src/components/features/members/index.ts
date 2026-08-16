@@ -6,6 +6,4 @@
  */
 
 export { MembersSection } from "./MembersSection";
-export { members } from "./data";
-
 export type { Member } from "./data";

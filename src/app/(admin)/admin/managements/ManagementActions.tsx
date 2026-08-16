@@ -63,7 +63,7 @@ export function ManagementActions({
           </button>
         )}
         <a
-          href={`/admin/kepengurusan/${periodId}/edit`}
+          href={`/admin/managements/${periodId}/edit`}
           className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
         >
           Edit

@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const newsRoutes: MetadataRoute.Sitemap = newsArticles.map((article) => ({
-    url: `${BASE_URL}/berita/${article.slug}`,
+    url: `${BASE_URL}/news/${article.slug}`,
     lastModified: article.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.7,
@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const universityRoutes: MetadataRoute.Sitemap = universities.map((uni) => ({
-    url: `${BASE_URL}/perguruan-tinggi/${uni.slug ?? uni.id}`,
+    url: `${BASE_URL}/universities/${uni.slug ?? uni.id}`,
     lastModified: uni.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.6,

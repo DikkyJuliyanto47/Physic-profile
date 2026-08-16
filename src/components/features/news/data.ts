@@ -46,6 +46,6 @@ export async function getLatestNews(limit?: number): Promise<NewsItem[]> {
     date: formatNewsDate(item.publishedAt ?? item.createdAt),
     excerpt: item.excerpt ?? "Berita PSI Cabang Surabaya.",
     image: item.imageUrl ?? "/assets/hero/pertemuan-07-27-02.jpeg",
-    href: item.slug ? `/berita/${item.slug}` : "/berita",
+    href: item.slug ? `/news/${item.slug}` : "/news",
   }));
 }

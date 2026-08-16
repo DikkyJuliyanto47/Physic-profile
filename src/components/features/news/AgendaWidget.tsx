@@ -12,7 +12,7 @@ interface AgendaWidgetProps {
   href?: string;
 }
 
-export function AgendaWidget({ href = "/kegiatan" }: AgendaWidgetProps) {
+export function AgendaWidget({ href = "/agenda" }: AgendaWidgetProps) {
   return (
     <SidebarSection title="Agenda">
       <Link

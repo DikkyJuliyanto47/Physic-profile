@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Card } from "@/components/ui";
 
-import type { RecentMessageItem } from "./dummy-data";
+import type { RecentMessageItem } from "./types";
 
 interface RecentMessagesCardProps {
   items: RecentMessageItem[];

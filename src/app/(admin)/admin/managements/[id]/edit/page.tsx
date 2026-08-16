@@ -78,7 +78,7 @@ export default async function EditManagementPage({
           </div>
           {selectedPosition && (
             <a
-              href={`/admin/kepengurusan/${period.id}/edit`}
+              href={`/admin/managements/${period.id}/edit`}
               className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
               Batal Edit

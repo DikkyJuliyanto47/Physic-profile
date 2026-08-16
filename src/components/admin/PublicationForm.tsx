@@ -78,7 +78,7 @@ export function PublicationForm({ mode, initialData }: Props) {
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/publikasi");
+      router.push("/admin/publication");
       router.refresh();
     } else {
       setError(result.error ?? "Terjadi kesalahan.");

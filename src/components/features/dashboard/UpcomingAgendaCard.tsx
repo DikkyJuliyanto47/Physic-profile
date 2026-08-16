@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Card } from "@/components/ui";
 
-import type { UpcomingAgendaItem } from "./dummy-data";
+import type { UpcomingAgendaItem } from "./types";
 
 interface UpcomingAgendaCardProps {
   items: UpcomingAgendaItem[];

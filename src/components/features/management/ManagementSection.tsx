@@ -9,14 +9,22 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { managementGroups } from "./data";
+import type { ManagementGroup } from "./data";
 
-export function ManagementSection() {
-  const [openId, setOpenId] = useState("chair");
+interface ManagementSectionProps {
+  groups: ManagementGroup[];
+}
+
+export function ManagementSection({ groups }: ManagementSectionProps) {
+  const [openId, setOpenId] = useState(groups[0]?.id ?? "");
 
   return (
     <div className="space-y-3">
-      {managementGroups.map((group) => {
+      {groups.length === 0 ? (
+        <div className="rounded-md border border-dashed border-neutral-300 px-6 py-10 text-center text-sm text-foreground-muted">
+          Belum ada data kepengurusan aktif.
+        </div>
+      ) : groups.map((group) => {
         const isOpen = openId === group.id;
 
         return (

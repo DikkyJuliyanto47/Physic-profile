@@ -55,6 +55,7 @@ export async function createManagementPeriod(
     });
 
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat periode kepengurusan." };
@@ -100,6 +101,7 @@ export async function updateManagementPeriod(
     });
 
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${id}/edit`);
     return { success: true };
   } catch {
@@ -116,6 +118,7 @@ export async function deleteManagementPeriod(id: string): Promise<ActionResponse
 
     await prisma.managementPeriod.delete({ where: { id } });
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus periode kepengurusan." };
@@ -144,6 +147,7 @@ export async function setActiveManagementPeriod(
     });
 
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal mengaktifkan periode." };
@@ -199,6 +203,7 @@ export async function createManagementPosition(
     });
 
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
     return { success: true };
   } catch {
@@ -257,6 +262,7 @@ export async function updateManagementPosition(
     });
 
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
     return { success: true };
   } catch {
@@ -273,6 +279,7 @@ export async function deleteManagementPosition(id: string): Promise<ActionRespon
 
     await prisma.managementPosition.delete({ where: { id } });
     revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${position.periodId}/edit`);
     return { success: true };
   } catch {

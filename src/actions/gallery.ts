@@ -44,6 +44,7 @@ export async function createGallery(
 
     revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
     return { success: true };
   } catch {
     return {
@@ -85,6 +86,7 @@ export async function updateGallery(
 
     revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
     revalidatePath(`/admin/galeri/${id}/edit`);
     revalidatePath(`/admin/gallery/${id}/edit`);
     return { success: true };
@@ -105,6 +107,7 @@ export async function deleteGallery(
     await prisma.gallery.delete({ where: { id } });
     revalidatePath("/admin/galeri");
     revalidatePath("/admin/gallery");
+    revalidatePath("/gallery");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus item galeri." };
