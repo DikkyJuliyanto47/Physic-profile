@@ -6,6 +6,7 @@
  */
 
 import { Building2, Search } from "lucide-react";
+import Image from "next/image";
 
 import type { Member } from "./data";
 
@@ -66,9 +67,12 @@ export function MembersSection({
             >
               <div className="flex items-center gap-3">
                 {member.photo ? (
-                  <img
+                  <Image
                     src={member.photo}
                     alt={member.name}
+                    width={56}
+                    height={56}
+                    unoptimized
                     className="h-14 w-14 shrink-0 rounded-full object-cover"
                   />
                 ) : (

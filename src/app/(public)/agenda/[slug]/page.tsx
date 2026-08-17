@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
@@ -103,7 +104,7 @@ export default async function AgendaDetailPage({
   return (
     <div className="bg-neutral-50">
       {/* Header */}
-      <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
+      <section className="bg-linear-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/agenda"
@@ -136,7 +137,7 @@ export default async function AgendaDetailPage({
         <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50">
                 <svg className="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
@@ -153,7 +154,7 @@ export default async function AgendaDetailPage({
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50">
                 <svg className="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
@@ -185,9 +186,12 @@ export default async function AgendaDetailPage({
 
         {event.imageUrl && (
           <div className="mb-8 overflow-hidden rounded-xl">
-            <img
+            <Image
               src={event.imageUrl}
               alt={event.title}
+              width={1200}
+              height={675}
+              unoptimized
               className="h-auto w-full object-cover"
             />
           </div>

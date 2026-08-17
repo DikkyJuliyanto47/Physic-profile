@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { MediaType } from "@/generated/prisma/client";
 import { GalleryActions } from "./GalleryActions";
 
 export const dynamic = "force-dynamic";
@@ -134,9 +134,12 @@ export default async function GalleryListPage({
               >
                 <div className="relative aspect-square overflow-hidden bg-neutral-100">
                   {thumbnail ? (
-                    <img
+                    <Image
                       src={thumbnail}
                       alt={item.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      unoptimized
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (

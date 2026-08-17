@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MediaType } from "@/generated/prisma/client";
 import {
@@ -186,9 +187,12 @@ export function GalleryForm({ mode, initialData }: Props) {
               />
             </div>
           ) : !isVideo && form.mediaUrl ? (
-            <img
+            <Image
               src={form.mediaUrl}
               alt="Preview"
+              width={384}
+              height={192}
+              unoptimized
               className="max-h-48 rounded-lg object-contain"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";

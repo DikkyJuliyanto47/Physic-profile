@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
@@ -129,9 +130,12 @@ export default async function BeritaDetailPage({
       <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         {news.imageUrl && (
           <div className="mb-8 overflow-hidden rounded-xl">
-            <img
+            <Image
               src={news.imageUrl}
               alt={news.title}
+              width={1200}
+              height={675}
+              unoptimized
               className="h-auto w-full object-cover"
             />
           </div>

@@ -5,6 +5,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import type { DocumentationItem } from "./data";
 
 interface GalleryItemCardProps {
@@ -23,9 +24,12 @@ export function GalleryItemCard({ item }: GalleryItemCardProps) {
       "
     >
       <div className="relative aspect-video w-full overflow-hidden rounded-md bg-neutral-200">
-        <img
+        <Image
           src={item.image}
           alt={item.title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          unoptimized
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
 

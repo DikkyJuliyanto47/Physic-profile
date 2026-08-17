@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { Role } from "@/generated/prisma/client";
@@ -160,9 +161,12 @@ export default async function MembersListPage({
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           {profile?.photoUrl ? (
-                            <img
+                            <Image
                               src={profile.photoUrl}
                               alt={user.name}
+                              width={40}
+                              height={40}
+                              unoptimized
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (

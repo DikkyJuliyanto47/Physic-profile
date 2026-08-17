@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
@@ -96,7 +97,14 @@ export default async function PerguruanTinggiDetailPage({
           <div className="mt-6 flex items-center gap-5">
             {uni.logoUrl ? (
               <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-xl bg-white p-2">
-                <img src={uni.logoUrl} alt={uni.name} className="max-h-full max-w-full object-contain" />
+                <Image
+                  src={uni.logoUrl}
+                  alt={uni.name}
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="max-h-full max-w-full object-contain"
+                />
               </div>
             ) : (
               <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-xl bg-primary-700 text-3xl font-bold text-white">
@@ -180,7 +188,14 @@ export default async function PerguruanTinggiDetailPage({
                 >
                   <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
                     {member.photoUrl ? (
-                      <img src={member.photoUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
+                      <Image
+                        src={member.photoUrl}
+                        alt=""
+                        width={48}
+                        height={48}
+                        unoptimized
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
                     ) : (
                       member.user.name.charAt(0)
                     )}

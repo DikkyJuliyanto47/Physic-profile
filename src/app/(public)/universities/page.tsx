@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 
@@ -55,9 +56,12 @@ export default async function PerguruanTinggiPage() {
               >
                 {uni.logoUrl ? (
                   <div className="flex h-40 items-center justify-center bg-neutral-50 p-6">
-                    <img
+                    <Image
                       src={uni.logoUrl}
                       alt={uni.name}
+                      width={160}
+                      height={160}
+                      unoptimized
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
