@@ -10,10 +10,12 @@ export const MOCK_AUTH_USER = {
 export type MockAuthUser = typeof MOCK_AUTH_USER;
 
 export function isMockAuthEnabled(): boolean {
-  const mockFlag =
-    process.env.NEXT_PUBLIC_MOCK_AUTH ?? process.env.MOCK_AUTH ?? "false";
-
-  return mockFlag === "true";
+  // This helper is imported by Client Components, so use only a public value
+  // and require development in both the server and browser render paths.
+  return (
+    process.env.NODE_ENV === "development" &&
+    process.env.NEXT_PUBLIC_MOCK_AUTH === "true"
+  );
 }
 
 export function getMockAuthCookieValue(cookieHeader?: string | null): string | undefined {

@@ -18,21 +18,25 @@ import {
   Section,
   SectionHeading,
 } from "@/components/ui";
-import { upcomingAgenda } from "./data";
+import type { EventItem } from "@/components/features/events/data";
 
-export function EventsSection() {
+interface EventsSectionProps {
+  events: EventItem[];
+}
+
+export function EventsSection({ events }: EventsSectionProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleScroll = () => {
     const track = trackRef.current;
 
-    if (!track || track.clientWidth === 0) return;
+    if (!track || track.clientWidth === 0 || events.length === 0) return;
 
     const index = Math.round(track.scrollLeft / track.clientWidth);
 
     setActiveIndex(
-      Math.min(Math.max(index, 0), upcomingAgenda.length - 1)
+      Math.min(Math.max(index, 0), events.length - 1)
     );
   };
 
@@ -91,7 +95,11 @@ export function EventsSection() {
           "
           style={{ scrollbarWidth: "none" }}
         >
-          {upcomingAgenda.slice(0, 3).map((item) => (
+          {events.length === 0 ? (
+            <div className="w-full rounded-md border border-dashed border-border bg-background px-6 py-10 text-center text-sm text-foreground-muted">
+              Belum ada agenda mendatang yang dipublikasikan.
+            </div>
+          ) : events.map((item) => (
             <Card
               key={item.id}
               padded={false}
@@ -155,9 +163,9 @@ export function EventsSection() {
           ))}
         </div>
 
-        {upcomingAgenda.length > 1 && (
+        {events.length > 1 && (
           <div className="flex items-center gap-1.5 sm:hidden">
-            {upcomingAgenda.map((item, index) => (
+            {events.map((item, index) => (
               <button
                 key={item.id}
                 type="button"

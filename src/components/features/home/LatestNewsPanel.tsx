@@ -36,7 +36,11 @@ export async function LatestNewsPanel() {
           className="flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 scrollbar-none [-ms-overflow-style:none] sm:flex-wrap sm:justify-center sm:snap-none sm:overflow-visible [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none" }}
         >
-          {latestNews.map((item) => (
+          {latestNews.length === 0 ? (
+            <div className="w-full rounded-md border border-dashed border-border bg-background-muted px-6 py-10 text-center text-sm text-foreground-muted">
+              Belum ada berita yang dipublikasikan.
+            </div>
+          ) : latestNews.map((item) => (
             <Card
               key={item.id}
               padded={false}

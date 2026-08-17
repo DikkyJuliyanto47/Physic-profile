@@ -14,14 +14,17 @@ import {
   EventsSection,
   LatestNewsPanel,
 } from "@/components/features/home/index";
+import { getUpcomingEvents } from "@/components/features/events/data";
 
-export default function Page() {
+export default async function Page() {
+  const upcomingEvents = await getUpcomingEvents(3);
+
   return (
     <>
       <GallerySection />
       <HeroSection />
       <AboutSection />
-      <EventsSection />
+      <EventsSection events={upcomingEvents} />
       <LatestNewsPanel />
       <UniversitiesSection />
       <JoinCtaSection />
