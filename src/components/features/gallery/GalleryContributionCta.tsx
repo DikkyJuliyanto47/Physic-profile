@@ -28,7 +28,7 @@ export function GalleryContributionCta() {
           </div>
 
           <Button
-            href="/kontak"
+            href="/contact"
             icon={<i className="fa-solid fa-arrow-right" aria-hidden="true" />}
             iconPosition="right"
             className="shrink-0"

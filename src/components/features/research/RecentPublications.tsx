@@ -10,11 +10,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Badge, Card, SectionHeading } from "@/components/ui";
-import {
-  PUBLICATION_FILTERS,
-  type Publication,
-  type PublicationCategory,
-} from "./data";
+import type {
+  Publication,
+  PublicationCategory,
+  PublicationFilter,
+} from "./types";
 
 const CATEGORY_ICON: Record<PublicationCategory, string> = {
   BUKU: "fa-book",
@@ -78,10 +78,14 @@ function PublicationCard({ publication }: { publication: Publication }) {
   );
 }
 
-export function RecentPublications({ publications }: { publications: Publication[] }) {
-  const [activeFilter, setActiveFilter] = useState<(typeof PUBLICATION_FILTERS)[number]["id"]>(
-    "semua"
-  );
+export function RecentPublications({
+  publications,
+  filters,
+}: {
+  publications: Publication[];
+  filters: PublicationFilter[];
+}) {
+  const [activeFilter, setActiveFilter] = useState<PublicationFilter["id"]>("semua");
 
   const filtered =
     activeFilter === "semua"
@@ -108,7 +112,7 @@ export function RecentPublications({ publications }: { publications: Publication
         aria-label="Filter kategori publikasi"
         className="mt-6 flex flex-wrap gap-2"
       >
-        {PUBLICATION_FILTERS.map((filter) => {
+        {filters.map((filter) => {
           const isActive = filter.id === activeFilter;
           return (
             <button
@@ -129,10 +133,14 @@ export function RecentPublications({ publications }: { publications: Publication
         })}
       </div>
 
-      {filtered.length === 0 ? (
+      {publications.length === 0 ? (
         <div className="mt-6 rounded-lg border border-dashed border-border bg-background-muted px-5 py-10 text-center text-sm text-foreground-muted">
-          Belum ada publikasi yang diterbitkan untuk kategori ini.
+          Belum ada publikasi yang diterbitkan.
         </div>
+      ) : filtered.length === 0 ? (
+        <p className="mt-6 text-sm text-foreground-muted">
+          Tidak ada publikasi dalam kategori ini.
+        </p>
       ) : (
         <div className="mt-6 flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
           {filtered.map((publication) => (

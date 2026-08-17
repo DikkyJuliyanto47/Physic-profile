@@ -5,21 +5,17 @@
  * @Last Modified time: 2026-08-08 11:10:29
  */
 
-import { ResearchSearchBar } from "./ResearchSearchBar";
-import { ResearchStats } from "./ResearchStats";
-import { FeaturedResearch } from "./FeaturedResearch";
-import { JournalDirectory } from "./JournalDirectory";
 import { RecentPublications } from "./RecentPublications";
-import type { Publication } from "./data";
+import { PUBLICATION_FILTERS } from "./data";
+import type { Publication } from "./types";
 
 export function ResearchPublicationSection({ publications }: { publications: Publication[] }) {
   return (
     <div className="flex flex-col gap-8">
-      <ResearchSearchBar />
-      <ResearchStats />
-      <FeaturedResearch />
-      <RecentPublications publications={publications} />
-      <JournalDirectory />
+      <RecentPublications
+        publications={publications}
+        filters={PUBLICATION_FILTERS}
+      />
     </div>
   );
 }

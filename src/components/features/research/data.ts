@@ -1,187 +1,35 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-08 11:04:10 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 11:04:51
- */
+import "server-only";
 
-export const STAT_STRIP_IDS: ResearchStat["id"][] = [
-  "kolaboratif",
-  "buku",
-  "hki",
-  "jurnal",
-];
+import { PublicationType } from "@/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
+import type { Publication, PublicationFilter } from "./types";
 
-export interface ResearchStat {
-  id: string;
-  icon: string;
-  title: string;
-  value: string;
-  label: string;
-  href: string;
-}
-
-export type ResearchStatus = "ongoing" | "completed";
-
-export interface FeaturedResearch {
-  id: string;
-  year: number;
-  status: ResearchStatus;
-  title: string;
-  description: string;
-  leadResearcher: string;
-  institutions: string;
-  href: string;
-  thumbnail: string;
-}
-
-export type JournalAffiliation = "psi" | "physics";
-
-export interface Journal {
-  id: string;
-  name: string;
-  shortName: string;
-  issn: string;
-  affiliation: JournalAffiliation;
-  description: string;
-  url: string;
-}
-
-export type PublicationCategory = "BUKU" | "HKI" | "JURNAL" | "PROSIDING";
-
-export interface Publication {
-  id: string;
-  category: PublicationCategory;
-  title: string;
-  meta: string[];
-  href: string | null;
-}
-
-export const RESEARCH_STATS: ResearchStat[] = [
-  {
-    id: "kolaboratif",
-    icon: "fa-users",
-    title: "Penelitian Kolaboratif",
-    value: "24",
-    label: "Proyek",
-    href: "/riset-publikasi/penelitian",
-  },
-  {
-    id: "buku",
-    icon: "fa-book",
-    title: "Buku",
-    value: "18",
-    label: "Buku",
-    href: "/research-publication",
-  },
-  {
-    id: "hki",
-    icon: "fa-lightbulb",
-    title: "HKI",
-    value: "9",
-    label: "Kekayaan Intelektual",
-    href: "/research-publication",
-  },
-  {
-    id: "jurnal",
-    icon: "fa-file-lines",
-    title: "Jurnal Ilmiah",
-    value: "14",
-    label: "Jurnal",
-    href: "/riset-publikasi/jurnal",
-  },
-  {
-    id: "prosiding",
-    icon: "fa-layer-group",
-    title: "Prosiding",
-    value: "36",
-    label: "Artikel",
-    href: "/research-publication",
-  },
-];
-
-export const FEATURED_RESEARCH: FeaturedResearch[] = [
-  {
-    id: "sensor-magnetik-iot",
-    year: 2025,
-    status: "ongoing",
-    title: "Pengembangan Sensor Magnetik Berbasis IoT untuk Edukasi Fisika",
-    description: "Penelitian pengembangan sensor medan magnet berbasis IoT untuk mendukung praktikum fisika modern.",
-    leadResearcher: "Prof. Dr. Budi Santoso",
-    institutions: "ITS, UNAIR, UNESA",
-    href: "/riset-publikasi/penelitian/sensor-magnetik-iot",
-    thumbnail: "/images/research/sensor-magnetik-iot.jpg",
-  },
-  {
-    id: "material-nano-energi",
-    year: 2024,
-    status: "completed",
-    title: "Material Fungsional Berbasis Nano untuk Energi Terbarukan",
-    description: "Studi material fungsional berbasis nano untuk meningkatkan efisiensi perangkat energi terbarukan.",
-    leadResearcher: "Dr. Rina Yuliana",
-    institutions: "UNEJ, UPN Jatim",
-    href: "/riset-publikasi/penelitian/material-nano-energi",
-    thumbnail: "/images/research/material-nano-energi.jpg",
-  },
-  {
-    id: "ai-fisika-partikel",
-    year: 2025,
-    status: "ongoing",
-    title: "AI dalam Analisis Data Eksperimen Fisika Partikel",
-    description: "Pemanfaatan machine learning untuk analisis data eksperimen pada fisika partikel berenergi tinggi.",
-    leadResearcher: "Dr. Ahmad Faisal",
-    institutions: "UKWMS, ITS",
-    href: "/riset-publikasi/penelitian/ai-fisika-partikel",
-    thumbnail: "/images/research/ai-fisika-partikel.jpg",
-  },
-];
-
-export const JOURNALS: Journal[] = [
-  {
-    id: "jpfi",
-    name: "Jurnal Pendidikan Fisika Indonesia",
-    shortName: "JPFI",
-    issn: "2460-9603",
-    affiliation: "psi",
-    description:
-      "Jurnal nasional terakreditasi SINTA 3 yang menerbitkan artikel di bidang pendidikan fisika.",
-    url: "https://journal.unnes.ac.id/nju/jpfi",
-  },
-  {
-    id: "spj",
-    name: "Surabaya Physics Journal",
-    shortName: "SPJ",
-    issn: "2797-2473",
-    affiliation: "psi",
-    description:
-      "Jurnal ilmiah multidisiplin dalam bidang fisika dan aplikasinya.",
-    url: "#",
-  },
-  {
-    id: "jfi",
-    name: "Jurnal Fisika Indonesia",
-    shortName: "JFI",
-    issn: "0852-1879",
-    affiliation: "physics",
-    description: "Jurnal terakreditasi SINTA 2 yang diterbitkan oleh PFI.",
-    url: "#",
-  },
-  {
-    id: "ijap",
-    name: "Indonesian Journal of Applied Physics",
-    shortName: "IJAP",
-    issn: "2338-5483",
-    affiliation: "physics",
-    description:
-      "Jurnal internasional yang fokus pada fisika terapan dan teknologi.",
-    url: "#",
-  },
-];
-
-export const PUBLICATION_FILTERS: { id: "semua" | PublicationCategory; label: string }[] = [
+export const PUBLICATION_FILTERS: PublicationFilter[] = [
   { id: "semua", label: "Semua" },
-  { id: "BUKU", label: "Buku" },
-  { id: "HKI", label: "HKI" },
-  { id: "JURNAL", label: "Jurnal" },
-  { id: "PROSIDING", label: "Prosiding" },
+  { id: PublicationType.BUKU, label: "Buku" },
+  { id: PublicationType.HKI, label: "HKI" },
+  { id: PublicationType.JURNAL, label: "Jurnal" },
+  { id: PublicationType.PROSIDING, label: "Prosiding" },
 ];
+
+function formatPublishedAt(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", { year: "numeric" }).format(date);
+}
+
+export async function getPublishedPublications(): Promise<Publication[]> {
+  const publications = await prisma.publication.findMany({
+    where: { publishedAt: { not: null, lte: new Date() } },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+  });
+
+  return publications.map((publication) => ({
+    id: publication.id,
+    category: publication.type,
+    title: publication.title,
+    meta: [
+      publication.description,
+      publication.publishedAt ? formatPublishedAt(publication.publishedAt) : null,
+    ].filter((item): item is string => Boolean(item)),
+    href: publication.externalUrl ?? publication.fileUrl,
+  }));
+}

@@ -2,20 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PublicationType } from "@/generated/prisma/client";
 import {
   createPublication,
   updatePublication,
   type PublicationInput,
   type ActionResponse,
 } from "@/actions/publication";
+import type { PublicationCategory } from "@/components/features/research/publication-types";
 
 type Props = {
   mode: "create" | "edit";
   initialData?: {
     id: string;
     title: string;
-    type: PublicationType;
+    type: PublicationCategory;
     description: string | null;
     externalUrl: string | null;
     fileUrl: string | null;
@@ -23,7 +23,7 @@ type Props = {
   };
 };
 
-const TYPE_LABELS: Record<PublicationType, string> = {
+const TYPE_LABELS: Record<PublicationCategory, string> = {
   JURNAL: "Jurnal",
   BUKU: "Buku",
   HKI: "HKI (Hak Kekayaan Intelektual)",
