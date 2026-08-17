@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-02 08:06:54
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 12:00:00
- */
 
 import Image from "next/image";
 import Link from "next/link";

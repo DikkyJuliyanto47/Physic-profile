@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-02 08:20:54
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 10:00:00
- */
-
 import { Button, Container, Section } from "@/components/ui";
 import { StatisticsSection } from "./StatisticsSection";
 

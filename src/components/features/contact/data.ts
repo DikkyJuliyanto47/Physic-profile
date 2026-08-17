@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-09 18:07:24 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-09 18:10:52
- */
-
 export interface ContactChannel {
     id: string;
     icon: string;

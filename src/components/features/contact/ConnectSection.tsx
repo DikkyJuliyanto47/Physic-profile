@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-09 18:31:27 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 20:00:00
- */
-
 import { Container, Section } from "@/components/ui";
 import { contactChannels } from "./data";
 

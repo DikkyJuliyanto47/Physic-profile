@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-08 08:16:48
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:00:00
- */
-
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { ManagementSection } from "@/components/features/management";
 import { prisma } from "@/lib/prisma";

@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-09 09:47:25
- * @Last Modified by: galhkoernia
- */
-
 import Link from "next/link";
 import Image from "next/image";
 import type { DocumentationItem } from "./data";

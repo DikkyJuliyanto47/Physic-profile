@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-02 09:24:00 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 09:31:19
- */
 
 export { GallerySection } from "./GallerySection";
 export { AboutSection } from "./AboutSection";

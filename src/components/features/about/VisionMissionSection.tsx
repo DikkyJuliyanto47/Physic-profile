@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-06 18:24:23 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 14:00:00
- */
-
 import { Container, Section, SectionHeading } from "@/components/ui";
 import { missionPoints, visionText } from "./data";
 

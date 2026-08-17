@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-02 09:04:55
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 10:00:00
- */
 
 "use client";
 

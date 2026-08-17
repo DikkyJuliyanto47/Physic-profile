@@ -1,11 +1,3 @@
-// page.tsx
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-08 11:05:21
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:20:00
- */
-
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { ResearchPublicationSection } from "@/components/features/research";
 import { JoinCtaSection } from "@/components/features/home";

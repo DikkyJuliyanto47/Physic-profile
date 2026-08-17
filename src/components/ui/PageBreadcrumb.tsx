@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-07 22:37:49 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-07 22:49:19
-*/
 
 import Link from "next/link";
 import { Fragment } from "react";

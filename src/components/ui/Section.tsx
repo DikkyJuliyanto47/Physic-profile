@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-01 08:56:18 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 08:54:02
- */
 
 import { cn } from "@/utils";
 import type { HTMLAttributes, ReactNode } from "react";

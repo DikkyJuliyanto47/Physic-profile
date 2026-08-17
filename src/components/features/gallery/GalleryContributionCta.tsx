@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-09 09:48:51
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:00:00
- */
-
 import { Button, Container, Section } from "@/components/ui";
 
 export function GalleryContributionCta() {

@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-06 18:24:23 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-07 18:25:09
- */
-
 export const visionText =
   "Menjadi wadah profesional bagi insan fisika untuk mengembangkan ilmu pengetahuan, pendidikan, inovasi, dan kolaborasi yang memberikan kontribusi bagi masyarakat dan kemajuan Indonesia."
 export interface MissionPoint {

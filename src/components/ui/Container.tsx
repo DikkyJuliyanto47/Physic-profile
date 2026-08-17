@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-01 08:51:29 
- * @Last Modified by:   galhkoernia 
- * @Last Modified time: 2026-08-01 08:51:29 
- */
 
 import type { HTMLAttributes, ReactNode } from "react";
 

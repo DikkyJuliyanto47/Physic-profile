@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-08 09:28:21
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 17:00:00
- */
 
 import { Building2, Search } from "lucide-react";
 import Image from "next/image";

@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-02 08:37:52 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 10:00:00
- */
 
 import { FaUsers, FaUniversity, FaCalendarAlt } from "react-icons/fa";
 import { Container, Section } from "@/components/ui/index";

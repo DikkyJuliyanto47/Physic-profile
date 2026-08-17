@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-13 15:30:00
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:30:00
- */
-
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import {
   ConnectSection,

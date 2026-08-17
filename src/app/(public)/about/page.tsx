@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-07 19:32:03
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 15:00:00
- */
-
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
 import { VisionMissionSection } from "@/components/features/about";
 import { JoinCtaSection } from "@/components/features/home";

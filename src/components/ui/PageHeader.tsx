@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-07 19:26:35
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 10:06:31
- */
 
 import { Container } from "./Container";
 import { Section } from "./Section";

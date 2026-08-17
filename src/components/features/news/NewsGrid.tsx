@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-13 13:00:00
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 13:00:00
- */
 
 import { NewsCard } from "./NewsCard";
 import type { NewsItem } from "./data";

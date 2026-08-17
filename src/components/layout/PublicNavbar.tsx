@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-01 19:56:42 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-01 21:06:34
- */
 
 import Link from "next/link";
 import { Button, Container } from "@/components/ui";

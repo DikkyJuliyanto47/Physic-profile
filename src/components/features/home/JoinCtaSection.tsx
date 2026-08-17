@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-02 09:18:12 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 08:30:55
- */
 
 import { Button, Container, Section } from "@/components/ui/index";
 

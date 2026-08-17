@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-01 21:07:02 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-08 10:09:16
- */
-
 import type { NavItem, SocialLink } from "@/types";
 
 export const siteConfig = {
