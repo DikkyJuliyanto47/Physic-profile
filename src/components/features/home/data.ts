@@ -126,45 +126,54 @@ export const universities: University[] = [
     id: "unesa",
     name: "Universitas Negeri Surabaya",
     logo: "/assets/logo/universitas/unesa.png",
+    href: "https://s1-fisika.fmipa.unesa.ac.id/"
   },
   {
     id: "unair",
     name: "Universitas Airlangga",
     logo: "/assets/logo/universitas/unair.png",
+    href: "https://fst.unair.ac.id/departemen-fisika/"
   },
   {
     id: "its",
     name: "Institut Teknologi Sepuluh Nopember",
     logo: "/assets/logo/universitas/its.webp",
+    href: "https://www.its.ac.id/fisika/"
   },
   {
     id: "upn-jatim",
     name: "UPN Veteran Jawa Timur",
     logo: "/assets/logo/universitas/upnvjt.png",
+    href: "https://upnjatim.ac.id/"
   },
   {
     id: "ukwm-surabaya",
     name: "Universitas Katolik Widya Mandala Surabaya",
     logo: "/assets/logo/universitas/ukwms.png",
+    href: "https://ukwms.ac.id/study/program-studi-pendidikan-fisika/"
   },
   {
     id: "unej",
     name: "Universitas Jember",
     logo: "/assets/logo/universitas/unej.png",
+    href: "https://fisika.mipa.unej.ac.id/"
   },
   {
     id: "uim",
     name: "Universitas Islam Madura",
     logo: "/assets/logo/universitas/uim.png",
+    href: "https://fkip.uim.ac.id/tentang-prodi-fisika/"
   },
   {
     id: "unbilf",
     name: "Universitas Bilfath",
     logo: "/assets/logo/universitas/ubilf.png",
+    href: ""
   },
   {
     id: "unu-pasuruan",
     name: "Universitas NU Pasuruan",
     logo: "/assets/logo/universitas/unup.png",
+    href: "https://penfis.unupasuruan.ac.id/"
   },
 ];

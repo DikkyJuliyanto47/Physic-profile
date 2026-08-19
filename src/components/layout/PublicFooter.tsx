@@ -19,16 +19,16 @@ function FooterColumn({ title, items }: { title: string; items: NavItem[] }) {
     <div className="flex flex-col gap-4">
       <span className={columnHeadingClass}>{title}</span>
       <ul className="flex flex-col gap-3">
-        {items.map((item) => (
-          <li key={item.href}>
+         {items.map((item) => (
+          <li key={`${item.href}-${item.label}`}>
             <Link
               href={item.href}
               className="text-sm text-white/65 transition-colors hover:text-white"
-            >
-              {item.label}
-            </Link>
+              >
+                {item.label}
+              </Link>
           </li>
-        ))}
+         ))}
       </ul>
     </div>
   );

@@ -70,7 +70,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
               </Link>
             ))}
             <Button
-              href="/kontak"
+              href="/contact"
               size="small"
               fullWidth
               variant="primary"
