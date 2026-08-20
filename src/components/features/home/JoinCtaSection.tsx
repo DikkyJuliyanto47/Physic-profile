@@ -1,4 +1,3 @@
-
 import { Button, Container, Section } from "@/components/ui/index";
 
 export function JoinCtaSection() {

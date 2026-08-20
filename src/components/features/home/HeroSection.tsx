@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia
- * @Date: 2026-08-02 07:49:09
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-13 11:00:00
- */
-
 "use client";
 
 import Image from "next/image";
@@ -37,7 +30,7 @@ export function HeroSection() {
       <Container className="grid items-center gap-12 lg:grid-cols-[2.7fr_1.3fr] lg:gap-16">
         <div className="min-w-0 max-w-3xl">
           <span className="text-lg font-semibold tracking-wide text-primary-600 sm:text-xl">
-            Physical Society of Indonesia
+            PHYSICAL SOCIETY OF INDONESIA
           </span>
 
           <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-[1.06] tracking-tight text-foreground sm:text-5xl lg:text-6xl xl:text-7xl">

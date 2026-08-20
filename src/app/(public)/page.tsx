@@ -1,10 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-02 09:20:44 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-02 09:36:59
- */
-
 import {
   AboutSection,
   GallerySection,
@@ -13,7 +6,9 @@ import {
   UniversitiesSection,
   EventsSection,
   LatestNewsPanel,
-} from "@/components/features/home/index";
+  StatisticsSection,
+} from "@/components/features/home";
+
 import { getUpcomingEvents } from "@/components/features/events/data";
 
 export default async function Page() {
@@ -23,6 +18,7 @@ export default async function Page() {
     <>
       <GallerySection />
       <HeroSection />
+      <StatisticsSection />
       <AboutSection />
       <EventsSection events={upcomingEvents} />
       <LatestNewsPanel />

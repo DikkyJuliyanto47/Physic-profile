@@ -114,11 +114,16 @@ export const upcomingAgenda: AgendaItem[] = [
 ];
 
 // Data untuk Universitas
+export interface UniversityOption {
+  label: string;
+  href: string;
+}
 export interface University {
   id: string;
   name: string;
   logo: string;
   href?: string;
+  options?: UniversityOption[];
 }
 
 export const universities: University[] = [
@@ -126,7 +131,16 @@ export const universities: University[] = [
     id: "unesa",
     name: "Universitas Negeri Surabaya",
     logo: "/assets/logo/universitas/unesa.png",
-    href: "https://s1-fisika.fmipa.unesa.ac.id/"
+    options: [
+      {
+        label: "Program Studi Fisika",
+        href: "https://s1-fisika.fmipa.unesa.ac.id/",
+      },
+      {
+        label: "Program Studi Pendidikan Fisika",
+        href: "https://pendidikan-fisika.fmipa.unesa.ac.id/",
+      },
+    ],
   },
   {
     id: "unair",
@@ -168,7 +182,7 @@ export const universities: University[] = [
     id: "unbilf",
     name: "Universitas Bilfath",
     logo: "/assets/logo/universitas/ubilf.png",
-    href: ""
+    href: "https://billfath.ac.id/fakultas-dan-program-studi/"
   },
   {
     id: "unu-pasuruan",
