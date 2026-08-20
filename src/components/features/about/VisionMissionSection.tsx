@@ -8,11 +8,12 @@ export function VisionMissionSection() {
         <SectionHeading
           eyebrow="Visi & Misi"
           title="Visi dan Misi PSI Cabang Surabaya"
+          size="large"
         />
 
         <div className="flex flex-col gap-6">
-          <div className="rounded-lg bg-primary-50 p-6 sm:p-8">
-            <h3 className="text-2xl font-bold text-primary-600 sm:text-3xl">
+          <div className="rounded-lg bg-neutral-100 p-6 sm:p-8">
+            <h3 className="text-2xl font-bold text-foreground sm:text-3xl">
               Visi
             </h3>
             <p className="mt-3 max-w-3xl text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">

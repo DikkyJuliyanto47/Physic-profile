@@ -10,6 +10,7 @@ interface SectionHeadingProps {
   align?: SectionHeadingAlign;
   action?: ReactNode;
   className?: string;
+  size?: "default" | "large";
 }
 
 export function SectionHeading({
@@ -19,9 +20,13 @@ export function SectionHeading({
   align = "left",
   action,
   className = "",
+  size = "default",
 }: SectionHeadingProps) {
   const alignClasses =
     align === "center" ? "text-center items-center" : "text-left items-start";
+
+  const titleSizeClasses = 
+    size === "large" ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl";
 
   return (
     <div
@@ -38,7 +43,7 @@ export function SectionHeading({
             {eyebrow}
           </span>
         ) : null}
-        <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+        <h2 className={`${titleSizeClasses} font-bold text-foreground`}>
           {title}
         </h2>
         {description ? (
