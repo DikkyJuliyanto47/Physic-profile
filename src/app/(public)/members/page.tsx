@@ -41,8 +41,20 @@ export default async function Page({ searchParams }: MembersPageProps) {
       select: {
         id: true,
         photoUrl: true,
-        user: { select: { name: true } },
-        institution: { select: { name: true, shortName: true } },
+        fieldOfExpertise: true,
+        user: { 
+              select: { 
+                name: true,
+                email: true,
+              },
+            },
+        institution: { 
+          select: { 
+            name: true, 
+            shortName: true,
+            slug: true,
+           },
+         },
       },
       orderBy: { user: { name: "asc" } },
     }),
@@ -51,10 +63,13 @@ export default async function Page({ searchParams }: MembersPageProps) {
   const memberItems = members.map((member) => ({
     id: member.id,
     name: member.user.name,
+    email: member.user.email,
+    field: member.fieldOfExpertise ?? "Belum diisi",
     institution:
       member.institution?.shortName ??
       member.institution?.name ??
       "Belum terafiliasi",
+    institutionSlug: member.institution?.slug ?? "",
     photo: member.photoUrl,
   }));
 

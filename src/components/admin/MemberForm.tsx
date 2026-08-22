@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Role } from "@/generated/prisma/client";
 import {
   createMember,
   updateMember,
@@ -23,62 +22,82 @@ type Props = {
     id: string;
     name: string;
     email: string;
-    role: Role;
-    isActive: boolean;
     memberProfile: {
       institutionId: string | null;
-      position: string | null;
-      nidn: string | null;
       fieldOfExpertise: string | null;
-      emailPublic: string | null;
       photoUrl: string | null;
-      googleScholarUrl: string | null;
-      scopusUrl: string | null;
-      orcidUrl: string | null;
     } | null;
   };
-};
-
-const ROLE_LABELS: Record<Role, string> = {
-  SUPER_ADMIN: "Super Admin",
-  ADMIN: "Admin",
-  MEMBER: "Anggota",
 };
 
 export function MemberForm({ mode, universities, initialData }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(initialData?.memberProfile?.photoUrl ?? "");
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const profile = initialData?.memberProfile;
 
   const [form, setForm] = useState<MemberInput>({
     name: initialData?.name ?? "",
     email: initialData?.email ?? "",
-    password: "",
-    role: initialData?.role ?? "MEMBER",
-    isActive: initialData?.isActive ?? true,
     institutionId: profile?.institutionId ?? "",
-    position: profile?.position ?? "",
-    nidn: profile?.nidn ?? "",
     fieldOfExpertise: profile?.fieldOfExpertise ?? "",
-    emailPublic: profile?.emailPublic ?? "",
     photoUrl: profile?.photoUrl ?? "",
-    googleScholarUrl: profile?.googleScholarUrl ?? "",
-    scopusUrl: profile?.scopusUrl ?? "",
-    orcidUrl: profile?.orcidUrl ?? "",
   });
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]: value,
     }));
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+
+    if (file.size > 1 * 1024 * 1024) {
+      setError("Ukuran gambar maksimal 1 MB.");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Upload gagal.");
+        return;
+      }
+
+      setPreviewUrl(data.url);
+
+      setForm((prev) => ({
+        ...prev,
+        photoUrl: data.url,
+      }));
+    } catch {
+      setError("Terjadi kesalahan saat upload.");
+    } finally {
+      setUploading(false);
+    }
+  }
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -145,194 +164,94 @@ export function MemberForm({ mode, universities, initialData }: Props) {
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Password {mode === "create" && <span className="text-red-500">*</span>}
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={form.password ?? ""}
-              onChange={handleChange}
-              required={mode === "create"}
-              placeholder={mode === "edit" ? "Kosongkan jika tidak diubah" : "Minimal 6 karakter"}
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
-
-          <div className="flex items-end">
-            <label className="flex items-center gap-2 text-sm font-medium text-neutral-700">
-              <input
-                type="checkbox"
-                name="isActive"
-                checked={form.isActive}
-                onChange={handleChange}
-                className="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-              />
-              Akun Aktif
-            </label>
-          </div>
         </div>
       </fieldset>
 
-      {/* Organization Info */}
+      {/* Universities */}
       <fieldset>
         <legend className="mb-3 text-sm font-semibold text-neutral-900">
-          Informasi Organisasi
+          Perguruan Tinggi
         </legend>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Role <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            >
-              {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Perguruan Tinggi
-            </label>
-            <select
-              name="institutionId"
-              value={form.institutionId ?? ""}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            >
-              <option value="">Pilih Kampus</option>
-              {universities.map((uni) => (
-                <option key={uni.id} value={uni.id}>
-                  {uni.shortName ? `${uni.shortName} - ${uni.name}` : uni.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">
+            Perguruan Tinggi
+          </label>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Jabatan / Posisi
-            </label>
-            <input
-              name="position"
-              value={form.position ?? ""}
-              onChange={handleChange}
-              placeholder="Ketua Pengurus, Anggota..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
+          <select
+            name="institutionId"
+            value={form.institutionId ?? ""}
+            onChange={handleChange}
+            className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm"
+          >
+            <option value="">Pilih Kampus</option>
+
+            {universities.map((uni) => (
+              <option key={uni.id} value={uni.id}>
+                {uni.shortName ? `${uni.shortName} - ${uni.name}` : uni.name}
+              </option>
+            ))}
+          </select>
         </div>
       </fieldset>
 
-      {/* Academic Info */}
+      {/* Members Profile */}
       <fieldset>
         <legend className="mb-3 text-sm font-semibold text-neutral-900">
-          Informasi Akademik
+          Profil Anggota
         </legend>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              NIDN
-            </label>
-            <input
-              name="nidn"
-              value={form.nidn ?? ""}
-              onChange={handleChange}
-              placeholder="0000000000"
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
 
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Bidang Keahlian
+              Bidang
             </label>
+
             <input
               name="fieldOfExpertise"
               value={form.fieldOfExpertise ?? ""}
               onChange={handleChange}
-              placeholder="Fisika Material, Optika..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              placeholder="Contoh: Fisika Material"
+              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Email Publik
+              Gambar
             </label>
-            <input
-              type="email"
-              name="emailPublic"
-              value={form.emailPublic ?? ""}
-              onChange={handleChange}
-              placeholder="public@email.com"
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
 
-          <div className="sm:col-span-3">
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              URL Avatar
-            </label>
             <input
-              name="photoUrl"
-              value={form.photoUrl ?? ""}
-              onChange={handleChange}
-              placeholder="https://..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleImageUpload}
+              disabled={uploading}
+              className="w-full rounded-lg border border-neutral-300 text-sm
+                file:mr-4 file:rounded-md file:border-0
+                file:bg-primary-600/10 file:px-4 file:py-2
+                file:text-primary-700 file:transition-colors
+                hover:file:bg-primary-600/20
+                disabled:file:opacity-50"
             />
-          </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Google Scholar URL
-            </label>
-            <input
-              name="googleScholarUrl"
-              value={form.googleScholarUrl ?? ""}
-              onChange={handleChange}
-              placeholder="https://scholar.google.com/..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
+          {uploading && (
+            <p className="mt-2 text-sm text-neutral-500">
+              Mengunggah gambar...
+            </p>
+          )}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Scopus URL
-            </label>
-            <input
-              name="scopusUrl"
-              value={form.scopusUrl ?? ""}
-              onChange={handleChange}
-              placeholder="https://www.scopus.com/..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="mt-3 h-40 w-full rounded-lg object-cover"
             />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              ORCID URL
-            </label>
-            <input
-              name="orcidUrl"
-              value={form.orcidUrl ?? ""}
-              onChange={handleChange}
-              placeholder="https://orcid.org/..."
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-            />
-          </div>
+          )}
+        </div>
         </div>
       </fieldset>
 
+      {/* Submit */}
       <div className="flex items-center gap-3 border-t border-neutral-200 pt-5">
         <button
           type="submit"

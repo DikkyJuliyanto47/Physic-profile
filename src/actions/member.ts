@@ -4,23 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
-import { Role } from "@/generated/prisma/client";
+import { randomBytes } from "crypto";
 
 export type MemberInput = {
   name: string;
   email: string;
-  password?: string;
-  role: Role;
-  isActive: boolean;
   institutionId?: string;
-  position?: string;
-  nidn?: string;
   fieldOfExpertise?: string;
-  emailPublic?: string;
   photoUrl?: string;
-  googleScholarUrl?: string;
-  scopusUrl?: string;
-  orcidUrl?: string;
 };
 
 export type ActionResponse = {
@@ -36,9 +27,6 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
     if (!data.email || data.email.trim().length === 0) {
       return { success: false, error: "Email wajib diisi." };
     }
-    if (!data.password || data.password.length < 6) {
-      return { success: false, error: "Password minimal 6 karakter." };
-    }
 
     const existing = await prisma.user.findUnique({
       where: { email: data.email.trim() },
@@ -47,15 +35,16 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
       return { success: false, error: "Email sudah terdaftar." };
     }
 
-    const passwordHash = await hash(data.password, 10);
+    const temporaryPassword = randomBytes(8).toString("hex");
+    const passwordHash = await hash(temporaryPassword, 10);
 
     const user = await prisma.user.create({
       data: {
         name: data.name.trim(),
         email: data.email.trim(),
         passwordHash,
-        role: data.role,
-        isActive: data.isActive,
+        role: "MEMBER",
+        isActive: true,
       },
     });
 
@@ -63,14 +52,8 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
       data: {
         userId: user.id,
         institutionId: data.institutionId || null,
-        position: data.position?.trim() || null,
-        nidn: data.nidn?.trim() || null,
         fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
-        emailPublic: data.emailPublic?.trim() || null,
         photoUrl: data.photoUrl?.trim() || null,
-        googleScholarUrl: data.googleScholarUrl?.trim() || null,
-        scopusUrl: data.scopusUrl?.trim() || null,
-        orcidUrl: data.orcidUrl?.trim() || null,
       },
     });
 
@@ -104,16 +87,7 @@ export async function updateMember(
     const updateData: Record<string, unknown> = {
       name: data.name.trim(),
       email: data.email.trim(),
-      role: data.role,
-      isActive: data.isActive,
     };
-
-    if (data.password && data.password.length > 0) {
-      if (data.password.length < 6) {
-        return { success: false, error: "Password minimal 6 karakter." };
-      }
-      updateData.passwordHash = await hash(data.password, 10);
-    }
 
     await prisma.user.update({ where: { id }, data: updateData });
 
@@ -123,14 +97,8 @@ export async function updateMember(
 
     const profileData = {
       institutionId: data.institutionId || null,
-      position: data.position?.trim() || null,
-      nidn: data.nidn?.trim() || null,
       fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
-      emailPublic: data.emailPublic?.trim() || null,
       photoUrl: data.photoUrl?.trim() || null,
-      googleScholarUrl: data.googleScholarUrl?.trim() || null,
-      scopusUrl: data.scopusUrl?.trim() || null,
-      orcidUrl: data.orcidUrl?.trim() || null,
     };
 
     if (profile) {

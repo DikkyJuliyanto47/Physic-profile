@@ -53,7 +53,10 @@ function toDatetimeLocal(date: Date | string): string {
 export function EventForm({ mode, initialData }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(mode === "create");
 
   const [form, setForm] = useState<EventInput>({
@@ -84,6 +87,40 @@ export function EventForm({ mode, initialData }: Props) {
       }
       return next;
     });
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1 * 1024 * 1024) {
+      setError("Ukuran gambar maksimal 1 MB.");
+      return;
+    }
+
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Upload gagal.");
+    } else {
+      setPreviewUrl(data.url);
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: data.url,
+      }));
+    }
+
+    setUploading(false);
   }
 
   function handleSlugChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -239,15 +276,35 @@ export function EventForm({ mode, initialData }: Props) {
 
         <div>
           <label className="mb-1 block text-sm font-medium text-neutral-700">
-            URL Banner
+            Gambar
           </label>
-          <input
-            name="imageUrl"
-            value={form.imageUrl ?? ""}
-            onChange={handleChange}
-            placeholder="https://..."
-            className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+
+          <input 
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleImageUpload}
+            disabled={uploading}
+            className="w-full rounded-lg border border-neutral-300 text-sm
+                file:mr-4 file:rounded-md file:border-0
+                file:bg-primary-600/10 file:px-4 file:py-2
+                file:text-primary-700 file:transition-colors
+                hover:file:bg-primary-600/20
+                disabled:file:opacity-50"
           />
+
+          {uploading && (
+            <p className="mt-2 text-sm text-neutral-500">
+              Mengunggah gambar
+            </p>
+          )}
+
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="mt-3 h-40 w-full rounded-lg object-cover"
+            />
+          )}
         </div>
       </div>
 
