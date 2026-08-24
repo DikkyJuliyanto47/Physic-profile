@@ -26,6 +26,7 @@ type Props = {
       institutionId: string | null;
       fieldOfExpertise: string | null;
       photoUrl: string | null;
+      detailUrl: string | null;
     } | null;
   };
 };
@@ -45,6 +46,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
     institutionId: profile?.institutionId ?? "",
     fieldOfExpertise: profile?.fieldOfExpertise ?? "",
     photoUrl: profile?.photoUrl ?? "",
+    detailUrl: profile?.detailUrl ?? "",
   });
 
   function handleChange(
@@ -197,43 +199,62 @@ export function MemberForm({ mode, universities, initialData }: Props) {
 
       {/* Members Profile */}
       <fieldset>
-        <legend className="mb-3 text-sm font-semibold text-neutral-900">
-          Profil Anggota
-        </legend>
+      <legend className="mb-3 text-sm font-semibold text-neutral-900">
+        Profil Anggota
+      </legend>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Bidang
-            </label>
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">
+            Bidang
+          </label>
 
-            <input
-              name="fieldOfExpertise"
-              value={form.fieldOfExpertise ?? ""}
-              onChange={handleChange}
-              placeholder="Contoh: Fisika Material"
-              className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm"
-            />
-          </div>
+          <input
+            name="fieldOfExpertise"
+            value={form.fieldOfExpertise ?? ""}
+            onChange={handleChange}
+            placeholder="Contoh: Fisika Material"
+            className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm"
+          />
+        </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700">
-              Gambar
-            </label>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">
+            URL Detail Anggota
+          </label>
 
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={handleImageUpload}
-              disabled={uploading}
-              className="w-full rounded-lg border border-neutral-300 text-sm
-                file:mr-4 file:rounded-md file:border-0
-                file:bg-primary-600/10 file:px-4 file:py-2
-                file:text-primary-700 file:transition-colors
-                hover:file:bg-primary-600/20
-                disabled:file:opacity-50"
-            />
+          <input
+            type="url"
+            name="detailUrl"
+            value={form.detailUrl ?? ""}
+            onChange={handleChange}
+            placeholder="https://..."
+            className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm"
+          />
 
+          <p className="mt-1.5 text-xs text-neutral-500">
+            Tautan menuju profil atau halaman detail anggota.
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-neutral-700">
+            Gambar
+          </label>
+
+          <input 
+            type="file"
+            accept="image/png, image/jpg, image/webp"
+            onChange={handleImageUpload}
+            disabled={uploading}
+            className="w-full rounded-lg border border-neutral-300 bg-white text-sm
+              file:mr-4 file:rounded-md file:border-0
+              file:bg-primary-600/10 file:px-4 file:py-2
+              file:text-primary-700
+              file:transition-colors
+              hover:file:bg-primary-600/20
+              disabled:file:opacity-50"
+          />
           {uploading && (
             <p className="mt-2 text-sm text-neutral-500">
               Mengunggah gambar...
@@ -241,15 +262,16 @@ export function MemberForm({ mode, universities, initialData }: Props) {
           )}
 
           {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="Preview"
+            <img 
+              src={previewUrl} 
+              alt="Preview" 
               className="mt-3 h-40 w-full rounded-lg object-cover"
             />
           )}
+
         </div>
-        </div>
-      </fieldset>
+      </div>
+    </fieldset>
 
       {/* Submit */}
       <div className="flex items-center gap-3 border-t border-neutral-200 pt-5">

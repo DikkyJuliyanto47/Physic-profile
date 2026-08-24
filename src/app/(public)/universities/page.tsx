@@ -27,7 +27,7 @@ export default async function PerguruanTinggiPage() {
   return (
     <div className="bg-neutral-50">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 py-16 sm:py-20">
+      <section className="bg-linear-to-br from-primary-900 via-primary-800 to-primary-950 py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl font-bold text-white sm:text-4xl">
             Perguruan Tinggi Anggota
@@ -66,7 +66,7 @@ export default async function PerguruanTinggiPage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+                  <div className="flex h-40 items-center justify-center bg-linear-to-br from-primary-50 to-primary-100">
                     <span className="text-4xl font-bold text-primary-300">
                       {(uni.shortName ?? uni.name).charAt(0)}
                     </span>
@@ -81,7 +81,7 @@ export default async function PerguruanTinggiPage() {
                   )}
                   {uni.address && (
                     <div className="mt-3 flex items-start gap-2 text-sm text-neutral-500">
-                      <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-neutral-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                       </svg>

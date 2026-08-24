@@ -7,11 +7,13 @@ import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 
 export type MemberInput = {
+  detailUrl: string;
   name: string;
   email: string;
   institutionId?: string;
   fieldOfExpertise?: string;
   photoUrl?: string;
+  profileUrl?: string;
 };
 
 export type ActionResponse = {
@@ -54,6 +56,7 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
         institutionId: data.institutionId || null,
         fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
         photoUrl: data.photoUrl?.trim() || null,
+        profileUrl: data.profileUrl?.trim() || null,
       },
     });
 
@@ -99,6 +102,7 @@ export async function updateMember(
       institutionId: data.institutionId || null,
       fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
       photoUrl: data.photoUrl?.trim() || null,
+      profileUrl: data.profileUrl?.trim() || null,
     };
 
     if (profile) {

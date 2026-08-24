@@ -52,7 +52,6 @@ export default async function Page({ searchParams }: MembersPageProps) {
           select: { 
             name: true, 
             shortName: true,
-            slug: true,
            },
          },
       },
@@ -69,8 +68,9 @@ export default async function Page({ searchParams }: MembersPageProps) {
       member.institution?.shortName ??
       member.institution?.name ??
       "Belum terafiliasi",
-    institutionSlug: member.institution?.slug ?? "",
     photo: member.photoUrl,
+    // Sementara frontend belum memiliki field URL dari Database
+    detailUrl: null,
   }));
 
   return (

@@ -6,4 +6,5 @@ export interface Member {
   institution: string;
   institutionSlug?: string;
   photo?: string | null;
+  detailUrl?: string | null;
 }
