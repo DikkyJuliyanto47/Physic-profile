@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { NewsCategory, ContentStatus } from "@/generated/prisma/client";
 import {
   createNews,
@@ -44,6 +44,7 @@ function slugify(text: string): string {
 
 export function NewsForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
@@ -131,15 +132,42 @@ export function NewsForm({ mode, initialData }: Props) {
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/news");
+      router.push("/admin/news?success=true");
       router.refresh();
     } else {
       setError(result.error ?? "Terjadi kesalahan.");
     }
   }
 
+  // Cek apakah ada parameter success di URL
+  const isSuccess = searchParams.get("success") === "true";
+  const successMessage = isSuccess 
+    ? (mode === "create" ? "Berita berhasil dibuat!" : "Perubahan berhasil disimpan!")
+    : "";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Notifikasi sukses tanpa useEffect */}
+      {isSuccess && (
+        <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 flex items-center justify-between">
+          <span>{successMessage}</span>
+          <button
+            type="button"
+            onClick={() => {
+              // Hapus parameter dari URL tanpa reload
+              const url = new URL(window.location.href);
+              url.searchParams.delete("success");
+              window.history.replaceState({}, "", url.toString());
+              // Refresh untuk update UI
+              router.refresh();
+            }}
+            className="text-green-700 hover:text-green-900"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
