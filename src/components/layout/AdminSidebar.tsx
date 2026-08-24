@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/layout/";
+import { useState } from "react";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/admin", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -17,62 +18,116 @@ const NAV_ITEMS = [
   { label: "Pesan Kontak", href: "/admin/messages", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  onToggle?: (isOpen: boolean) => void;
+}
+
+export function AdminSidebar({ onToggle }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    const newState = !isOpen;
+    setIsOpen(newState);
+    onToggle?.(newState);
+  };
 
   return (
-    <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col bg-primary-950">
-      <div className="flex h-16 items-center gap-2 px-6 border-b border-primary-800 bg-white">
-        <Link href="/" className="shrink-0">
-          <BrandMark />
-        </Link>
-        <span className="text-sm font-semibold text-white">Surabaya CMS</span>
-      </div>
+    <>
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-primary-950 transition-all duration-300 ease-in-out ${
+          isOpen ? "w-72" : "w-16"
+        }`}
+      >
+        <div className={`flex h-16 items-center gap-2 border-b border-primary-800 bg-white px-6 ${!isOpen && "px-2"}`}>
+          {isOpen ? (
+            <>
+              <Link href="/" className="shrink-0">
+                <BrandMark />
+              </Link>
+              <span className="text-sm font-semibold text-white">Surabaya CMS</span>
+            </>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <Link href="/" className="shrink-0">
+                <BrandMark />
+              </Link>
+            </div>
+          )}
+        </div>
 
-      <nav className="flex flex-1 flex-col overflow-y-auto px-3 py-4">
-        <ul className="space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              item.href === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.href);
+        <nav className="flex flex-1 flex-col overflow-y-auto px-3 py-4">
+          <ul className="space-y-1">
+            {NAV_ITEMS.map((item) => {
+              const isActive =
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname.startsWith(item.href);
 
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary-800 text-white"
-                      : "text-primary-200 hover:bg-primary-800/50 hover:text-white"
-                  }`}
-                >
-                  <svg
-                    className="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary-800 text-white"
+                        : "text-primary-200 hover:bg-primary-800/50 hover:text-white"
+                    } ${!isOpen && "justify-center px-0"}`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d={item.icon}
-                    />
-                  </svg>
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+                    <svg
+                      className="h-5 w-5 shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d={item.icon}
+                      />
+                    </svg>
+                    {isOpen && <span>{item.label}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-      <div className="border-t border-primary-800 px-6 py-4">
-        <p className="text-xs text-primary-400">
-          &copy; {new Date().getFullYear()} PSI Surabaya
-        </p>
-      </div>
-    </aside>
+        <div className={`border-t border-primary-800 px-6 py-4 ${!isOpen && "px-2"}`}>
+          {isOpen ? (
+            <p className="text-xs text-primary-400">
+              &copy; {new Date().getFullYear()} PSI Surabaya
+            </p>
+          ) : (
+            <p className="text-center text-xs text-primary-400">
+              &copy; {new Date().getFullYear().toString().slice(-2)}
+            </p>
+          )}
+        </div>
+      </aside>
+
+      <button
+        onClick={toggleSidebar}
+        className="fixed top-20 z-50 hidden items-center justify-center rounded-full border border-neutral-200 bg-white p-1.5 shadow-md transition-all hover:bg-neutral-50 lg:flex"
+        style={{ left: isOpen ? "calc(18rem - 12px)" : "calc(4rem - 12px)" }}
+        aria-label={isOpen ? "Tutup sidebar" : "Buka sidebar"}
+      >
+        <svg
+          className={`h-4 w-4 text-neutral-600 transition-transform duration-300 ${isOpen ? "rotate-0" : "rotate-180"}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 19.5L8.25 12l7.5-7.5"
+          />
+        </svg>
+      </button>
+    </>
   );
 }

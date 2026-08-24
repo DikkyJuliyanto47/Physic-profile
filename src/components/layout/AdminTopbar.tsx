@@ -9,7 +9,11 @@ import {
   isMockAuthEnabled,
 } from "@/lib/mock-auth";
 
-export function AdminTopbar() {
+interface AdminTopbarProps {
+  sidebarOpen?: boolean;
+}
+
+export function AdminTopbar({ sidebarOpen = true }: AdminTopbarProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,7 +33,11 @@ export function AdminTopbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-neutral-200 bg-white px-4 sm:px-6 lg:px-8">
+    <header
+      className={`fixed top-0 z-40 flex h-16 items-center gap-4 border-b border-neutral-200 bg-white px-4 sm:px-6 lg:px-8 transition-all duration-300 ease-in-out ${
+        sidebarOpen ? "left-72" : "left-16"
+      } right-0`}
+    >
       <div className="flex items-center gap-3 lg:hidden">
         <span className="text-sm font-bold text-primary-900">PSI Surabaya</span>
       </div>
