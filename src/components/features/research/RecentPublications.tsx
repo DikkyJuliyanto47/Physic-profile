@@ -1,21 +1,4 @@
-
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { Badge, Card, SectionHeading } from "@/components/ui";
-import type {
-  Publication,
-  PublicationCategory,
-  PublicationFilter,
-} from "./types";
-
-const CATEGORY_ICON: Record<PublicationCategory, string> = {
-  BUKU: "fa-book",
-  HKI: "fa-lightbulb",
-  JURNAL: "fa-file-lines",
-  PROSIDING: "fa-layer-group",
-};
+import type { Publication, PublicationCategory } from "./types";
 
 const CATEGORY_LABEL: Record<PublicationCategory, string> = {
   BUKU: "Buku",
@@ -24,121 +7,130 @@ const CATEGORY_LABEL: Record<PublicationCategory, string> = {
   PROSIDING: "Prosiding",
 };
 
-const CATEGORY_TONE: Record<PublicationCategory, "primary" | "neutral" | "dark"> = {
-  BUKU: "dark",
-  HKI: "primary",
-  JURNAL: "neutral", 
-  PROSIDING: "primary",
-};
+const CATEGORY_ORDER: PublicationCategory[] = [
+  "JURNAL",
+  "PROSIDING",
+  "BUKU",
+  "HKI",
+];
 
-function PublicationCard({ publication }: { publication: Publication }) {
+function getCategoryId(category: PublicationCategory) {
+  return category.toLowerCase();
+}
+
+function PublicationItem({ publication }: { publication: Publication }) {
   return (
-    <Card className="flex min-w-60 flex-1 flex-col p-5">
-      <span
-        className="flex h-9 w-9 items-center justify-center rounded-md bg-primary-50 text-primary-600"
-        aria-hidden="true"
-      >
-        <i className={`fa-solid ${CATEGORY_ICON[publication.category]}`} />
-      </span>
-      <div className="mt-3">
-        <Badge tone={CATEGORY_TONE[publication.category]}>
-          {CATEGORY_LABEL[publication.category]}
-        </Badge>
+    <article className="border-b border-neutral-200 py-7 first:pt-0 last:border-b-0">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_160px] lg:gap-10">
+        <div className="min-w-0">
+          <h3 className="max-w-3xl text-base font-semibold leading-6 text-foreground">
+            {publication.title}
+          </h3>
+
+          <ul className="mt-2 space-y-1 text-sm leading-6 text-foreground-muted">
+            {publication.meta.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex items-start lg:justify-end">
+          {publication.href ? (
+            <a
+              href={publication.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-primary-700 transition-colors hover:text-primary-800"
+            >
+              Buka publikasi
+              <i
+                className="fa-solid fa-arrow-up-right-from-square ml-2"
+                aria-hidden="true"
+              />
+            </a>
+          ) : (
+            <span className="text-sm text-foreground-muted">
+              Tautan belum tersedia
+            </span>
+          )}
+        </div>
       </div>
-      <h4 className="mt-2 text-sm font-semibold leading-snug text-foreground">
-        {publication.title}
-      </h4>
-      <ul className="mt-2 space-y-0.5 text-xs text-foreground-muted">
-        {publication.meta.map((line) => (
-          <li key={line}>{line}</li>
+    </article>
+  );
+}
+
+function PublicationGroup({
+  category,
+  publications,
+}: {
+  category: PublicationCategory;
+  publications: Publication[];
+}) {
+  return (
+    <section
+      id={getCategoryId(category)}
+      className="scroll-mt-28 border-t border-neutral-200 py-10 lg:py-12"
+    >
+      <div className="mb-7">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
+          {CATEGORY_LABEL[category]}
+        </h2>
+      </div>
+
+      <div>
+        {publications.map((publication) => (
+          <PublicationItem key={publication.id} publication={publication} />
         ))}
-      </ul>
-      {publication.href ? (
-        <a
-          href={publication.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 border-t border-border pt-3 text-sm font-medium text-primary-600 hover:text-primary-700"
-        >
-          Buka publikasi
-          <i className="fa-solid fa-arrow-up-right-from-square ml-2" aria-hidden="true" />
-        </a>
-      ) : (
-        <p className="mt-4 border-t border-border pt-3 text-sm text-foreground-muted">
-          Tautan publikasi belum tersedia.
-        </p>
-      )}
-    </Card>
+      </div>
+    </section>
   );
 }
 
 export function RecentPublications({
   publications,
-  filters,
 }: {
   publications: Publication[];
-  filters: PublicationFilter[];
 }) {
-  const [activeFilter, setActiveFilter] = useState<PublicationFilter["id"]>("semua");
-
-  const filtered =
-    activeFilter === "semua"
-      ? publications
-      : publications.filter((publication) => publication.category === activeFilter);
+  const groupedPublications = CATEGORY_ORDER.map((category) => ({
+    category,
+    publications: publications.filter(
+      (publication) => publication.category === category,
+    ),
+  })).filter((group) => group.publications.length > 0);
 
   return (
-    <div>
-      <SectionHeading
-        title="Publikasi Terbaru"
-        action={
-          <Link
-            href="/research-publication"
-            className="text-sm font-medium text-primary-600 hover:text-primary-700"
-          >
-            Lihat semua publikasi
-            <i className="fa-solid fa-arrow-right ml-2" aria-hidden="true" />
-          </Link>
-        }
-      />
+    <div id="semua-publikasi">
+      <div className="mb-10 max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
+          Penelitian & Publikasi
+        </p>
 
-      <div
-        role="tablist"
-        aria-label="Filter kategori publikasi"
-        className="mt-6 flex flex-wrap gap-2"
-      >
-        {filters.map((filter) => {
-          const isActive = filter.id === activeFilter;
-          return (
-            <button
-              key={filter.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-primary-600 text-white"
-                  : "bg-background-muted text-foreground-muted hover:text-foreground"
-              }`}
-            >
-              {filter.label}
-            </button>
-          );
-        })}
+        <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          Pusat Penelitian dan Publikasi
+        </h2>
+
+        <p className="mt-4 text-base leading-7 text-foreground-muted">
+          Pusat informasi penelitian, publikasi ilmiah, HKI, buku, prosiding,
+          dan kolaborasi penelitian anggota PSI.
+        </p>
       </div>
 
       {publications.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-dashed border-border bg-background-muted px-5 py-10 text-center text-sm text-foreground-muted">
+        <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
           Belum ada publikasi yang diterbitkan.
         </div>
-      ) : filtered.length === 0 ? (
-        <p className="mt-6 text-sm text-foreground-muted">
-          Tidak ada publikasi dalam kategori ini.
-        </p>
+      ) : groupedPublications.length === 0 ? (
+        <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
+          Belum ada publikasi yang dapat ditampilkan.
+        </div>
       ) : (
-        <div className="mt-6 flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
-          {filtered.map((publication) => (
-            <PublicationCard key={publication.id} publication={publication} />
+        <div>
+          {groupedPublications.map((group) => (
+            <PublicationGroup
+              key={group.category}
+              category={group.category}
+              publications={group.publications}
+            />
           ))}
         </div>
       )}
