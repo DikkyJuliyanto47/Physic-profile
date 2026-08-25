@@ -1,12 +1,42 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
 import { Button, Container } from "@/components/ui";
 import { publicNav } from "@/config/site";
 import { BrandMark } from "@/components/layout/BrandMark";
 import { PublicMobileNav } from "./PublicMobileNav";
 
 export function PublicNavbar() {
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 8);
+        };
+
+        handleScroll();
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
+
     return (
-        <header className="sticky top-0 z-50 border-b border-primary-700 bg-primary-600">
+        <header
+            className={[
+                "sticky top-0 z-50",
+                "border-b",
+                "transition-[background-color,box-shadow,border-color,backdrop-filter]",
+                "duration-300 ease-out",
+                isScrolled
+                    ? "border-border/70 bg-white/85 shadow-[0_4px_20px_rgba(15,23,42,0.05)] backdrop-blur-xl"
+                    : "border-border/60 bg-white",
+            ].join(" ")}
+        >
             <Container className="flex h-19 items-center justify-between gap-6">
                 <Link
                     href="/"
@@ -22,7 +52,15 @@ export function PublicNavbar() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="whitespace-nowrap text-[15px] font-semibold tracking-[0.005em] text-neutral-0 transition-colors hover:text-neutral-0/80"
+                                className="
+                                    whitespace-nowrap
+                                    text-[15px]
+                                    font-semibold
+                                    tracking-[0.005em]
+                                    text-foreground
+                                    transition-colors
+                                    hover:text-primary-600
+                                "
                             >
                                 {item.label}
                             </Link>
@@ -33,8 +71,8 @@ export function PublicNavbar() {
                         <Button
                             href="/contact"
                             size="small"
-                            variant="white"
-                            className="h-10 rounded-[4px] px-5 text-[14px] font-semibold text-primary-700!"
+                            variant="primary"
+                            className="h-10 rounded-[4px] px-5 text-[14px] font-semibold"
                         >
                             Hubungi Kami
                         </Button>

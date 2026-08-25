@@ -73,8 +73,6 @@ export function EventsSection({ events }: EventsSectionProps) {
             title="Kegiatan Terbaru PSI Cabang Surabaya"
             align="center"
           />
-
-          <div className="mx-auto mt-3 h-0.5 w-16 bg-primary-600" />
         </div>
 
         <div

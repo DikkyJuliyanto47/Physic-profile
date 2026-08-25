@@ -25,7 +25,6 @@ export function UniversitiesSection() {
             title="Perguruan Tinggi Anggota PSI Cabang Surabaya"
             align="center"
           />
-          <div className="mx-auto mt-3 h-0.5 w-16 bg-primary-600" />
         </div>
 
         <div className="mt-6 w-full">

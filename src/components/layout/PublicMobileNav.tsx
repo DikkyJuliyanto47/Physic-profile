@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+
 import type { NavItem } from "@/types";
 import { Button } from "@/components/ui";
 
@@ -14,13 +14,29 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="lg:hidden">
+    <div className="relative lg:hidden">
       <button
         type="button"
         aria-label={isOpen ? "Tutup menu" : "Buka menu"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
+        className="
+          flex h-10 w-10
+          items-center justify-center
+          rounded-md
+          border border-border
+          bg-white
+          text-foreground
+          transition-[background-color,border-color,color]
+          duration-200
+          hover:border-primary-200
+          hover:bg-primary-50
+          hover:text-primary-600
+          focus-visible:outline-none
+          focus-visible:ring-2
+          focus-visible:ring-primary-300
+          focus-visible:ring-offset-2
+        "
       >
         {isOpen ? (
           <svg
@@ -28,7 +44,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="h-5 w-5"
@@ -43,7 +59,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="h-5 w-5"
@@ -56,31 +72,60 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
         )}
       </button>
 
-      {isOpen ? (
-        <div className="absolute inset-x-0 top-16 z-40 border-b border-border bg-background shadow-elevated sm:top-20">
-          <nav className="flex flex-col gap-1 px-4 py-4">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-foreground-muted hover:bg-background-muted hover:text-primary-600"
-              >
-                {item.label}
-              </Link>
-            ))}
+      <div
+        className={[
+          "absolute inset-x-0 top-[calc(100%+1px)] z-40",
+          "origin-top",
+          "border-b border-border/70",
+          "bg-white/95 backdrop-blur-xl",
+          "shadow-[0_14px_30px_rgba(15,23,42,0.08)]",
+          "transition-[opacity,transform,visibility]",
+          "duration-200 ease-out",
+          isOpen
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-2 opacity-0",
+        ].join(" ")}
+      >
+        <nav className="mx-auto flex max-w-(--container-max) flex-col gap-1 px-4 py-4 sm:px-6">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className="
+                flex min-h-11
+                items-center
+                border-b border-border/50
+                px-2
+                text-sm font-semibold
+                text-foreground
+                transition-[color,background-color]
+                duration-200
+                hover:bg-primary-50
+                hover:text-primary-600
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-primary-300
+              "
+            >
+              {item.label}
+            </Link>
+          ))}
+
+          <div className="pt-3">
             <Button
               href="/contact"
               size="small"
               fullWidth
               variant="primary"
+              className="h-10 rounded-md"
               onClick={() => setIsOpen(false)}
             >
               Hubungi Kami
             </Button>
-          </nav>
-        </div>
-      ) : null}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }

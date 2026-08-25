@@ -1,9 +1,3 @@
-/*
- * @Author: galhkoernia 
- * @Date: 2026-08-01 21:38:30 
- * @Last Modified by: galhkoernia
- * @Last Modified time: 2026-08-01 21:55:05
- */
 
 import { ReactNode } from "react";
 import { PublicFooter, PublicNavbar } from "@/components/layout";
