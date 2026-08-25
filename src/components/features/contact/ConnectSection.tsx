@@ -1,33 +1,44 @@
 import { Container, Section } from "@/components/ui";
+
 import { contactChannels } from "./data";
 
 export function ConnectSection() {
   return (
-    <Section>
-      <Container className="flex flex-col items-center gap-12">
-        <div className="grid w-full max-w-3xl grid-cols-1 gap-10 sm:grid-cols-3">
-          {contactChannels.map((channel) => (
-            <div key={channel.id} className="flex flex-col items-center gap-2 text-center">
+    <Section padding="compact">
+      <Container>
+        <div className="grid w-full border-y border-border sm:grid-cols-3">
+          {contactChannels.map((channel, index) => (
+            <div
+              key={channel.id}
+              className={`flex min-h-40 flex-col justify-center px-6 py-8 text-center sm:px-8 ${
+                index > 0 ? "border-t border-border sm:border-l sm:border-t-0" : ""
+              }`}
+            >
               <i
-                className={`${channel.icon} text-2xl text-primary-600`}
+                className={`${channel.icon} text-xl text-primary-700`}
                 aria-hidden="true"
               />
-              <span className="text-base font-semibold text-foreground">
+
+              <span className="mt-4 text-base font-semibold text-foreground">
                 {channel.label}
               </span>
-              <span className="text-sm text-foreground-muted">
+
+              <span className="mt-1 text-sm leading-6 text-foreground-muted">
                 {channel.value}
               </span>
 
               {channel.href ? (
                 <a
                   href={channel.href}
-                  className="mt-1 text-sm font-semibold text-primary-600 hover:underline"
+                  className="mt-3 text-sm font-medium text-primary-700 transition-colors hover:text-primary-800"
                 >
-                  {channel.actionLabel} &rarr;
+                  {channel.actionLabel}
+                  <span className="ml-1.5" aria-hidden="true">
+                    →
+                  </span>
                 </a>
               ) : (
-                <span className="mt-1 text-sm text-foreground-muted/70">
+                <span className="mt-3 text-sm text-foreground-muted/70">
                   Segera tersedia
                 </span>
               )}

@@ -39,7 +39,7 @@ export interface Secretariat {
 }
 
 export const secretariat: Secretariat = {
-  name: "PSI Surabaya",
+  name: "PSI Cabang Surabaya",
   addressLines: [
     "Alamat lengkap sekretariat belum tersedia dan akan diperbarui oleh pengurus.",
   ],
