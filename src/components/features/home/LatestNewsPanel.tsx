@@ -1,22 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import {
-  Button,
-  Container,
-  Section,
-  SectionHeading,
-} from "@/components/ui";
-
+import { Button, Container, Section, SectionHeading } from "@/components/ui";
 import { getLatestNews } from "@/components/features/news";
 
 export async function LatestNewsPanel() {
   // TODO: Aktifkan kembali setelah sumber berita/API sudah tersambung.
   // const latestNews = await getLatestNews(3);
 
-  // TEMPORARY MOCK DATA
-  // Hanya digunakan untuk preview visual landing page.
-  // Hapus blok ini dan aktifkan getLatestNews() di atas ketika data sudah tersedia.
+  // TEMPORARY MOCK DATA — hanya digunakan untuk preview visual landing page.
+  // Hapus blok ini dan aktifkan getLatestNews() ketika data sudah tersedia.
   const latestNews = [
     {
       id: "mock-news-1",
@@ -48,90 +41,92 @@ export async function LatestNewsPanel() {
   ];
 
   return (
-    <Section padding="compact">
-      <Container className="flex flex-col items-center gap-8">
+    <Section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-28 -bottom-28 h-64 w-64 rounded-full bg-primary-500/45 sm:-left-36 sm:-bottom-32 sm:h-80 sm:w-80"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-28 top-[42%] h-56 w-56 rounded-full bg-primary-500/35 sm:-right-36 sm:h-72 sm:w-72"
+      />
+
+      <Container className="relative z-10 flex flex-col items-center">
         <div className="text-center">
-           <SectionHeading
+          <SectionHeading
             eyebrow="Informasi Terbaru"
             title="Informasi Terbaru PSI Cabang Surabaya"
             align="center"
           />
         </div>
 
-        <div className="grid w-full max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid w-full max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {latestNews.map((item) => (
-            <article
-              key={item.id}
-              className="
-                group relative flex flex-col overflow-hidden
-                rounded-[1rem]
-                border border-border/70
-                bg-white
-                text-center
-                shadow-[0_6px_24px_rgba(15,23,42,0.055)]
-                transition-[transform,box-shadow,border-color]
-                duration-300 ease-out
-                hover:-translate-y-1
-                hover:border-primary-100
-                hover:shadow-[0_16px_36px_rgba(15,23,42,0.09)]
-              "
-            >
-              <Link href={item.href} className="block overflow-hidden">
-                <div className="relative aspect-16/10 overflow-hidden bg-background-muted">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    sizes="
-                      (min-width: 1024px) 30vw,
-                      (min-width: 640px) 45vw,
-                      100vw
-                    "
-                    className="
-                      object-cover
-                      transition-transform duration-500
-                      group-hover:scale-[1.025]
-                    "
-                  />
-                </div>
-              </Link>
+            <article key={item.id} className="group relative flex min-w-0 flex-col">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-2 rounded-[0.7rem] bg-black/5.5 blur-xl transition-colors duration-300 group-hover:bg-black/9"
+              />
 
-              <div className="flex flex-1 flex-col items-center px-5 pb-6 pt-5">
-                <time className="text-xs font-semibold uppercase tracking-widest text-primary-600">
-                  {item.date}
-                </time>
-
-                <h3 className="mt-3 line-clamp-2 text-lg font-bold leading-6 tracking-tight text-foreground">
-                  {item.title}
-                </h3>
-
-                <p className="mt-3 line-clamp-3 max-w-xs text-sm leading-6 text-foreground-muted">
-                  {item.excerpt}
-                </p>
-
+              <div
+                className="
+                  relative flex flex-1 flex-col overflow-hidden
+                  rounded-[0.55rem] border border-border/70 bg-white
+                  shadow-[0_4px_12px_rgba(15,23,42,0.045)]
+                  transition-[transform,box-shadow,border-color] duration-300 ease-out
+                  group-hover:-translate-y-1 group-hover:border-border
+                  group-hover:shadow-[0_14px_30px_rgba(15,23,42,0.09)]
+                "
+              >
                 <Link
                   href={item.href}
-                  className="
-                    mt-5 inline-flex items-center gap-1.5
-                    border-b border-transparent
-                    pb-0.5
-                    text-sm font-semibold
-                    text-primary-600
-                    transition-[color,border-color,gap]
-                    duration-200
-                    hover:gap-2.5
-                    hover:border-primary-600
-                  "
+                  className="block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400"
                 >
-                  Baca selengkapnya
-                  <span aria-hidden="true">→</span>
+                  <div className="relative aspect-video overflow-hidden bg-background-muted">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      sizes="(min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]"
+                    />
+                  </div>
                 </Link>
+
+                <div className="flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
+                  <time className="text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 sm:text-xs">
+                    {item.date}
+                  </time>
+
+                  <h3 className="mt-2.5 line-clamp-2 text-base font-bold leading-6 tracking-tight text-foreground sm:text-lg">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-2.5 line-clamp-3 text-sm leading-6 text-foreground-muted">
+                    {item.excerpt}
+                  </p>
+
+                  <Link
+                    href={item.href}
+                    className="
+                      mt-4 inline-flex w-fit items-center gap-1.5
+                      border-b border-transparent pb-0.5
+                      text-xs font-semibold text-primary-600
+                      transition-[color,border-color,gap] duration-200
+                      hover:gap-2.5 hover:border-primary-600 hover:text-primary-700
+                      focus-visible:outline-none focus-visible:ring-2
+                      focus-visible:ring-primary-300 focus-visible:ring-offset-2
+                    "
+                  >
+                    Baca selengkapnya <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
               </div>
             </article>
           ))}
         </div>
 
-        <Button href="/news" variant="outline" size="medium">
+        <Button href="/news" variant="outline" size="medium" className="mt-8">
           Lihat Informasi Lainnya →
         </Button>
       </Container>

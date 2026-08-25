@@ -29,7 +29,7 @@ export function HeroSection() {
     >
       <Container className="grid items-center gap-12 lg:grid-cols-[2.7fr_1.3fr] lg:gap-16">
         <div className="min-w-0 max-w-3xl">
-          <span className="text-lg font-semibold tracking-wide text-primary-600 sm:text-xl">
+          <span className="text-2xl font-serif italic tracking-wide text-primary-600 sm:text-3xl" style={{ fontFamily: 'cursive' }}>
             PHYSICAL SOCIETY OF INDONESIA
           </span>
 
