@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 
 type PersonCardSize = "default" | "lg";
@@ -16,33 +15,21 @@ const avatarSizeClasses: Record<PersonCardSize, string> = {
   lg: "h-24 w-24",
 };
 
-export function PersonCard({
-  name,
-  subtitle,
-  tag,
-  href,
-  size = "default",
-}: PersonCardProps) {
+export function PersonCard({ name, subtitle, tag, href, size = "default" }: PersonCardProps) {
   const cardClasses = [
-    "flex flex-col items-center gap-3 rounded-lg border border-border bg-background p-5 text-center",
+    "flex flex-col items-center gap-3 border border-neutral-200 bg-background p-5 text-center",
     href ? "transition-colors hover:border-primary-300" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  ].filter(Boolean).join(" ");
 
   const content = (
     <div className={cardClasses}>
-      <span
-        className={`shrink-0 rounded-full bg-neutral-200 ${avatarSizeClasses[size]}`}
-      />
+      <span className={`shrink-0 rounded-full bg-neutral-200 ${avatarSizeClasses[size]}`} />
       <div className="flex flex-col gap-1">
         <span className="text-sm font-semibold text-foreground">{name}</span>
-        {subtitle ? (
-          <span className="text-xs text-foreground-muted">{subtitle}</span>
-        ) : null}
+        {subtitle ? <span className="text-xs text-foreground-muted">{subtitle}</span> : null}
       </div>
       {tag ? (
-        <span className="rounded-full bg-primary-600 px-3 py-1 text-xs font-semibold text-white">
+        <span className="border border-primary-200 bg-primary-50 px-2 py-1 text-xs font-semibold text-primary-700">
           {tag}
         </span>
       ) : null}

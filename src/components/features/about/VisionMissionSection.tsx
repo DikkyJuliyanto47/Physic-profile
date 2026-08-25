@@ -1,52 +1,45 @@
-import { Container, Section, SectionHeading } from "@/components/ui";
+import { SectionHeading } from "@/components/ui";
 import { missionPoints, visionText } from "./data";
 
-export function VisionMissionSection() {
+interface VisionMissionSectionProps {
+  visionText?: string;
+  missionPoints?: Array<{ id: string; text: string }>;
+}
+
+export function VisionMissionSection({
+  visionText: propVisionText,
+  missionPoints: propMissionPoints,
+}: VisionMissionSectionProps) {
+  const displayVision = propVisionText ?? visionText;
+  const displayMissions = propMissionPoints ?? missionPoints;
+
   return (
-    <Section>
-      <Container className="flex flex-col gap-8 lg:gap-9">
-        <SectionHeading
-          eyebrow="Visi & Misi"
-          title="Visi dan Misi PSI Cabang Surabaya"
-          size="large"
-        />
+    <section id="visi-misi" className="scroll-mt-28 border-t border-neutral-200 py-12 sm:py-14 lg:py-16">
+      <div className="flex flex-col gap-10">
+        <SectionHeading eyebrow="Visi & Misi" title="Visi dan Misi PSI Cabang Surabaya" />
 
-        <div className="flex flex-col gap-6">
-          <div className="relative overflow-hidden rounded-md bg-neutral-50 px-6 py-6 sm:px-8 sm:py-7">
-            <div className="absolute inset-y-0 left-0 w-1 bg-primary-600" />
-
-            <div className="pl-1">
-              <h3 className="text-2xl font-bold tracking-tight text-primary-600">
-                Visi
-              </h3>
-
-              <p className="mt-3 max-w-4xl text-base leading-7 text-foreground sm:text-lg sm:leading-8">
-                {visionText}
-              </p>
-            </div>
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+          <div className="border-l-2 border-primary-600 pl-5 sm:pl-6">
+            <h3 className="text-xl font-bold tracking-tight text-primary-800 sm:text-2xl">Visi</h3>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">
+              {displayVision}
+            </p>
           </div>
 
-          <div className="rounded-md bg-neutral-100 px-6 py-6 sm:px-8 sm:py-7">
-            <h3 className="text-2xl font-bold tracking-tight text-primary-600">
-              Misi
-            </h3>
+          <div>
+            <h3 className="text-xl font-bold tracking-tight text-primary-800 sm:text-2xl">Misi</h3>
 
-            <ul className="mt-3 flex max-w-4xl flex-col gap-2.5">
-              {missionPoints.map((point) => (
-                <li
-                  key={point.id}
-                  className="flex gap-3 text-base leading-7 text-foreground sm:text-lg sm:leading-8"
-                >
-                  <span className="mt-0.5 shrink-0 text-foreground" aria-hidden="true">
-                    •
-                  </span>
+            <ul className="mt-4 flex max-w-2xl flex-col gap-4">
+              {displayMissions.map((point) => (
+                <li key={point.id} className="flex gap-3 text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">
+                  <span className="mt-3 h-1.5 w-1.5 shrink-0 bg-primary-600" aria-hidden="true" />
                   <span>{point.text}</span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-      </Container>
-    </Section>
+      </div>
+    </section>
   );
 }

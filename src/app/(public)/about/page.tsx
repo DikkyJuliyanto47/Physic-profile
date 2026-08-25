@@ -1,52 +1,51 @@
-import { Container, Section, PageBreadcrumb } from "@/components/ui";
-import { VisionMissionSection } from "@/components/features/about";
+import { Container, Hero, Section, SectionNav, ShareActions } from "@/components/ui/index";
+import { AboutSection } from "@/components/features/about/AboutSection";
 import { JoinCtaSection } from "@/components/features/home";
-import {
-  LatestNewsWidget,
-  AgendaWidget,
-  CategoryWidget,
-  getLatestNews,
-} from "@/components/features/news";
 
-export default async function Page() {
-  const latestNews = await getLatestNews();
-
+export default function Page() {
   return (
     <>
-      <Section padding="compact">
+      <Hero
+        title="Tentang Physical Society Indonesia Cabang Surabaya"
+        breadcrumbs={[
+          { label: "Beranda", href: "/" },
+          { label: "Tentang PSI" },
+        ]}
+      />
+
+      <Section padding="none">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] lg:items-start lg:gap-12">
-            <div className="flex flex-col gap-8">
-              <PageBreadcrumb
-                items={[
-                  { label: "Beranda", href: "/" },
-                  { label: "Tentang Kami" },
-                ]}
-              />
+          <div className="relative z-10 -mt-14 pb-16 sm:-mt-16 sm:pb-20 lg:-mt-20 lg:pb-24">
+            <div className="border border-neutral-200 bg-background">
+              <header className="sticky top-0 z-20 border-b border-neutral-200 bg-background px-6 py-5 sm:px-8 lg:px-10">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <h1 className="max-w-3xl text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">
+                    Tentang Physical Society Indonesia Cabang Surabaya
+                  </h1>
 
-              <div className="max-w-3xl">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-                  TENTANG KAMI
-                </p>
+                  <ShareActions title="Tentang Physical Society Indonesia Cabang Surabaya" />
+                </div>
+              </header>
 
-                <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                  Sekilas tentang PSI Cabang Surabaya
-                </h1>
+              <div className="grid lg:grid-cols-[200px_minmax(0,1fr)]">
+                <aside className="border-b border-neutral-200 lg:border-b-0 lg:border-r">
+                  <div className="lg:sticky lg:top-24">
+                    <SectionNav
+                      items={[
+                        { label: "Tentang", href: "#tentang" },
+                        { label: "Sejarah", href: "#sejarah" },
+                        { label: "Visi & Misi", href: "#visi-misi" },
+                      ]}
+                      defaultActiveHref="#tentang"
+                    />
+                  </div>
+                </aside>
 
-                <p className="mt-5 text-lg leading-8 text-foreground-muted">
-                  Mengenal sejarah, visi-misi, dan nilai yang menjadi landasan
-                  Physical Society of Indonesia Cabang Surabaya.
-                </p>
+                <main className="min-w-0 px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+                  <AboutSection />
+                </main>
               </div>
-
-              <VisionMissionSection />
             </div>
-
-            <aside className="flex flex-col gap-8 self-start lg:sticky lg:top-24">
-              <LatestNewsWidget items={latestNews} />
-              <AgendaWidget />
-              <CategoryWidget />
-            </aside>
           </div>
         </Container>
       </Section>
