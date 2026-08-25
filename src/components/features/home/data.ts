@@ -1,41 +1,3 @@
-export interface HeroImage {
-  id: string;
-  src: string;
-  alt: string;
-}
-
-export const heroImages: HeroImage[] = [
-  {
-    id: "hero-1",
-    src: "/assets/hero/pertemuan-07-27-01.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
-  {
-    id: "hero-2",
-    src: "/assets/hero/pertemuan-07-27-02.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
-  {
-    id: "hero-3",
-    src: "/assets/hero/pertemuan-07-27-02.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
-];
-
-// Data untuk Statistic
-export interface Statistic {
-  id: string;
-  value: string;
-  label: string;
-}
-
-export const statistics: Statistic[] = [
-  { id: "stat-members", value: "99+", label: "Anggota Aktif" },
-  { id: "stat-universities", value: "10", label: "Perguruan Tinggi" },
-  { id: "stat-activities", value: "30", label: "Kegiatan" },
-];
-
-
 // Data untuk Gallery
 export interface GalleryItem {
   id: string;
@@ -71,6 +33,44 @@ export const galleryItems: GalleryItem[] = [
     href: "/gallery",
     image: "/assets/gallery/pertemuan-07-27-03.jpeg"
   },
+];
+
+// Data untuk Hero
+export interface HeroImage {
+  id: string;
+  src: string;
+  alt: string;
+}
+
+export const heroImages: HeroImage[] = [
+  {
+    id: "hero-1",
+    src: "/assets/hero/pertemuan-07-27-01.jpeg",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
+  },
+  {
+    id: "hero-2",
+    src: "/assets/hero/pertemuan-07-27-02.jpeg",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
+  },
+  {
+    id: "hero-3",
+    src: "/assets/hero/pertemuan-07-27-02.jpeg",
+    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
+  },
+];
+
+// Data untuk Statistic
+export interface Statistic {
+  id: string;
+  value: string;
+  label: string;
+}
+
+export const statistics: Statistic[] = [
+  { id: "stat-members", value: "99+", label: "Anggota Aktif" },
+  { id: "stat-universities", value: "10", label: "Perguruan Tinggi" },
+  { id: "stat-activities", value: "30", label: "Kegiatan" },
 ];
 
 // Data untuk Agenda
