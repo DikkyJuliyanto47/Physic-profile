@@ -4,16 +4,18 @@ export function GalleryContributionCta() {
   return (
     <Section padding="compact">
       <Container>
-        <div className="flex flex-col items-start gap-5 rounded-lg border border-border bg-background-muted p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-5 rounded-md border border-border bg-background-muted p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-primary-100 text-primary-600">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary-100 text-primary-600">
               <i className="fa-regular fa-images" aria-hidden="true" />
             </span>
+
             <div className="flex flex-col gap-1">
               <span className="text-base font-semibold text-foreground">
                 Punya dokumentasi kegiatan PSI Surabaya?
               </span>
-              <span className="max-w-xl text-sm text-foreground-muted">
+
+              <span className="max-w-xl text-sm leading-6 text-foreground-muted">
                 Bagikan momen terbaik Anda kepada kami untuk diabadikan di
                 galeri resmi PSI Surabaya.
               </span>
