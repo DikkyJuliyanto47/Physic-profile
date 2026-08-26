@@ -27,8 +27,7 @@ export const publicNav: NavItem[] = [
     label: "Anggota",
     children: [
       { label: "Direktori Anggota", href: "/members" },
-      { label: "Perguruan Tinggi", href: "/universities" },
-      { label: "Daftar Universitas", href: "/"}
+      { label: "Perguruan Tinggi", href: "/universities" }
     ],
   },
   {
