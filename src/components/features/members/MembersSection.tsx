@@ -33,7 +33,8 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
         (member) =>
           member.name.toLowerCase().includes(keyword) ||
           member.institution.toLowerCase().includes(keyword) ||
-          member.field.toLowerCase().includes(keyword),
+          member.field.toLowerCase().includes(keyword) ||
+          member.detailUrl?.toLowerCase().includes(keyword),
       )
     : members;
 
@@ -114,6 +115,13 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
                       className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
                     >
                       {member.email}
+                    </a>
+
+                     <a
+                      href={member.detailUrl}
+                      className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                    >
+                      Detail
                     </a>
                   </div>
                 </article>
