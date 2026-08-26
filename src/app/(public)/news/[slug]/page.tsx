@@ -1,17 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  ORGANISASI: "bg-blue-100 text-blue-700",
-  SEMINAR: "bg-purple-100 text-purple-700",
-  WORKSHOP: "bg-orange-100 text-orange-700",
-  PERTEMUAN_RUTIN: "bg-teal-100 text-teal-700",
-  KERJASAMA: "bg-indigo-100 text-indigo-700",
-  PRESTASI_ANGGOTA: "bg-amber-100 text-amber-700",
-};
+import { prisma } from "@/lib/prisma";
+import { Container, Section } from "@/components/ui";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ORGANISASI: "Organisasi",
@@ -22,13 +15,99 @@ const CATEGORY_LABELS: Record<string, string> = {
   PRESTASI_ANGGOTA: "Prestasi Anggota",
 };
 
+interface DummyNews {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  imageUrl: string;
+  publishedAt: string;
+  author: string;
+}
+
+// TODO: Hapus dummyNews ini setelah integrasi Prisma selesai
+const dummyNews: DummyNews[] = [
+  {
+    id: "news-1",
+    slug: "psi-cabang-surabaya-perkuat-kolaborasi-akademik",
+    title: "PSI Cabang Surabaya Perkuat Kolaborasi Akademik dan Keilmuan",
+    category: "ORGANISASI",
+    excerpt:
+      "PSI Cabang Surabaya terus memperkuat komunikasi dan kolaborasi antaranggota melalui berbagai kegiatan akademik dan keilmuan.",
+    content: `
+      <p>
+        PSI Cabang Surabaya terus mengembangkan ruang kolaborasi yang mempertemukan
+        akademisi, peneliti, pendidik, mahasiswa, dan anggota komunitas fisika.
+        Kegiatan ini menjadi bagian dari upaya memperkuat komunikasi serta
+        pertukaran gagasan di lingkungan keilmuan fisika.
+      </p>
+
+      <p>
+        Melalui pertemuan dan diskusi yang dilakukan secara berkala, anggota
+        dapat berbagi informasi mengenai perkembangan kegiatan akademik,
+        penelitian, pendidikan, serta berbagai aktivitas organisasi.
+      </p>
+
+      <h2>Memperkuat Komunikasi Antaranggota</h2>
+
+      <p>
+        Kolaborasi menjadi salah satu bagian penting dalam pengembangan organisasi.
+        Ruang diskusi yang terbuka memungkinkan anggota untuk menyampaikan gagasan,
+        membangun jejaring, dan mengembangkan kegiatan bersama.
+      </p>
+
+      <p>
+        PSI Cabang Surabaya akan terus mendorong kegiatan yang memberikan manfaat
+        bagi anggota sekaligus memperkuat kontribusi organisasi terhadap
+        perkembangan fisika dan pendidikan di Indonesia.
+      </p>
+    `,
+    imageUrl: "/assets/activity/pertemuan-07-27-01.jpeg",
+    publishedAt: "26 Agustus 2026",
+    author: "PSI Cabang Surabaya",
+  },
+  {
+    id: "news-2",
+    slug: "seminar-nasional-fisika-dan-pendidikan",
+    title: "Seminar Nasional Fisika dan Pendidikan Hadirkan Ruang Diskusi Keilmuan",
+    category: "SEMINAR",
+    excerpt:
+      "Seminar nasional menjadi ruang bertemunya akademisi, pendidik, peneliti, dan mahasiswa untuk membahas perkembangan fisika dan pendidikan.",
+    content: `
+      <p>
+        Perkembangan ilmu fisika dan pendidikan membutuhkan ruang dialog yang
+        mempertemukan berbagai perspektif. Seminar nasional ini menjadi salah
+        satu ruang untuk membahas berbagai isu dan perkembangan terbaru.
+      </p>
+
+      <h2>Forum Pertukaran Gagasan</h2>
+
+      <p>
+        Kegiatan menghadirkan berbagai pembicara dan peserta dari latar belakang
+        akademik yang beragam. Diskusi diarahkan pada pengembangan keilmuan,
+        pendidikan, serta peluang kolaborasi di masa mendatang.
+      </p>
+    `,
+    imageUrl: "/assets/activity/penyelarasan-kurikulum.jpeg",
+    publishedAt: "20 Agustus 2026",
+    author: "PSI Cabang Surabaya",
+  },
+];
+
+// TODO: Hapus fungsi ini setelah integrasi Prisma selesai
+function getDummyNews(slug: string) {
+  return dummyNews.find((item) => item.slug === slug);
+}
+
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(date);
 }
 
 export async function generateMetadata({
@@ -37,15 +116,36 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const news = await prisma.news.findUnique({
-    where: { slug, status: "PUBLISHED" },
-    select: { title: true, excerpt: true, imageUrl: true, category: true, publishedAt: true },
-  });
 
-  if (!news) return { title: "Berita Tidak Ditemukan" };
+  // TODO: Ganti dengan query Prisma, ini hanya untuk sementara
+  const news = getDummyNews(slug);
 
-  const description = news.excerpt ?? `Berita ${news.category} dari PSI Cabang Surabaya`;
-  const ogImage = news.imageUrl ?? undefined;
+  // const news = await prisma.news.findUnique({
+  //   where: {
+  //     slug,
+  //     status: "PUBLISHED",
+  //   },
+  //   select: {
+  //     title: true,
+  //     excerpt: true,
+  //     imageUrl: true,
+  //     category: true,
+  //     publishedAt: true,
+  //   },
+  // });
+
+  if (!news) {
+    return {
+      title: "Berita Tidak Ditemukan",
+    };
+  }
+
+  const categoryLabel =
+    CATEGORY_LABELS[news.category] ?? news.category;
+
+  const description =
+    news.excerpt ??
+    `Berita ${categoryLabel} dari PSI Cabang Surabaya`;
 
   return {
     title: news.title,
@@ -56,14 +156,24 @@ export async function generateMetadata({
       type: "article",
       locale: "id_ID",
       siteName: "PSI Cabang Surabaya",
-      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630, alt: news.title }] }),
-      ...(news.publishedAt && { publishedTime: news.publishedAt.toISOString() }),
+      ...(news.imageUrl && {
+        images: [
+          {
+            url: news.imageUrl,
+            width: 1200,
+            height: 630,
+            alt: news.title,
+          },
+        ],
+      }),
     },
     twitter: {
       card: "summary_large_image",
       title: news.title,
       description,
-      ...(ogImage && { images: [ogImage] }),
+      ...(news.imageUrl && {
+        images: [news.imageUrl],
+      }),
     },
   };
 }
@@ -75,96 +185,116 @@ export default async function BeritaDetailPage({
 }) {
   const { slug } = await params;
 
-  const news = await prisma.news.findUnique({
-    where: { slug, status: "PUBLISHED" },
-    select: {
-      id: true,
-      title: true,
-      category: true,
-      excerpt: true,
-      content: true,
-      imageUrl: true,
-      publishedAt: true,
-      createdAt: true,
-      author: { select: { name: true } },
-    },
-  });
+  // TODO: Ganti dengan query Prisma, ini hanya untuk sementara
+  const news = getDummyNews(slug);
 
-  if (!news) notFound();
+  // const news = await prisma.news.findUnique({
+  //   where: {
+  //     slug,
+  //     status: "PUBLISHED",
+  //   },
+  //   select: {
+  //     id: true,
+  //     title: true,
+  //     category: true,
+  //     excerpt: true,
+  //     content: true,
+  //     imageUrl: true,
+  //     publishedAt: true,
+  //     createdAt: true,
+  //     author: {
+  //       select: {
+  //         name: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-  const categoryLabel = CATEGORY_LABELS[news.category] ?? news.category;
-  const categoryColor = CATEGORY_COLORS[news.category] ?? "bg-neutral-100 text-neutral-600";
+  if (!news) {
+    notFound();
+  }
+
+  const categoryLabel =
+    CATEGORY_LABELS[news.category] ?? news.category;
 
   return (
-    <div className="bg-neutral-50">
-      {/* Header */}
-      <section className="bg-linear-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <main>
+      <Section padding="normal">
+        <Container>
           <Link
             href="/news"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-300 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground-muted transition-colors hover:text-primary-600"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
+            <span aria-hidden="true">←</span>
             Kembali ke Berita
           </Link>
-          <div className="mt-4 flex items-center gap-2">
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${categoryColor}`}>
-              {categoryLabel}
-            </span>
-            <span className="text-sm text-primary-300">
-              {formatDate(news.publishedAt ?? news.createdAt)}
-            </span>
-          </div>
-          <h1 className="mt-4 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
-            {news.title}
-          </h1>
-          <p className="mt-3 text-primary-200">
-            Ditulis oleh {news.author.name}
-          </p>
-        </div>
-      </section>
 
-      {/* Content */}
-      <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        {news.imageUrl && (
-          <div className="mb-8 overflow-hidden rounded-xl">
-            <Image
-              src={news.imageUrl}
-              alt={news.title}
-              width={1200}
-              height={675}
-              unoptimized
-              className="h-auto w-full object-cover"
+          <header className="mt-8 max-w-4xl">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary-600">
+                {categoryLabel}
+              </span>
+
+              <span className="text-xs text-foreground-muted">
+                {news.publishedAt}
+              </span>
+            </div>
+
+            <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-primary-950 sm:text-4xl lg:text-5xl">
+              {news.title}
+            </h1>
+
+            <p className="mt-4 text-sm text-foreground-muted">
+              Ditulis oleh{" "}
+              <span className="font-medium text-primary-900">
+                {news.author}
+              </span>
+            </p>
+          </header>
+        </Container>
+      </Section>
+
+      <Section padding="normal" className="pt-0">
+        <Container>
+          <article className="mx-auto max-w-4xl">
+            {news.imageUrl && (
+              <div className="relative aspect-video overflow-hidden rounded-md bg-background-muted">
+                <Image
+                  src={news.imageUrl}
+                  alt={news.title}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 900px"
+                />
+              </div>
+            )}
+
+            {news.excerpt && (
+              <p className="mt-8 max-w-3xl text-lg font-medium leading-8 text-primary-900 sm:text-xl">
+                {news.excerpt}
+              </p>
+            )}
+
+            <div
+              className="prose prose-lg mt-8 max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-primary-950 prose-p:text-foreground-muted prose-a:text-primary-600 prose-img:rounded-md"
+              dangerouslySetInnerHTML={{
+                __html: news.content,
+              }}
             />
-          </div>
-        )}
 
-        {news.excerpt && (
-          <p className="mb-6 text-lg leading-relaxed text-neutral-600 border-l-4 border-primary-500 pl-4 italic">
-            {news.excerpt}
-          </p>
-        )}
-
-        <div
-          className="prose prose-lg max-w-none prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-a:text-primary-600 prose-img:rounded-xl"
-          dangerouslySetInnerHTML={{ __html: news.content }}
-        />
-
-        {/* Share / Back */}
-        <div className="mt-12 border-t border-neutral-200 pt-6">
-          <Link
-            href="/news"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Kembali ke Daftar Berita
-          </Link>
-        </div>
-      </article>
-    </div>
+            <div className="mt-14">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-primary-900 transition-colors hover:text-primary-600"
+              >
+                <span aria-hidden="true">←</span>
+                Kembali ke Semua Berita
+              </Link>
+            </div>
+          </article>
+        </Container>
+      </Section>
+    </main>
   );
 }

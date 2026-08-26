@@ -17,22 +17,22 @@ export function SidebarSection({
 }: SidebarSectionProps) {
   return (
     <section>
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-primary-950">
+      <div className="flex items-baseline justify-between gap-4 border-b border-border pb-3">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-950">
           {title}
         </h2>
 
         {action && (
           <Link
             href={action.href}
-            className="text-xs font-semibold text-primary-700 transition-colors hover:text-primary-900"
+            className="shrink-0 text-xs font-medium text-foreground-muted transition-colors hover:text-primary-600"
           >
             {action.label} →
           </Link>
         )}
       </div>
 
-      <div className="mt-5">{children}</div>
+      <div className="pt-5">{children}</div>
     </section>
   );
 }

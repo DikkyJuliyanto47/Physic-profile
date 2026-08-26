@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { NewsItem } from "./queries";
+
+import type { NewsItem } from "./data";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ORGANISASI: "Organisasi",
@@ -31,14 +32,14 @@ export function FeaturedNews({ item }: FeaturedNewsProps) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
         <Link
           href={item.href}
-          className="group relative block aspect-16/10 overflow-hidden bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
+          className="group relative block aspect-16/10 overflow-hidden rounded-md bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
         >
           <Image
             src={item.image}
             alt={item.title}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
           />
         </Link>
 

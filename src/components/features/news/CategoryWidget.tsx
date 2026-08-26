@@ -14,10 +14,12 @@ interface CategoryWidgetProps {
   activeCategory?: string;
 }
 
-export function CategoryWidget({ activeCategory = "" }: CategoryWidgetProps) {
+export function CategoryWidget({
+  activeCategory = "",
+}: CategoryWidgetProps) {
   return (
     <nav aria-label="Kategori berita" className="border-y border-border">
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap items-center gap-x-6">
         {CATEGORIES.map((category) => {
           const params = new URLSearchParams();
 
@@ -32,11 +34,13 @@ export function CategoryWidget({ activeCategory = "" }: CategoryWidgetProps) {
             <Link
               key={category.value || "all"}
               href={href}
-              className={`border-b-2 px-0 py-3 mr-6 text-sm font-medium transition-colors ${
+              aria-current={active ? "page" : undefined}
+              className={[
+                "border-b-2 py-3 text-sm font-medium transition-colors",
                 active
                   ? "border-primary-700 text-primary-800"
-                  : "border-transparent text-foreground-muted hover:border-primary-200 hover:text-primary-700"
-              }`}
+                  : "border-transparent text-foreground-muted hover:border-primary-200 hover:text-primary-700",
+              ].join(" ")}
             >
               {category.label}
             </Link>
