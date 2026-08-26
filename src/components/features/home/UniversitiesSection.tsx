@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Container, Section, SectionHeading } from "@/components/ui";
-
 import { universities } from "./data";
 import type { University } from "./data";
 
@@ -14,9 +13,7 @@ export function UniversitiesSection() {
     useState<University | null>(null);
 
   useEffect(() => {
-    if (!selectedUniversity) {
-      return;
-    }
+    if (!selectedUniversity) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -32,103 +29,43 @@ export function UniversitiesSection() {
   }, [selectedUniversity]);
 
   return (
-    <Section tone="muted" className="relative overflow-hidden py-16 lg:py-20">
-      <Container className="flex flex-col items-center gap-8">
-        <div className="text-center">
-          <SectionHeading
-          eyebrow="Perguruan Tinggi"
-          title="Perguruan Tinggi Anggota PSI Cabang Surabaya"
-          align="center"
-        />
-        </div>
+    <Section
+      className="bg-primary-950 py-14 text-white sm:py-16 lg:py-20"
+    >
+      <Container>
+        <div className="flex flex-col">
+          <div className="mx-auto flex w-full max-w-4xl flex-col items-center text-center">
+            <SectionHeading
+              eyebrow="Perguruan Tinggi"
+              title="Perguruan Tinggi Anggota PSI Cabang Surabaya"
+              align="center"
+              className="[&_h2]:max-w-4xl [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:leading-[1.15] [&_h2]:tracking-tight [&_h2]:text-white sm:[&_h2]:text-4xl [&_p]:text-white/65 [&_span]:text-primary-300"
+            />
+          </div>
 
-        <div className="w-full max-w-6xl">
-          <div
-            className="
-              rounded-3xl
-              bg-primary-500
-              px-6 py-8
-              shadow-[0_14px_32px_rgba(29,92,184,0.14)]
-              sm:px-8 sm:py-9
-              lg:px-10 lg:py-10
-            "
-          >
-            <div
-              className="
-                grid
-                grid-cols-2
-                items-center
-                justify-items-center
-                gap-x-6
-                gap-y-8
-                sm:grid-cols-3
-                sm:gap-x-8
-                lg:grid-cols-5
-                lg:gap-x-6
-                lg:gap-y-4
-              "
-            >
+          <div className="mx-auto mt-8 w-full max-w-5xl border-t border-white/20 pt-8 sm:mt-9 sm:pt-9 lg:mt-10 lg:pt-10">
+            <div className="flex flex-wrap justify-center">
               {universities.map((university) => {
                 const content = (
-                  <div
-                    className="
-                      group
-                      flex
-                      min-h-28
-                      w-full
-                      flex-col
-                      items-center
-                      justify-center
-                      px-2
-                      text-center
-                      transition-transform
-                      duration-300
-                      ease-out
-                      motion-safe:group-hover:-translate-y-1
-                    "
-                  >
-                    <div
-                      className="
-                        flex
-                        h-16 w-16
-                        items-center justify-center
-                        sm:h-20 sm:w-20
-                      "
-                    >
+                  <div className="flex min-h-36 w-full flex-col items-center justify-center px-3 py-6 sm:min-h-40 sm:px-4 sm:py-7 lg:min-h-44 lg:px-5">
+                    <div className="flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20 lg:h-22 lg:w-22">
                       <Image
                         src={university.logo}
                         alt={university.name}
-                        width={80}
-                        height={80}
-                        className="
-                          h-full
-                          w-full
-                          object-contain
-                          transition-transform
-                          duration-300
-                          ease-out
-                          motion-safe:group-hover:scale-[1.04]
-                        "
+                        width={88}
+                        height={88}
+                        className="h-full w-full object-contain"
                       />
                     </div>
 
-                    <p
-                      className="
-                        mt-3
-                        max-w-32
-                        text-center
-                        text-xs
-                        font-semibold
-                        leading-4
-                        text-white
-                        sm:text-sm
-                        sm:leading-5
-                      "
-                    >
+                    <p className="mt-4 max-w-40 text-center text-xs font-medium leading-5 text-white/90 sm:text-sm">
                       {university.name}
                     </p>
                   </div>
                 );
+
+                const itemClassName =
+                  "w-1/2 sm:w-1/3 lg:w-1/5 outline-none transition-colors hover:bg-white/[0.035] focus-visible:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-300";
 
                 if (university.options?.length) {
                   return (
@@ -136,15 +73,7 @@ export function UniversitiesSection() {
                       key={university.id}
                       type="button"
                       onClick={() => setSelectedUniversity(university)}
-                      className="
-                        w-full
-                        rounded-xl
-                        outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-white/80
-                        focus-visible:ring-offset-2
-                        focus-visible:ring-offset-primary-500
-                      "
+                      className={itemClassName}
                       aria-label={`Pilih program studi ${university.name}`}
                     >
                       {content}
@@ -159,15 +88,7 @@ export function UniversitiesSection() {
                       href={university.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="
-                        w-full
-                        rounded-xl
-                        outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-white/80
-                        focus-visible:ring-offset-2
-                        focus-visible:ring-offset-primary-500
-                      "
+                      className={itemClassName}
                     >
                       {content}
                     </Link>
@@ -175,7 +96,7 @@ export function UniversitiesSection() {
                 }
 
                 return (
-                  <div key={university.id} className="w-full">
+                  <div key={university.id} className={itemClassName}>
                     {content}
                   </div>
                 );
@@ -187,13 +108,7 @@ export function UniversitiesSection() {
 
       {selectedUniversity && (
         <div
-          className="
-            fixed inset-0 z-50
-            flex items-center justify-center
-            bg-slate-950/35
-            px-4
-            backdrop-blur-sm
-          "
+          className="fixed inset-0 z-50 flex items-center justify-center bg-primary-950/60 px-4"
           role="presentation"
           onClick={() => setSelectedUniversity(null)}
         >
@@ -201,35 +116,23 @@ export function UniversitiesSection() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="university-dialog-title"
-            className="
-              w-full max-w-md
-              overflow-hidden
-              rounded-[1.125rem]
-              border border-white/80
-              bg-white
-              shadow-[0_24px_60px_rgba(15,23,42,0.18)]
-              animate-in
-              fade-in
-              zoom-in-[0.98]
-              duration-200
-            "
+            className="w-full max-w-md border border-border bg-white text-foreground shadow-[0_20px_50px_rgba(15,23,42,0.18)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-6 px-6 pb-4 pt-6">
-              <div>
+            <div className="flex items-start justify-between gap-6 border-b border-border px-6 py-5 sm:px-7">
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-600">
+                  Perguruan Tinggi
+                </p>
+
                 <h3
                   id="university-dialog-title"
-                  className="
-                    text-lg
-                    font-bold
-                    tracking-tight
-                    text-foreground
-                  "
+                  className="mt-1.5 text-lg font-bold leading-6 tracking-tight sm:text-xl"
                 >
                   {selectedUniversity.name}
                 </h3>
 
-                <p className="mt-1.5 text-sm text-foreground-muted">
+                <p className="mt-1 text-sm text-foreground-muted">
                   Pilih program studi
                 </p>
               </div>
@@ -238,57 +141,26 @@ export function UniversitiesSection() {
                 type="button"
                 onClick={() => setSelectedUniversity(null)}
                 aria-label="Tutup dialog"
-                className="
-                  flex h-9 w-9
-                  shrink-0
-                  items-center justify-center
-                  rounded-lg
-                  text-foreground-muted
-                  transition-colors
-                  hover:bg-background-muted
-                  hover:text-foreground
-                  focus-visible:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-primary-300
-                "
+                className="flex h-8 w-8 shrink-0 items-center justify-center border border-border text-lg leading-none text-foreground-muted transition-colors hover:bg-background-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
               >
-                <span aria-hidden="true" className="text-lg leading-none">
-                  ×
-                </span>
+                ×
               </button>
             </div>
 
-            <div className="space-y-2 border-t border-border/70 px-6 py-5">
+            <div className="space-y-2 px-6 py-5 sm:px-7">
               {selectedUniversity.options?.map((option) => (
                 <Link
                   key={option.href}
                   href={option.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="
-                    flex min-h-12
-                    items-center justify-between
-                    gap-4
-                    rounded-lg
-                    border border-border
-                    px-4
-                    text-sm font-medium
-                    text-foreground
-                    transition-[background-color,border-color,color,transform]
-                    duration-200
-                    hover:-translate-y-px
-                    hover:border-primary-200
-                    hover:bg-primary-50
-                    hover:text-primary-700
-                    focus-visible:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-primary-300
-                  "
+                  className="flex min-h-12 items-center justify-between gap-4 border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
                 >
                   <span>{option.label}</span>
+
                   <span
                     aria-hidden="true"
-                    className="text-primary-600"
+                    className="shrink-0 text-primary-600"
                   >
                     →
                   </span>

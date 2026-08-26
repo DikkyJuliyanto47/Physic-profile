@@ -1,46 +1,40 @@
 import {
   AboutSection,
-  GallerySection,
-  HeroSection,
-  JoinCtaSection,
-  UniversitiesSection,
   EventsSection,
+  GallerySection,
+  JoinCtaSection,
   LatestNewsPanel,
   StatisticsSection,
+  UniversitiesSection,
 } from "@/components/features/home";
-import { getUpcomingEvents } from "@/components/features/events/data";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 export default async function Page() {
-  const upcomingEvents = await getUpcomingEvents(3);
-
   return (
     <>
       <GallerySection />
 
-      <HeroSection />
-
-      <ScrollReveal>
-        <AboutSection />
-      </ScrollReveal>
+      <AboutSection />
 
       <ScrollReveal delayMs={80}>
         <StatisticsSection />
       </ScrollReveal>
 
-      <ScrollReveal delayMs={80}>
-        <EventsSection events={upcomingEvents} />
-      </ScrollReveal>
+      <div className="-mt-8">
+        <ScrollReveal delayMs={80}>
+          <LatestNewsPanel />
+        </ScrollReveal>
+      </div>
 
       <ScrollReveal delayMs={80}>
-        <LatestNewsPanel />
+        <EventsSection events={[]} />
       </ScrollReveal>
 
       <ScrollReveal delayMs={80}>
         <UniversitiesSection />
       </ScrollReveal>
-      
-        <JoinCtaSection />
+
+      <JoinCtaSection />
     </>
   );
 }

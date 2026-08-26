@@ -1,15 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Button, Container, Section, SectionHeading } from "@/components/ui";
-import { getLatestNews } from "@/components/features/news";
+import {
+  Button,
+  Container,
+  Section,
+  SectionHeading,
+} from "@/components/ui";
 
 export async function LatestNewsPanel() {
-  // TODO: Aktifkan kembali setelah sumber berita/API sudah tersambung.
+  // TODO: Aktifkan kembali ketika sumber berita/API sudah siap.
   // const latestNews = await getLatestNews(3);
 
-  // TEMPORARY MOCK DATA — hanya digunakan untuk preview visual landing page.
-  // Hapus blok ini dan aktifkan getLatestNews() ketika data sudah tersedia.
+  // TEMPORARY MOCK DATA
+  // Hanya untuk pengujian visual landing page.
+  // Hapus blok ini dan gunakan getLatestNews() ketika data sudah tersedia.
   const latestNews = [
     {
       id: "mock-news-1",
@@ -41,94 +46,76 @@ export async function LatestNewsPanel() {
   ];
 
   return (
-    <Section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-28 -bottom-28 h-64 w-64 rounded-full bg-primary-500/45 sm:-left-36 sm:-bottom-32 sm:h-80 sm:w-80"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-28 top-[42%] h-56 w-56 rounded-full bg-primary-500/35 sm:-right-36 sm:h-72 sm:w-72"
-      />
-
-      <Container className="relative z-10 flex flex-col items-center">
-        <div className="text-center">
+    <Section
+      tone="dark"
+      className="relative overflow-hidden pb-16 pt-16 sm:pb-20 sm:pt-20 lg:pb-24 lg:pt-24"
+    >
+      <Container>
+        <div className="flex flex-col gap-8">
           <SectionHeading
             eyebrow="Informasi Terbaru"
             title="Informasi Terbaru PSI Cabang Surabaya"
-            align="center"
+            align="left"
+            className="[&_h2]:max-w-2xl [&_p]:text-white/65 [&_span]:text-white/60 [&_h2]:text-white"
           />
-        </div>
 
-        <div className="mt-8 grid w-full max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {latestNews.map((item) => (
-            <article key={item.id} className="group relative flex min-w-0 flex-col">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-2 rounded-[0.7rem] bg-black/5.5 blur-xl transition-colors duration-300 group-hover:bg-black/9"
-              />
-
-              <div
-                className="
-                  relative flex flex-1 flex-col overflow-hidden
-                  rounded-[0.55rem] border border-border/70 bg-white
-                  shadow-[0_4px_12px_rgba(15,23,42,0.045)]
-                  transition-[transform,box-shadow,border-color] duration-300 ease-out
-                  group-hover:-translate-y-1 group-hover:border-border
-                  group-hover:shadow-[0_14px_30px_rgba(15,23,42,0.09)]
-                "
+          <div className="divide-y divide-white/15 border-y border-white/15">
+            {latestNews.map((item) => (
+              <article
+                key={item.id}
+                className="group grid gap-5 py-5 sm:grid-cols-[220px_minmax(0,1fr)] sm:items-center sm:gap-7 sm:py-6 lg:grid-cols-[250px_minmax(0,1fr)_auto]"
               >
                 <Link
                   href={item.href}
-                  className="block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400"
+                  className="relative block aspect-video overflow-hidden bg-primary-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-background-muted">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      sizes="(min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
-                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]"
-                    />
-                  </div>
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(min-width: 1024px) 250px, (min-width: 640px) 220px, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+                  />
                 </Link>
 
-                <div className="flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-                  <time className="text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 sm:text-xs">
+                <div className="min-w-0">
+                  <time className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-300 sm:text-xs">
                     {item.date}
                   </time>
 
-                  <h3 className="mt-2.5 line-clamp-2 text-base font-bold leading-6 tracking-tight text-foreground sm:text-lg">
-                    {item.title}
+                  <h3 className="mt-2 text-base font-semibold leading-6 tracking-tight text-white sm:text-lg">
+                    <Link
+                      href={item.href}
+                      className="transition-colors hover:text-primary-300"
+                    >
+                      {item.title}
+                    </Link>
                   </h3>
 
-                  <p className="mt-2.5 line-clamp-3 text-sm leading-6 text-foreground-muted">
+                  <p className="mt-2 max-w-2xl line-clamp-2 text-sm leading-6 text-white/65">
                     {item.excerpt}
                   </p>
-
-                  <Link
-                    href={item.href}
-                    className="
-                      mt-4 inline-flex w-fit items-center gap-1.5
-                      border-b border-transparent pb-0.5
-                      text-xs font-semibold text-primary-600
-                      transition-[color,border-color,gap] duration-200
-                      hover:gap-2.5 hover:border-primary-600 hover:text-primary-700
-                      focus-visible:outline-none focus-visible:ring-2
-                      focus-visible:ring-primary-300 focus-visible:ring-offset-2
-                    "
-                  >
-                    Baca selengkapnya <span aria-hidden="true">→</span>
-                  </Link>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
 
-        <Button href="/news" variant="outline" size="medium" className="mt-8">
-          Lihat Informasi Lainnya →
-        </Button>
+                <Link
+                  href={item.href}
+                  className="inline-flex w-fit items-center border-b border-white/30 pb-1 text-xs font-semibold text-white transition-colors hover:border-primary-300 hover:text-primary-300 sm:text-sm lg:justify-self-end"
+                >
+                  Baca selengkapnya →
+                </Link>
+              </article>
+            ))}
+          </div>
+
+          <Button
+            href="/news"
+            variant="outline"
+            size="medium"
+            className="self-start border-white/30 bg-transparent text-white hover:border-white hover:bg-white hover:text-primary-900"
+          >
+            Lihat Informasi Lainnya →
+          </Button>
+        </div>
       </Container>
     </Section>
   );

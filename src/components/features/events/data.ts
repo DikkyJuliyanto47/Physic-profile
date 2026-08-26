@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export interface EventItem {
+  time: ReactNode;
   id: string;
   title: string;
   date: string;

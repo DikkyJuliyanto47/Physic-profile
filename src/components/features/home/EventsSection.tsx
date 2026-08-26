@@ -1,17 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
+import { useMemo } from "react";
 import Link from "next/link";
 import { FaCalendarAlt } from "react-icons/fa";
 
-import {
-  Button,
-  Container,
-  Section,
-  SectionHeading,
-} from "@/components/ui";
-
+import { Button, Container, Section } from "@/components/ui";
 import type { EventItem } from "@/components/features/events/data";
 
 interface EventsSectionProps {
@@ -33,367 +26,177 @@ export function EventsSection({ events }: EventsSectionProps) {
     {
       id: "agenda-1",
       title: "Penyelarasan Kurikulum: Asesmen OBE",
-      date: "29 Juli 2025",
+      date: "29 Juli 2026",
       time: "09.30 - 12.30 WIB",
       location:
         "Ruang Meeting Rumpun Fisika, Gedung C3 Lantai 1, Universitas Negeri Surabaya",
       description:
-        "Pertemuan rutin anggota Physical Society of Indonesia (PSI) Cabang Surabaya.",
+        "Pertemuan anggota dan akademisi untuk membahas pengembangan serta penyelarasan kegiatan keilmuan fisika.",
       image: "/assets/activity/penyelarasan-kurikulum.jpeg",
-      views: 10,
       href: "/agenda",
     },
     {
       id: "agenda-2",
       title: "Diskusi dan Pengembangan Komunitas Fisika",
-      date: "8 Agustus 2025",
+      date: "8 Agustus 2026",
       time: "10.00 - 12.00 WIB",
       location:
         "Ruang Seminar Departemen Fisika, Universitas Negeri Surabaya",
       description:
-        "Forum diskusi anggota untuk membahas pengembangan kegiatan komunitas dan kolaborasi akademik.",
+        "Forum diskusi untuk memperkuat komunikasi, kolaborasi akademik, dan pengembangan komunitas fisika.",
       image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      views: 18,
       href: "/agenda",
     },
     {
       id: "agenda-3",
       title: "Pertemuan Anggota PSI Cabang Surabaya",
-      date: "22 Agustus 2025",
+      date: "22 Agustus 2026",
       time: "09.00 - 11.30 WIB",
       location: "Surabaya",
       description:
         "Pertemuan anggota sebagai ruang koordinasi dan pertukaran informasi kegiatan PSI Cabang Surabaya.",
       image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      views: 24,
+      href: "/agenda",
+    },
+    {
+      id: "agenda-4",
+      title: "Forum Kolaborasi Fisika Surabaya",
+      date: "5 September 2026",
+      time: "09.00 - 12.00 WIB",
+      location: "Surabaya",
+      description:
+        "Forum kolaborasi antara akademisi, peneliti, pendidik, mahasiswa, dan anggota komunitas fisika.",
+      image: "/assets/activity/pertemuan-07-27-01.jpeg",
       href: "/agenda",
     },
   ];
 
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const agenda = events.length > 0 ? events : upcomingAgenda;
 
-  const handleScroll = () => {
-    const track = trackRef.current;
-
-    if (!track || upcomingAgenda.length === 0) {
-      return;
-    }
-
-    const cards = Array.from(
-      track.querySelectorAll<HTMLElement>("[data-agenda-card]"),
-    );
-
-    if (cards.length === 0) {
-      return;
-    }
-
-    const scrollPosition = track.scrollLeft + track.clientWidth / 2;
-
-    let closestIndex = 0;
-    let closestDistance = Number.POSITIVE_INFINITY;
-
-    cards.forEach((card, index) => {
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      const distance = Math.abs(cardCenter - scrollPosition);
-
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
-    });
-
-    setActiveIndex(closestIndex);
-  };
-
-  const goToSlide = (index: number) => {
-    const track = trackRef.current;
-    const card = track?.querySelector<HTMLElement>(
-      `[data-agenda-index="${index}"]`,
-    );
-
-    if (!track || !card) {
-      return;
-    }
-
-    track.scrollTo({
-      left: card.offsetLeft,
-      behavior: "smooth",
-    });
-
-    setActiveIndex(index);
-  };
+  const latestActivities = useMemo(() => agenda.slice(0, 5), [agenda]);
+  const featuredAgenda = agenda.slice(0, 5);
+  const additionalActivities = useMemo(() => agenda.slice(1, 6), [agenda]);
 
   return (
-    <Section
-      tone="muted"
-      className="
-        relative
-        overflow-hidden
-        py-16
-        sm:py-20
-        lg:py-24
-      "
-    >
-      <Container className="relative z-10 flex flex-col items-center">
-        <div>
-          <SectionHeading
-            eyebrow="Kegiatan Terbaru"
-            title="Kegiatan Terbaru PSI Cabang Surabaya"
-            align="center"
-          />
-        </div>
+    <Section className="bg-background py-14 sm:py-16 lg:py-20">
+      <Container>
+        <div className="grid border-y border-border lg:grid-cols-[1fr_1.05fr_1fr]">
+          <div className="px-0 py-8 sm:px-6 lg:px-7 lg:py-10">
+            <h2 className="text-2xl font-semibold tracking-tight text-primary-900 sm:text-3xl">
+              Kegiatan Terbaru
+            </h2>
 
-        {upcomingAgenda.length === 0 ? (
-          <div className="mt-8 w-full max-w-4xl border border-dashed border-border bg-background px-6 py-12 text-center text-sm text-foreground-muted">
-            Belum ada agenda mendatang yang dipublikasikan.
-          </div>
-        ) : (
-          <div className="mt-8 w-full max-w-6xl">
-            <div
-              ref={trackRef}
-              onScroll={handleScroll}
-              className="
-                flex
-                snap-x
-                snap-mandatory
-                gap-5
-                overflow-x-auto
-                px-1
-                pb-3
-                scrollbar-none
-                [-ms-overflow-style:none]
-                [&::-webkit-scrollbar]:hidden
+            <div className="mt-7 space-y-6">
+              {latestActivities.map((item) => (
+                <article key={`latest-${item.id}`}>
+                  <time className="block text-sm text-foreground-muted">
+                    {item.date}
+                  </time>
 
-                sm:grid
-                sm:grid-cols-2
-                sm:gap-5
-                sm:overflow-visible
-                sm:px-0
-                sm:pb-0
-
-                lg:grid-cols-3
-              "
-              style={{ scrollbarWidth: "none" }}
-            >
-              {upcomingAgenda.map((item, index) => (
-                <article
-                  key={item.id}
-                  data-agenda-card
-                  data-agenda-index={index}
-                  className="
-                    group
-                    relative
-                    flex
-                    w-[90vw]
-                    min-w-0
-                    shrink-0
-                    snap-center
-                    flex-col
-
-                    sm:w-auto
-                  "
-                >
-                  
-                  <div
-                    aria-hidden="true"
-                    className="
-                      pointer-events-none
-                      absolute
-                      -inset-2
-                      rounded-[0.65rem]
-                      bg-black/[0.07]
-                      blur-xl
-                      transition-opacity
-                      duration-300
-                      group-hover:bg-black/11
-                    "
-                  />
-
-                  <div
-                    className="
-                      relative
-                      flex
-                      flex-1
-                      flex-col
-                      overflow-hidden
-                      rounded-[0.45rem]
-                      border
-                      border-border/60
-                      bg-white
-                      text-center
-
-                      shadow-[0_3px_10px_rgba(15,23,42,0.045)]
-
-                      transition-[transform,box-shadow,border-color]
-                      duration-300
-                      ease-out
-
-                      group-hover:-translate-y-0.5
-                      group-hover:border-border
-                      group-hover:shadow-[0_10px_22px_rgba(15,23,42,0.09)]
-                    "
+                  <Link
+                    href={item.href ?? "/agenda"}
+                    className="mt-1.5 block text-base font-semibold leading-6 text-primary-900 transition-colors hover:text-primary-600"
                   >
-                    <Link
-                      href={item.href ?? "/agenda"}
-                      className="
-                        block
-                        overflow-hidden
-                        focus-visible:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-inset
-                        focus-visible:ring-primary-400
-                      "
-                    >
-                      <div
-                        className="
-                          relative
-                          aspect-16/8.5
-                          overflow-hidden
-                          bg-background-muted
-
-                          sm:aspect-16/8
-                        "
-                      >
-                        {item.image ? (
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            fill
-                            sizes="
-                              (min-width: 1024px) 30vw,
-                              (min-width: 640px) 45vw,
-                              84vw
-                            "
-                            className="
-                              object-cover
-                              transition-transform
-                              duration-500
-                              ease-out
-                              group-hover:scale-[1.025]
-                            "
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-sm text-foreground-muted">
-                            Foto kegiatan
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-
-                    <div
-                      className="
-                        flex
-                        flex-1
-                        flex-col
-                        items-start
-                        px-4
-                        pb-4
-                        pt-3
-                        text-left
-                        sm:px-5
-                      "
-                    >
-                      <time
-                        className="
-                          inline-flex
-                          items-center
-                          gap-1.5
-                          text-[11px]
-                          font-medium
-                          text-primary-600
-                          sm:text-xs
-                        "
-                      >
-                        <FaCalendarAlt
-                          className="h-3 w-3 shrink-0"
-                          aria-hidden="true"
-                        />
-
-                        {item.date}
-                      </time>
-
-                      <p
-                        className="
-                          mt-2
-                          line-clamp-2
-                          text-xs
-                          leading-5
-                          text-foreground
-                        "
-                      >
-                        {item.description ?? item.location}
-                      </p>
-
-                      {item.href && (
-                        <Link
-                          href={item.href}
-                          className="
-                            mt-2
-                            inline-flex
-                            items-center
-                            gap-1
-                            text-[11px]
-                            font-medium
-                            text-primary-600
-
-                            transition-[color,gap]
-                            duration-200
-
-                            hover:gap-1.5
-                            hover:text-primary-700
-
-                            focus-visible:outline-none
-                            focus-visible:ring-2
-                            focus-visible:ring-primary-300
-                            focus-visible:ring-offset-2
-                          "
-                        >
-                          Baca Selengkapnya
-                          <span aria-hidden="true">→</span>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
+                    {item.title}
+                  </Link>
                 </article>
               ))}
             </div>
-          </div>
-        )}
 
-        {upcomingAgenda.length > 1 && (
-          <div className="mt-5 flex items-center gap-1.5 sm:hidden">
-            {upcomingAgenda.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => goToSlide(index)}
-                aria-label={`Kegiatan ${index + 1}`}
-                aria-current={activeIndex === index}
-                className={`
-                  h-1.5
-                  rounded-full
-                  transition-[width,background-color]
-                  duration-200
-                  ${
-                    activeIndex === index
-                      ? "w-6 bg-primary-600"
-                      : "w-1.5 bg-border"
-                  }
-                `}
-              />
-            ))}
+            <Button
+              href="/agenda"
+              size="medium"
+              className="mt-8 w-full bg-primary-900 text-white hover:bg-primary-800 sm:w-auto"
+            >
+              Lihat Semua Kegiatan
+            </Button>
           </div>
-        )}
 
-        <Button
-          href="/agenda"
-          size="medium"
-          variant="outline"
-          className="mt-7"
-        >
-          Lihat Semua Kegiatan →
-        </Button>
+          <div className="bg-primary-950 px-6 py-8 text-white sm:px-8 lg:px-9 lg:py-10">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Agenda PSI
+            </h2>
+
+            <div className="mt-7 space-y-5">
+              {featuredAgenda.map((item) => {
+                const [day, month, year] = item.date.split(" ");
+
+                return (
+                  <article
+                    key={`agenda-${item.id}`}
+                    className="grid grid-cols-[96px_minmax(0,1fr)] gap-4"
+                  >
+                    <div className="h-fit overflow-hidden bg-white text-center text-primary-950">
+                      <div className="bg-primary-600 px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                        {month} {year}
+                      </div>
+
+                      <div className="px-2 py-2 text-3xl font-bold leading-none tabular-nums sm:text-4xl">
+                        {day}
+                      </div>
+                    </div>
+
+                    <div className="min-w-0">
+                      <Link
+                        href={item.href ?? "/agenda"}
+                        className="block text-base font-semibold leading-6 text-white transition-colors hover:text-primary-300"
+                      >
+                        {item.title}
+                      </Link>
+
+                      <div className="mt-2 flex items-start gap-1.5 text-xs leading-5 text-white/65">
+                        <FaCalendarAlt
+                          className="mt-1 h-3 w-3 shrink-0"
+                          aria-hidden="true"
+                        />
+                        <span>{item.time}</span>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <Link
+              href="/agenda"
+              className="mt-8 inline-flex border-b border-white/40 pb-1 text-sm font-medium text-white transition-colors hover:border-primary-300 hover:text-primary-300"
+            >
+              Selengkapnya tentang agenda →
+            </Link>
+          </div>
+
+          <div className="px-0 py-8 sm:px-6 lg:px-7 lg:py-10">
+            <h2 className="text-2xl font-semibold tracking-tight text-primary-900 sm:text-3xl">
+              Informasi Kegiatan
+            </h2>
+
+            <div className="mt-7 space-y-6">
+              {additionalActivities.map((item) => (
+                <article key={`info-${item.id}`}>
+                  <time className="block text-sm text-foreground-muted">
+                    {item.date}
+                  </time>
+
+                  <Link
+                    href={item.href ?? "/agenda"}
+                    className="mt-1.5 block text-base font-semibold leading-6 text-primary-900 transition-colors hover:text-primary-600"
+                  >
+                    {item.title}
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            <Button
+              href="/agenda"
+              variant="outline"
+              size="medium"
+              className="mt-8 w-full border-primary-900 text-primary-900 hover:bg-primary-900 hover:text-white sm:w-auto"
+            >
+              Jelajahi Agenda →
+            </Button>
+          </div>
+        </div>
       </Container>
     </Section>
   );
