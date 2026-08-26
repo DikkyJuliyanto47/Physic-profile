@@ -1,26 +1,48 @@
-
 import Link from "next/link";
 
-const CATEGORIES = ["Seminar", "Rapat", "Kegiatan Sosial"];
+const CATEGORIES = [
+  { value: "", label: "Semua" },
+  { value: "ORGANISASI", label: "Organisasi" },
+  { value: "SEMINAR", label: "Seminar" },
+  { value: "WORKSHOP", label: "Workshop" },
+  { value: "PERTEMUAN_RUTIN", label: "Pertemuan Rutin" },
+  { value: "KERJASAMA", label: "Kerjasama" },
+  { value: "PRESTASI_ANGGOTA", label: "Prestasi Anggota" },
+];
 
-export function CategoryWidget() {
+interface CategoryWidgetProps {
+  activeCategory?: string;
+}
+
+export function CategoryWidget({ activeCategory = "" }: CategoryWidgetProps) {
   return (
-    <div className="flex flex-col gap-3">
-      <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
-        Kategori
-      </h3>
+    <nav aria-label="Kategori berita" className="border-y border-border">
+      <div className="flex flex-wrap">
+        {CATEGORIES.map((category) => {
+          const params = new URLSearchParams();
 
-      <div className="flex flex-wrap gap-2">
-        {CATEGORIES.map((category) => (
-          <Link
-            key={category}
-            href={`/news?kategori=${encodeURIComponent(category.toLowerCase())}`}
-            className="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-700"
-          >
-            {category}
-          </Link>
-        ))}
+          if (category.value) {
+            params.set("kategori", category.value);
+          }
+
+          const href = params.size ? `/news?${params}` : "/news";
+          const active = activeCategory === category.value;
+
+          return (
+            <Link
+              key={category.value || "all"}
+              href={href}
+              className={`border-b-2 px-0 py-3 mr-6 text-sm font-medium transition-colors ${
+                active
+                  ? "border-primary-700 text-primary-800"
+                  : "border-transparent text-foreground-muted hover:border-primary-200 hover:text-primary-700"
+              }`}
+            >
+              {category.label}
+            </Link>
+          );
+        })}
       </div>
-    </div>
+    </nav>
   );
 }

@@ -98,7 +98,7 @@ export default async function BeritaDetailPage({
   return (
     <div className="bg-neutral-50">
       {/* Header */}
-      <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
+      <section className="bg-linear-to-br from-primary-900 via-primary-800 to-primary-950 py-12 sm:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/news"

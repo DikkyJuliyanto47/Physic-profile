@@ -1,9 +1,8 @@
-
-export { NewsCard } from "./NewsCard";
-export { NewsGrid } from "./NewsGrid";
-export { SidebarSection } from "./SidebarSection";
-export { LatestNewsWidget } from "./LatestNewsWidget";
-export { AgendaWidget } from "./AgendaWidget";
 export { CategoryWidget } from "./CategoryWidget";
-export { getLatestNews } from "./data";
-export type { NewsItem } from "./data";
+export { FeaturedNews } from "./FeaturedNews";
+export { LatestNewsWidget } from "./LatestNewsWidget";
+export { NewsList } from "./NewsList";
+export { NewsSearch } from "./NewsSearch";
+export { SidebarSection } from "./SidebarSection";
+export { getLatestNews, getNews } from "./queries";
+export type { NewsItem } from "./queries";

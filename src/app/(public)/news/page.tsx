@@ -1,41 +1,47 @@
-
-import { Container, Section, PageBreadcrumb, PageHeader } from "@/components/ui";
 import {
-  NewsGrid,
-  LatestNewsWidget,
-  AgendaWidget,
+  Container,
+  PageBreadcrumb,
+  Section,
+} from "@/components/ui";
+import {
   CategoryWidget,
-  getLatestNews,
+  FeaturedNews,
+  NewsList,
+  NewsSearch,
+  getNews,
 } from "@/components/features/news";
 
 export default async function BeritaPage() {
-  const latestNews = await getLatestNews();
+  const news = await getNews({ limit: 10 });
+  const [featuredNews, ...archiveNews] = news;
 
   return (
     <Section className="pt-10 lg:pt-12">
       <Container>
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_320px] lg:items-start lg:gap-12">
-          <div className="flex flex-col gap-8">
-            <PageBreadcrumb
-              items={[
-                { label: "Beranda", href: "/" },
-                { label: "Berita" },
-              ]}
-            />
+        <div className="flex flex-col gap-8">
+          <PageBreadcrumb
+            items={[
+              { label: "Beranda", href: "/" },
+              { label: "Berita" },
+            ]}
+          />
 
-            <PageHeader
-              eyebrow="INFORMASI"
-              title="Berita PSI Cabang Surabaya"
-            />
+          {featuredNews && <FeaturedNews item={featuredNews} />}
 
-            <NewsGrid items={latestNews} />
-          </div>
+          <section className="flex flex-col gap-5 pt-4">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-primary-950 sm:text-3xl">
+                Semua Berita
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-muted">
+                Informasi dan perkembangan terbaru dari PSI Cabang Surabaya.
+              </p>
+            </div>
 
-          <aside className="flex flex-col gap-8 self-start lg:-mt-104 lg:sticky lg:top-24">
-            <LatestNewsWidget items={latestNews} />
-            <AgendaWidget />
+            <NewsSearch />
             <CategoryWidget />
-          </aside>
+            <NewsList items={archiveNews} />
+          </section>
         </div>
       </Container>
     </Section>
