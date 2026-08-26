@@ -90,7 +90,7 @@ export function StatisticsSection() {
               className="group relative mt-5 rounded-[1.35rem] border border-border/70 bg-white px-5 pb-7 pt-11 shadow-[0_8px_28px_rgba(15,23,42,0.07)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-[0_14px_34px_rgba(15,23,42,0.1)] sm:pb-8 sm:pt-12 lg:pb-9"
             >
               <div className="absolute left-1/2 top-0 flex h-11 min-w-19 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary-950 px-5 text-sm font-semibold text-white shadow-[0_5px_14px_rgba(15,23,42,0.14)]">
-                PSI
+                Physical Society of Indonesia
               </div>
 
               <div
