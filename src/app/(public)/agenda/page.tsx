@@ -89,7 +89,7 @@ export default async function AgendaPage({
   return (
     <div className="bg-neutral-50">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950 py-16 sm:py-20">
+      <section className="bg-linear-to-br from-primary-900 via-primary-800 to-primary-950 py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl font-bold text-white sm:text-4xl">
             Agenda & Kegiatan

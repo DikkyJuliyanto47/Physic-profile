@@ -1,10 +1,12 @@
 import Image from "next/image";
-
 import { Button, Container, Section } from "@/components/ui";
-import { galleryItems } from "./data";
+
+import { aboutItems } from "./data";
 
 export function AboutSection() {
-  const image = galleryItems[0]?.image;
+  
+  const item = aboutItems[0];
+  const imageUrl = item?.image; 
 
   return (
     <Section
@@ -13,9 +15,9 @@ export function AboutSection() {
     >
       <div className="grid min-h-155 lg:grid-cols-2">
         <div className="relative min-h-80 w-full lg:min-h-155">
-          {image ? (
+          {imageUrl ? ( 
             <Image
-              src={image}
+              src={imageUrl} 
               alt="Kegiatan Physical Society of Indonesia Cabang Surabaya"
               fill
               priority
@@ -62,7 +64,7 @@ export function AboutSection() {
               </div>
 
               <Button
-                href="/about"
+                href={item?.href || "/about"} // Gunakan href dari data
                 size="medium"
                 className="mt-7 bg-primary-600 text-white hover:bg-primary-500"
               >

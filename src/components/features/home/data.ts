@@ -35,29 +35,19 @@ export const galleryItems: GalleryItem[] = [
   },
 ];
 
-// Data untuk Hero
-export interface HeroImage {
+// Data About
+export interface AboutItem {
   id: string;
-  src: string;
-  alt: string;
+  image?: string;
+  href?: string;
 }
 
-export const heroImages: HeroImage[] = [
+export const aboutItems: AboutItem[] = [
   {
-    id: "hero-1",
-    src: "/assets/hero/pertemuan-07-27-01.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
-  {
-    id: "hero-2",
-    src: "/assets/hero/pertemuan-07-27-02.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
-  {
-    id: "hero-3",
-    src: "/assets/hero/pertemuan-07-27-02.jpeg",
-    alt: "Pertemuan Rutin PSI (Physical Society of Indonesia) Cabang Surabaya",
-  },
+    id: "about-1",
+    href: "/about",
+    image: "/assets/about/anggota-psi.jpeg"
+  }
 ];
 
 // Data untuk Statistic
