@@ -12,22 +12,26 @@ export function EventMeta({
   className = "",
 }: EventMetaProps) {
   return (
-    <div className={`space-y-1.5 text-sm text-foreground-muted ${className}`}>
-      <div className="flex items-start gap-2">
+    <div
+      className={`flex flex-col gap-1.5 text-sm text-foreground-muted sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-1 ${className}`}
+    >
+      <span className="inline-flex items-center gap-2">
         <FaCalendarAlt
-          className="mt-1 h-3 w-3 shrink-0"
+          className="h-3 w-3 shrink-0 text-primary-600"
           aria-hidden="true"
         />
-        <span>{time}</span>
-      </div>
+        {time}
+      </span>
 
-      <div className="flex items-start gap-2">
+      <span className="hidden h-3.5 w-px bg-border sm:block" aria-hidden="true" />
+
+      <span className="inline-flex items-start gap-2">
         <FaMapMarkerAlt
-          className="mt-1 h-3 w-3 shrink-0"
+          className="mt-0.5 h-3 w-3 shrink-0 text-primary-600"
           aria-hidden="true"
         />
         <span>{location}</span>
-      </div>
+      </span>
     </div>
   );
 }
