@@ -1,7 +1,7 @@
 import { GalleryForm } from "@/components/admin/GalleryForm";
 
 export const metadata = {
-  title: "Tambah Media - PSI Surabaya CMS",
+  title: "Tambah Media - PSI Cabang Surabaya",
 };
 
 export default function NewGalleryPage() {
@@ -12,11 +12,11 @@ export default function NewGalleryPage() {
           Tambah Foto / Video
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Unggah media baru ke galeri dokumentasi.
+          Tambahkan media baru ke galeri dokumentasi PSI Surabaya.
         </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
+      <div className="rounded-md border border-neutral-200 bg-white p-6 shadow-card">
         <GalleryForm mode="create" />
       </div>
     </div>

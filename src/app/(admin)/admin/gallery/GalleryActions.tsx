@@ -1,25 +1,48 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { MediaType } from "@/generated/prisma/client";
 import { deleteGalleryItem } from "@/actions/gallery";
 
 type Props = {
   itemId: string;
   itemTitle: string;
+  mediaType: MediaType;
+  mediaUrl: string;
 };
 
-export function GalleryActions({ itemId, itemTitle }: Props) {
+function getYouTubeEmbedUrl(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
+
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+}
+
+export function GalleryActions({
+  itemId,
+  itemTitle,
+  mediaType,
+  mediaUrl,
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState("");
 
+  const embedUrl =
+    mediaType === "VIDEO" ? getYouTubeEmbedUrl(mediaUrl) : null;
+
   function handleDelete() {
     setError("");
+
     startTransition(async () => {
       const result = await deleteGalleryItem(itemId);
+
       if (result.success) {
         setShowConfirm(false);
         router.refresh();
@@ -31,81 +54,140 @@ export function GalleryActions({ itemId, itemTitle }: Props) {
 
   return (
     <>
-      <div className="inline-flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5">
         <button
+          type="button"
           onClick={() => setShowPreview(true)}
-          className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-          title="Preview"
+          className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
         >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          Preview
         </button>
-        <a
+
+        <Link
           href={`/admin/gallery/${itemId}/edit`}
-          className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+          className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
         >
           Edit
-        </a>
+        </Link>
+
         <button
+          type="button"
           onClick={() => setShowConfirm(true)}
-          className="rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+          className="rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
         >
           Hapus
         </button>
       </div>
 
-      {/* Preview Modal */}
       {showPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8">
-          <div className="relative max-h-[90vh] max-w-4xl overflow-auto rounded-xl bg-white p-4 shadow-elevated">
-            <button
-              onClick={() => setShowPreview(false)}
-              className="absolute right-3 top-3 rounded-full bg-neutral-900/60 p-1.5 text-white transition-colors hover:bg-neutral-900/80"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <p className="mb-3 text-sm font-semibold text-neutral-900">{itemTitle}</p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 sm:p-8"
+          onClick={() => setShowPreview(false)}
+        >
+          <div
+            className="w-full max-w-5xl overflow-hidden rounded-md bg-white"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
+              <div className="min-w-0">
+                <h3 className="truncate text-sm font-semibold text-neutral-900">
+                  {itemTitle}
+                </h3>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  {mediaType === "VIDEO" ? "Video" : "Foto / Gambar"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="shrink-0 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+              >
+                Tutup
+              </button>
+            </div>
+
+            <div className="bg-neutral-950 p-4">
+              {mediaType === "VIDEO" && embedUrl ? (
+                <div className="aspect-video">
+                  <iframe
+                    src={embedUrl}
+                    className="h-full w-full"
+                    allowFullScreen
+                    title={itemTitle}
+                  />
+                </div>
+              ) : (
+                <div className="flex max-h-[75vh] items-center justify-center">
+                  <Image
+                    src={mediaUrl}
+                    alt={itemTitle}
+                    width={1400}
+                    height={900}
+                    unoptimized
+                    className="max-h-[75vh] w-auto max-w-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-elevated">
-            <h3 className="text-lg font-semibold text-neutral-900">
-              Hapus Media?
-            </h3>
-            <p className="mt-2 text-sm text-neutral-600">
-              Apakah Anda yakin ingin menghapus{" "}
-              <strong>&ldquo;{itemTitle}&rdquo;</strong>? Tindakan ini tidak
-              dapat dibatalkan.
-            </p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={() => {
+            if (!isPending) {
+              setShowConfirm(false);
+              setError("");
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-md bg-white"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="border-b border-neutral-200 px-5 py-4">
+              <h3 className="text-base font-semibold text-neutral-900">
+                Hapus Media?
+              </h3>
+            </div>
 
-            {error && (
-              <div className="mt-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
+            <div className="px-5 py-5">
+              <p className="text-sm leading-6 text-neutral-600">
+                Apakah Anda yakin ingin menghapus{" "}
+                <strong className="font-semibold text-neutral-900">
+                  &ldquo;{itemTitle}&rdquo;
+                </strong>
+                ? Tindakan ini tidak dapat dibatalkan.
+              </p>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+              {error && (
+                <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4">
               <button
+                type="button"
                 onClick={() => {
                   setShowConfirm(false);
                   setError("");
                 }}
-                className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                disabled={isPending}
+                className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
               >
                 Batal
               </button>
+
               <button
+                type="button"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {isPending ? "Menghapus..." : "Ya, Hapus"}
               </button>
