@@ -61,10 +61,10 @@ export default async function GalleryListPage({
       <div className="flex flex-col gap-4 border-b border-neutral-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
-            Galeri & Media
+            Galeri
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola foto dan video dokumentasi PSI Surabaya.
+            Kelola foto dan video dokumentasi Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 

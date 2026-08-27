@@ -109,10 +109,10 @@ export default async function EventsListPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-            Agenda & Event
+            Agenda
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola agenda dan event PSI Surabaya.
+            Kelola agenda Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 

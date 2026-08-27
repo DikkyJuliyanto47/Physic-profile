@@ -58,7 +58,7 @@ export default async function ManagementPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kepengurusan</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola periode dan struktur kepengurusan PSI Surabaya.
+            Kelola periode dan struktur kepengurusan Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 

@@ -54,10 +54,10 @@ export default async function DocumentsListPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">
-            Dokumen & Sumber Daya
+            Sumber Daya & Dokumen
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola dokumen akademik dan sumber daya PSI Surabaya.
+            Kelola dokumen akademik dan sumber daya Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
         <Link

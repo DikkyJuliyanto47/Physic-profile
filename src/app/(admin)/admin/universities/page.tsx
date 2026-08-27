@@ -37,7 +37,7 @@ export default async function UniversitiesPage({
             Perguruan Tinggi
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola daftar kampus anggota PSI Surabaya.
+            Kelola daftar kampus anggota Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 

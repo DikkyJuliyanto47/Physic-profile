@@ -1,55 +1,51 @@
 import Image from "next/image";
 
 interface BrandMarkProps {
-    variant?: "light" | "dark";
-    className?: string;
-    showText?: boolean;
+  variant?: "light" | "dark";
+  className?: string;
+  showText?: boolean;
 }
 
 export function BrandMark({
-    variant = "light",
-    className = "",
-    showText = true,
+  variant = "light",
+  className = "",
+  showText = true,
 }: BrandMarkProps) {
-    const logoSrc = "/assets/logo/navbar/psi-indonesia.png";
+  const logoSrc = "/assets/logo/navbar/psi-indonesia.png";
+  const isDarkVariant = variant === "dark";
 
-    const titleColor =
-        variant === "light"
-            ? "text-neutral-0"
-            : "text-foreground";
+  return (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <div className="relative h-11 w-11 shrink-0">
+        <Image
+          src={logoSrc}
+          alt="Physical Society of Indonesia"
+          fill
+          sizes="44px"
+          className="object-contain"
+          priority
+        />
+      </div>
 
-    return (
-        <div className={`flex items-center gap-3 ${className}`}>
-            <div className="relative h-14 w-14 shrink-0">
-                <Image
-                    src={logoSrc}
-                    alt="Physical Society of Indonesia"
-                    fill
-                    sizes="56px"
-                    className="object-contain"
-                    priority
-                />
-            </div>
+      {showText && (
+        <span className="flex min-w-0 flex-col leading-tight">
+          <span
+            className={`whitespace-nowrap text-[9px] font-medium tracking-[0.01em] ${
+              isDarkVariant ? "text-neutral-500" : "text-neutral-0/70"
+            }`}
+          >
+            Physical Society of Indonesia
+          </span>
 
-            {showText && (
-                <span className="flex flex-col leading-tight">
-                    <span
-                        className={`text-[11px] font-medium tracking-[0.01em] ${
-                            variant === "dark"
-                                ? "text-neutral-0/80"
-                                : "text-neutral-0/80"
-                        }`}
-                    >
-                        Physical Society of Indonesia
-                    </span>
-
-                    <span
-                        className={`text-sm font-bold tracking-[0.005em] ${titleColor}`}
-                    >
-                        Cabang Surabaya
-                    </span>
-                </span>
-            )}
-        </div>
-    );
+          <span
+            className={`whitespace-nowrap text-[13px] font-bold tracking-tight ${
+              isDarkVariant ? "text-primary-950" : "text-neutral-0"
+            }`}
+          >
+            Cabang Surabaya
+          </span>
+        </span>
+      )}
+    </div>
+  );
 }

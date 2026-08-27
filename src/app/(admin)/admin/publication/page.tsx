@@ -62,7 +62,7 @@ export default async function PublicationListPage({
             Publikasi
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola publikasi, jurnal, buku, dan HKI PSI Surabaya.
+            Kelola publikasi, jurnal, buku, dan HKI Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 

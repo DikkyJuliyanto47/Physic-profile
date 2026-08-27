@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "PSI Cabang Surabaya | Perhimpunan Fisikawan Indonesia",
+    default: "Physical Society of Indonesia Cabang Surabaya",
     template: "%s | PSI Cabang Surabaya",
   },
   description:

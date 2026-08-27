@@ -77,7 +77,7 @@ export default async function MembersListPage({
             Anggota & Pengurus
           </h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-500">
-            Kelola data anggota dan pengurus PSI Surabaya.
+            Kelola data anggota Physical Society of Indonesia Cabang Surabaya.
           </p>
         </header>
 

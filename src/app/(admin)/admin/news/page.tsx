@@ -90,10 +90,10 @@ export default async function NewsListPage({
       <header className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
-            Berita & Pengumuman
+            Berita
           </h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-500">
-            Kelola berita dan pengumuman PSI Surabaya.
+            Kelola berita Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
 
