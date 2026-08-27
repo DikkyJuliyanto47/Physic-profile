@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NewsForm } from "@/components/admin/NewsForm";
 
 export const metadata = {
-  title: "Edit Berita - PSI Surabaya CMS",
+  title: "Edit Berita - PSI Cabang Surabaya",
 };
 
 export default async function EditNewsPage({
