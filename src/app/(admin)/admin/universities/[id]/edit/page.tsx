@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
+
 import { prisma } from "@/lib/prisma";
 import { UniversityForm } from "@/components/admin/UniversityForm";
 
 export const metadata = {
-  title: "Edit Kampus - PSI Surabaya CMS",
+  title: "Edit Kampus - PSI Cabang Surabaya",
 };
 
 export default async function EditUniversityPage({
@@ -30,7 +31,7 @@ export default async function EditUniversityPage({
         </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
+      <div className="border border-neutral-200 bg-white p-6 shadow-card">
         <UniversityForm mode="edit" initialData={university} />
       </div>
     </div>

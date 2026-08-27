@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+
 import { prisma } from "@/lib/prisma";
 import { UniversityActions } from "./UniversityActions";
 
@@ -39,9 +40,10 @@ export default async function UniversitiesPage({
             Kelola daftar kampus anggota PSI Surabaya.
           </p>
         </div>
+
         <Link
           href="/admin/universities/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg
             className="h-4 w-4"
@@ -60,7 +62,6 @@ export default async function UniversitiesPage({
         </Link>
       </div>
 
-      {/* Search */}
       <form method="GET" className="max-w-md">
         <div className="relative">
           <svg
@@ -76,17 +77,17 @@ export default async function UniversitiesPage({
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
+
           <input
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari nama kampus atau singkatan..."
-            className="w-full rounded-lg border border-neutral-300 py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="w-full rounded-md border border-neutral-300 py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
           />
         </div>
       </form>
 
-      {/* Table */}
-      <div className="rounded-xl border border-neutral-200 bg-white shadow-card">
+      <div className="border border-neutral-200 bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -105,6 +106,7 @@ export default async function UniversitiesPage({
                 </th>
               </tr>
             </thead>
+
             <tbody>
               {universities.length === 0 ? (
                 <tr>
@@ -126,23 +128,27 @@ export default async function UniversitiesPage({
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         {uni.logoUrl ? (
-                          <Image
-                            src={uni.logoUrl}
-                            alt={uni.name}
-                            width={40}
-                            height={40}
-                            unoptimized
-                            className="h-10 w-10 rounded-lg object-contain"
-                          />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-white">
+                            <Image
+                              src={uni.logoUrl}
+                              alt={uni.name}
+                              width={40}
+                              height={40}
+                              unoptimized
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
                         ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 text-sm font-bold text-primary-700">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-50 text-sm font-bold text-primary-700">
                             {(uni.shortName ?? uni.name).charAt(0)}
                           </div>
                         )}
-                        <div>
-                          <p className="font-medium text-neutral-900">
+
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-neutral-900">
                             {uni.name}
                           </p>
+
                           {uni.shortName && (
                             <p className="text-xs text-neutral-500">
                               {uni.shortName}
@@ -151,6 +157,7 @@ export default async function UniversitiesPage({
                         </div>
                       </div>
                     </td>
+
                     <td className="px-5 py-3">
                       {uni.websiteUrl ? (
                         <a
@@ -159,17 +166,19 @@ export default async function UniversitiesPage({
                           rel="noopener noreferrer"
                           className="text-primary-600 hover:text-primary-700 hover:underline"
                         >
-                          {uni.websiteUrl.replace(/^https?:\/\//, "").slice(0, 30)}
+                          {uni.websiteUrl
+                            .replace(/^https?:\/\//, "")
+                            .slice(0, 30)}
                         </a>
                       ) : (
                         <span className="text-neutral-400">-</span>
                       )}
                     </td>
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700">
-                        {uni._count.members} anggota
-                      </span>
+
+                    <td className="px-5 py-3 text-neutral-600">
+                      {uni._count.members} anggota
                     </td>
+
                     <td className="px-5 py-3 text-right">
                       <UniversityActions
                         universityId={uni.id}

@@ -1,7 +1,7 @@
 import { UniversityForm } from "@/components/admin/UniversityForm";
 
 export const metadata = {
-  title: "Tambah Kampus Baru - PSI Surabaya CMS",
+  title: "Tambah Kampus Baru - PSI Cabang Surabaya",
 };
 
 export default function NewUniversityPage() {
@@ -16,7 +16,7 @@ export default function NewUniversityPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
+      <div className="border border-neutral-200 bg-white p-6 shadow-card">
         <UniversityForm mode="create" />
       </div>
     </div>
