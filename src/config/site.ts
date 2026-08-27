@@ -33,10 +33,10 @@ export const publicNav: NavItem[] = [
   {
     label: "Riset & Publikasi",
     children: [
-      { label: "Riset", href: "/research-publication#research" },
-      { label: "Publikasi", href: "/research-publication#publication" },
-      { label: "Buku", href: "/research-publication#book"},
-      { label: "HKI", href: "/research-publication#hki"},
+      { label: "Riset", href: "/research#research" },
+      { label: "Publikasi", href: "/research#publication" },
+      { label: "Buku", href: "/research#book"},
+      { label: "HKI", href: "/research#hki"},
     ],
   },
   { label: "Galeri", href: "/gallery",
