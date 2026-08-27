@@ -98,7 +98,7 @@ export default function GaleriPage() {
   return (
     <>
       <PublicPageShell
-        title="Dokumentasi Kegiatan PSI Cabang Surabaya"
+        title="Dokumentasi Kegiatan Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[
           { label: "Beranda", href: "/" },
           { label: "Galeri" },
@@ -112,7 +112,7 @@ export default function GaleriPage() {
       >
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
-            Dokumentasi PSI Cabang Surabaya
+            Dokumentasi Physical Society of Indonesia Cabang Surabaya
           </p>
 
           <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground md:text-3xl">

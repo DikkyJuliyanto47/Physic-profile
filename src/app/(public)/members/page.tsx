@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <>
       <PublicPageShell
-        title="Anggota Physical Society Indonesia Cabang Surabaya"
+        title="Anggota Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[
           { label: "Beranda", href: "/" },
           { label: "Anggota" },

@@ -127,11 +127,10 @@ export function UniversitiesSection() {
 
                 <h3
                   id="university-dialog-title"
-                  className="mt-1.5 text-lg font-bold leading-6 tracking-tight sm:text-xl"
+                  className="mt-1.5 text-lg font-bold leading-tight tracking-tight sm:text-xl"
                 >
                   {selectedUniversity.name}
                 </h3>
-
                 <p className="mt-1 text-sm text-foreground-muted">
                   Pilih program studi
                 </p>

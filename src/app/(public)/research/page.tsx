@@ -59,7 +59,7 @@ export default async function RisetPublikasiPage() {
   return (
     <>
       <PublicPageShell
-        title="Penelitian & Publikasi Physical Society Indonesia Cabang Surabaya"
+        title="Penelitian & Publikasi Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[
           { label: "Beranda", href: "/" },
           { label: "Riset & Publikasi" },
