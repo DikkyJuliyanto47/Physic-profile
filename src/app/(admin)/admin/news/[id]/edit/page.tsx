@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+
 import { prisma } from "@/lib/prisma";
 import { NewsForm } from "@/components/admin/NewsForm";
 
@@ -13,23 +14,43 @@ export default async function EditNewsPage({
 }) {
   const { id } = await params;
 
-  const news = await prisma.news.findUnique({ where: { id } });
+  const news = await prisma.news.findUnique({
+    where: { id },
+  });
 
   if (!news) {
     notFound();
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Edit Berita</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Perbarui &ldquo;{news.title}&rdquo;.
-        </p>
-      </div>
+    <div className="w-full min-w-0">
+      <div className="mx-auto w-full max-w-4xl space-y-6 sm:space-y-8">
+        <header className="min-w-0">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-primary-600">
+            Berita
+          </p>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
+            Edit Berita
+          </h1>
+          <p className="mt-1 max-w-2xl truncate text-sm leading-6 text-neutral-500">
+            Perbarui &ldquo;{news.title}&rdquo;.
+          </p>
+        </header>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
-        <NewsForm mode="edit" initialData={news} />
+        <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
+          <div className="border-b border-neutral-100 px-5 py-4 sm:px-6">
+            <p className="text-sm font-semibold text-neutral-900">
+              Informasi Berita
+            </p>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Perbarui konten dan pengaturan publikasi berita.
+            </p>
+          </div>
+
+          <div className="p-5 sm:p-6 lg:p-7">
+            <NewsForm mode="edit" initialData={news} />
+          </div>
+        </div>
       </div>
     </div>
   );
