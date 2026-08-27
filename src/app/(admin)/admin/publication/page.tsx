@@ -13,14 +13,15 @@ const TYPE_LABELS: Record<PublicationType, string> = {
 };
 
 const TYPE_COLORS: Record<PublicationType, string> = {
-  JURNAL: "bg-blue-50 text-blue-700",
-  BUKU: "bg-purple-50 text-purple-700",
-  HKI: "bg-amber-50 text-amber-700",
-  PROSIDING: "bg-teal-50 text-teal-700",
+  JURNAL: "border-blue-200 bg-blue-50 text-blue-700",
+  BUKU: "border-purple-200 bg-purple-50 text-purple-700",
+  HKI: "border-amber-200 bg-amber-50 text-amber-700",
+  PROSIDING: "border-teal-200 bg-teal-50 text-teal-700",
 };
 
 function formatDate(date: Date | null): string {
   if (!date) return "-";
+
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "short",
@@ -57,14 +58,17 @@ export default async function PublicationListPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Publikasi</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            Publikasi
+          </h1>
           <p className="mt-1 text-sm text-neutral-500">
             Kelola publikasi, jurnal, buku, dan HKI PSI Surabaya.
           </p>
         </div>
+
         <Link
           href="/admin/publication/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg
             className="h-4 w-4"
@@ -83,7 +87,6 @@ export default async function PublicationListPage({
         </Link>
       </div>
 
-      {/* Filters */}
       <form method="GET" className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <svg
@@ -99,17 +102,19 @@ export default async function PublicationListPage({
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
+
           <input
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari judul atau deskripsi..."
-            className="w-full rounded-lg border border-neutral-300 py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="w-full rounded-md border border-neutral-300 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
+
         <select
           name="type"
           defaultValue={type ?? ""}
-          className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+          className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
         >
           <option value="">Semua Tipe</option>
           <option value="JURNAL">Jurnal</option>
@@ -117,24 +122,26 @@ export default async function PublicationListPage({
           <option value="HKI">HKI</option>
           <option value="PROSIDING">Prosiding</option>
         </select>
+
         <button
           type="submit"
-          className="rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+          className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
         >
           Filter
         </button>
       </form>
 
-      {/* Table */}
-      <div className="rounded-xl border border-neutral-200 bg-white shadow-card">
+      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-100 bg-neutral-50">
+              <tr className="border-b border-neutral-200 bg-neutral-50/70">
                 <th className="px-5 py-3 font-medium text-neutral-600">
                   Judul
                 </th>
-                <th className="px-5 py-3 font-medium text-neutral-600">Tipe</th>
+                <th className="px-5 py-3 font-medium text-neutral-600">
+                  Tipe
+                </th>
                 <th className="px-5 py-3 font-medium text-neutral-600">
                   Tanggal
                 </th>
@@ -143,10 +150,14 @@ export default async function PublicationListPage({
                 </th>
               </tr>
             </thead>
+
             <tbody>
               {publications.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-5 py-12 text-center text-neutral-500">
+                  <td
+                    colSpan={4}
+                    className="px-5 py-12 text-center text-neutral-500"
+                  >
                     {q || type
                       ? "Tidak ada publikasi yang cocok dengan filter."
                       : "Belum ada publikasi."}
@@ -156,31 +167,35 @@ export default async function PublicationListPage({
                 publications.map((pub) => (
                   <tr
                     key={pub.id}
-                    className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50"
+                    className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/50"
                   >
-                    <td className="px-5 py-3">
-                      <div>
-                        <p className="font-medium text-neutral-900 line-clamp-1">
+                    <td className="px-5 py-3.5">
+                      <div className="min-w-0">
+                        <p className="line-clamp-1 font-medium text-neutral-900">
                           {pub.title}
                         </p>
+
                         {pub.description && (
-                          <p className="mt-0.5 text-xs text-neutral-500 line-clamp-1">
+                          <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500">
                             {pub.description}
                           </p>
                         )}
                       </div>
                     </td>
-                    <td className="px-5 py-3">
+
+                    <td className="px-5 py-3.5">
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLORS[pub.type]}`}
+                        className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-medium ${TYPE_COLORS[pub.type]}`}
                       >
                         {TYPE_LABELS[pub.type]}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-neutral-600">
+
+                    <td className="px-5 py-3.5 text-neutral-600">
                       {formatDate(pub.publishedAt ?? pub.createdAt)}
                     </td>
-                    <td className="px-5 py-3 text-right">
+
+                    <td className="px-5 py-3.5 text-right">
                       <PublicationActions
                         publicationId={pub.id}
                         publicationTitle={pub.title}

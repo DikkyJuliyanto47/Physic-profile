@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PublicationForm } from "@/components/admin/PublicationForm";
 
 export const metadata = {
-  title: "Edit Publikasi - PSI Surabaya CMS",
+  title: "Edit Publikasi - PSI Cabang Surabaya",
 };
 
 export default async function EditPublicationPage({
@@ -24,13 +24,15 @@ export default async function EditPublicationPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Edit Publikasi</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+          Edit Publikasi
+        </h1>
         <p className="mt-1 text-sm text-neutral-500">
           Perbarui &ldquo;{publication.title}&rdquo;.
         </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
+      <div className="rounded-lg border border-neutral-200 bg-white p-6">
         <PublicationForm mode="edit" initialData={publication} />
       </div>
     </div>
