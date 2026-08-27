@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { MemberForm } from "@/components/admin/MemberForm";
 
 export const metadata = {
-  title: "Edit Anggota - PSI Surabaya CMS",
+  title: "Edit Anggota - PSI Cabang Surabaya",
 };
 
 export default async function EditMemberPage({
@@ -29,16 +29,35 @@ export default async function EditMemberPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Edit Anggota</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Perbarui data &ldquo;{user.name}&rdquo;.
-        </p>
-      </div>
+    <div className="w-full min-w-0">
+      <div className="mx-auto w-full max-w-4xl space-y-6 sm:space-y-8">
+        <header>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
+            Edit Anggota
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-500">
+            Perbarui data &ldquo;{user.name}&rdquo;.
+          </p>
+        </header>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
-        <MemberForm mode="edit" universities={universities} initialData={user} />
+        <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
+          <div className="border-b border-neutral-100 px-5 py-4 sm:px-6">
+            <p className="text-sm font-semibold text-neutral-900">
+              Informasi Anggota
+            </p>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Perbarui informasi anggota yang diperlukan.
+            </p>
+          </div>
+
+          <div className="p-5 sm:p-6 lg:p-7">
+            <MemberForm
+              mode="edit"
+              universities={universities}
+              initialData={user}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
