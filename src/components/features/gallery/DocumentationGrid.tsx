@@ -52,18 +52,16 @@ export function DocumentationGrid({ items }: { items: DocumentationItem[] }) {
             className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted"
             aria-hidden="true"
           />
-
           <label htmlFor="gallery-search" className="sr-only">
             Cari dokumentasi
           </label>
-
           <input
             id="gallery-search"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Cari dokumentasi..."
-            className="h-11 w-full border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-neutral-400 focus:border-primary-600"
+            className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
           />
         </div>
 

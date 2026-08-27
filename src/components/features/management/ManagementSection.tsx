@@ -1,21 +1,42 @@
 import Image from "next/image";
+import { Search } from "lucide-react";
+
 import type { ManagementGroup } from "./data";
 
 interface ManagementSectionProps {
   groups: ManagementGroup[];
+  query?: string;
 }
 
-export function ManagementSection({ groups }: ManagementSectionProps) {
+export function ManagementSection({ groups, query }: ManagementSectionProps) {
   if (groups.length === 0) {
     return (
       <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
-        Belum ada data kepengurusan aktif.
+        {query ? `Tidak ditemukan anggota untuk "${query}".` : "Belum ada data kepengurusan aktif."}
       </div>
     );
   }
 
   return (
     <div>
+      <form action="/management" className="relative mb-10">
+        <Search
+          className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+          aria-hidden="true"
+        />
+        <label htmlFor="management-search" className="sr-only">
+          Cari anggota
+        </label>
+        <input
+          id="management-search"
+          type="search"
+          name="q"
+          defaultValue={query}
+          placeholder="Cari nama, universitas, atau bidang..."
+          className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
+        />
+      </form>
+
       {groups.map((group) => (
         <section
           id={group.id}

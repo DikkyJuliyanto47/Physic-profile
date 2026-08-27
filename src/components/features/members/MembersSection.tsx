@@ -69,7 +69,7 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
           name="q"
           defaultValue={query}
           placeholder="Cari nama, universitas, atau bidang..."
-          className="h-11 w-full border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-neutral-400 focus:border-primary-600"
+          className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
         />
       </form>
 
