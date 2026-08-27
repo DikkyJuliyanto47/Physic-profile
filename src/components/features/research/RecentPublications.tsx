@@ -1,3 +1,7 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 import type { Publication, PublicationCategory } from "./types";
 
 const CATEGORY_LABEL: Record<PublicationCategory, string> = {
@@ -17,7 +21,13 @@ function getCategoryCount(publications: Publication[], category: PublicationCate
   return publications.filter((publication) => publication.category === category).length;
 }
 
-function PublicationItem({ publication, index }: { publication: Publication; index: number }) {
+function PublicationItem({
+  publication,
+  index,
+}: {
+  publication: Publication;
+  index: number;
+}) {
   const year = publication.meta.at(-1);
   const source = publication.meta.length > 1 ? publication.meta.slice(0, -1) : publication.meta;
 
@@ -54,7 +64,10 @@ function PublicationItem({ publication, index }: { publication: Publication; ind
               className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-primary-700 transition-colors hover:text-primary-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-4"
             >
               Lihat
-              <i className="fa-solid fa-arrow-up-right-from-square text-[10px]" aria-hidden="true" />
+              <i
+                className="fa-solid fa-arrow-up-right-from-square text-[10px]"
+                aria-hidden="true"
+              />
             </a>
           ) : (
             <span className="text-sm text-neutral-400">Belum tersedia</span>
@@ -72,6 +85,8 @@ function PublicationGroup({
   category: PublicationCategory;
   publications: Publication[];
 }) {
+  if (publications.length === 0) return null;
+
   return (
     <section id={getCategoryId(category)} className="scroll-mt-28 pt-10 lg:pt-12">
       <div className="mb-5 flex items-center justify-between gap-6">
@@ -79,6 +94,7 @@ function PublicationGroup({
           <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
             {CATEGORY_LABEL[category]}
           </h2>
+
           <span className="text-sm tabular-nums text-foreground-muted">
             {publications.length}
           </span>
@@ -113,7 +129,7 @@ function PublicationOverview({ publications }: { publications: Publication[] }) 
   return (
     <nav
       aria-label="Ringkasan publikasi"
-      className="mb-10 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+      className="mb-8 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4">
         {categories.map((category, index) => (
@@ -145,9 +161,27 @@ function PublicationOverview({ publications }: { publications: Publication[] }) 
 }
 
 export function RecentPublications({ publications }: { publications: Publication[] }) {
+  const [query, setQuery] = useState("");
+
+  const filteredPublications = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (!normalizedQuery) return publications;
+
+    return publications.filter((publication) =>
+      [
+        publication.title,
+        publication.category,
+        ...publication.meta,
+      ].some((value) => value.toLowerCase().includes(normalizedQuery)),
+    );
+  }, [publications, query]);
+
   const groupedPublications = CATEGORY_ORDER.map((category) => ({
     category,
-    publications: publications.filter((publication) => publication.category === category),
+    publications: filteredPublications.filter(
+      (publication) => publication.category === category,
+    ),
   })).filter((group) => group.publications.length > 0);
 
   return (
@@ -172,6 +206,7 @@ export function RecentPublications({ publications }: { publications: Publication
           <p className="text-sm font-medium text-white">
             Belum ada publikasi yang diterbitkan.
           </p>
+
           <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">
             Publikasi anggota PSI Cabang Surabaya akan ditampilkan di halaman ini setelah
             diterbitkan.
@@ -181,15 +216,41 @@ export function RecentPublications({ publications }: { publications: Publication
         <>
           <PublicationOverview publications={publications} />
 
-          <div>
-            {groupedPublications.map((group) => (
-              <PublicationGroup
-                key={group.category}
-                category={group.category}
-                publications={group.publications}
-              />
-            ))}
+          <div className="relative mb-8">
+            <i
+              className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted"
+              aria-hidden="true"
+            />
+
+            <label htmlFor="publication-search" className="sr-only">
+              Cari publikasi
+            </label>
+
+            <input
+              id="publication-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Cari publikasi..."
+              className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
+            />
           </div>
+
+          {groupedPublications.length > 0 ? (
+            <div>
+              {groupedPublications.map((group) => (
+                <PublicationGroup
+                  key={group.category}
+                  category={group.category}
+                  publications={group.publications}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
+              Tidak ada publikasi yang sesuai dengan pencarian.
+            </div>
+          )}
         </>
       )}
     </div>
