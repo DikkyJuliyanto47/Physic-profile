@@ -14,7 +14,7 @@ export function BrandMark({
     const logoSrc = "/assets/logo/navbar/psi-indonesia.png";
 
     const titleColor =
-        variant === "dark"
+        variant === "light"
             ? "text-neutral-0"
             : "text-foreground";
 
@@ -37,7 +37,7 @@ export function BrandMark({
                         className={`text-[11px] font-medium tracking-[0.01em] ${
                             variant === "dark"
                                 ? "text-neutral-0/80"
-                                : "text-foreground-muted"
+                                : "text-neutral-0/80"
                         }`}
                     >
                         Physical Society of Indonesia

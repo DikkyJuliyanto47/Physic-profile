@@ -14,60 +14,64 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<NavItem | null>(null);
+  const [openPathname, setOpenPathname] = useState<string | null>(null);
+
+  const menuVisible = isOpen && openPathname === pathname;
 
   const closeMenu = () => {
     setIsOpen(false);
     setActiveItem(null);
+    setOpenPathname(null);
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsOpen(false);
-    setActiveItem(null);
-  }, [pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    document.body.style.overflow = menuVisible ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [menuVisible]);
 
   return (
     <div className="lg:hidden">
       <button
         type="button"
-        aria-label={isOpen ? "Tutup menu" : "Buka menu"}
-        aria-expanded={isOpen}
+        aria-label={menuVisible ? "Tutup menu" : "Buka menu"}
+        aria-expanded={menuVisible}
         onClick={() => {
-          setIsOpen((prev) => !prev);
+          if (menuVisible) {
+            closeMenu();
+            return;
+          }
+
+          setIsOpen(true);
           setActiveItem(null);
+          setOpenPathname(pathname);
         }}
-        className="flex h-10 w-10 items-center justify-center text-white transition-colors duration-150 hover:text-[#f59e0b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b]"
+        className="flex h-10 w-10 items-center justify-center text-white/85 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b]"
       >
-        {isOpen ? (
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        {menuVisible ? (
+          <svg viewBox="0 0 24 24" fill="none" className="h-5.5 w-5.5" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <svg viewBox="0 0 24 24" fill="none" className="h-5.5 w-5.5" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
           </svg>
         )}
       </button>
 
-      <div className={`absolute inset-x-0 top-full border-t border-white/10 bg-[#073b5c] transition-[opacity,visibility,transform] duration-200 ${isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}>
+      <div className={`absolute inset-x-0 top-full border-t border-white/10 bg-[#073b5c] transition-[opacity,visibility,transform] duration-200 ${menuVisible ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}>
         <div className="max-h-[calc(100svh-72px)] overflow-y-auto">
           {activeItem ? (
             <div className="px-5 py-5 sm:px-6">
               <button
                 type="button"
                 onClick={() => setActiveItem(null)}
-                className="mb-5 flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.06em] text-white/65 transition-colors hover:text-[#f59e0b]"
+                className="mb-5 flex items-center gap-3 text-[13px] font-medium uppercase tracking-wider text-white/55 transition-colors hover:text-[#f59e0b]"
               >
                 <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
-                  <path d="M10.5 3.5 6 8l4.5 4.5M6.5 8H13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M10.5 3.5 6 8l4.5 4.5M6.5 8H13" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Kembali
               </button>
@@ -78,7 +82,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
                     key={child.href ?? child.label}
                     href={child.href ?? "#"}
                     onClick={closeMenu}
-                    className="flex min-h-14 items-center border-b border-white/10 text-[15px] font-semibold text-white/95 last:border-b-0 hover:text-[#f59e0b]"
+                    className="flex min-h-14 items-center border-b border-white/10 text-[15px] font-medium text-white/85 last:border-b-0 hover:text-[#f59e0b]"
                   >
                     {child.label}
                   </Link>
@@ -97,7 +101,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
                       key={item.href}
                       href={item.href ?? "#"}
                       onClick={closeMenu}
-                      className={`flex min-h-14 items-center border-b border-white/10 text-[15px] font-bold transition-colors duration-150 ${isActive ? "text-[#f59e0b]" : "text-white/95 hover:text-[#f59e0b]"}`}
+                      className={`flex min-h-14 items-center border-b border-white/10 text-[15px] font-medium transition-colors duration-150 ${isActive ? "text-[#f59e0b]" : "text-white/85 hover:text-white"}`}
                     >
                       {item.label}
                     </Link>
@@ -109,18 +113,18 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
                     key={item.label}
                     type="button"
                     onClick={() => setActiveItem(item)}
-                    className={`flex min-h-14 w-full items-center justify-between border-b border-white/10 text-left text-[15px] font-bold transition-colors duration-150 ${isActive ? "text-[#f59e0b]" : "text-white/95 hover:text-[#f59e0b]"}`}
+                    className={`flex min-h-14 w-full items-center justify-between border-b border-white/10 text-left text-[15px] font-medium transition-colors duration-150 ${isActive ? "text-[#f59e0b]" : "text-white/85 hover:text-white"}`}
                   >
                     {item.label}
-                    <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4 text-white/45" aria-hidden="true">
-                      <path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5 text-white/40" aria-hidden="true">
+                      <path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </button>
                 );
               })}
 
               <div className="pt-5">
-                <Button href="/contact" size="small" fullWidth variant="primary" className="h-11 rounded-[3px] text-[14px] font-bold" onClick={closeMenu}>
+                <Button href="/contact" size="small" fullWidth variant="primary" className="h-11 rounded-[3px] text-[14px] font-medium" onClick={closeMenu}>
                   Hubungi Kami
                 </Button>
               </div>

@@ -63,7 +63,7 @@ export function GallerySection() {
   const item = galleryItems[current];
 
   return (
-    <Section tone="muted" padding="none" className="overflow-hidden">
+   <Section tone="muted" padding="none" className="overflow-hidden">
       <div
         className="relative w-full"
         onMouseEnter={() => setIsPaused(true)}

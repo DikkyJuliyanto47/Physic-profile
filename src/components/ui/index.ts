@@ -15,5 +15,6 @@ export { PageHeader } from "./PageHeader";
 export { PageBreadcrumb } from "./PageBreadcrumb";
 export { PersonCard } from "./PersonCard";
 export { ShareActions } from "./ShareActions";
+export { PublicPageShell } from "./PublicPageShell";
 
 
