@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ManagementPeriodForm } from "@/components/admin/ManagementPeriodForm";
 import { ManagementPositionForm } from "@/components/admin/ManagementPositionForm";
+import { ManagementPositionActions } from "../../ManagementPositionActions";
 
 export const metadata = {
   title: "Kelola Kepengurusan - PSI Surabaya CMS",
@@ -52,139 +54,166 @@ export default async function EditManagementPage({
     : null;
 
   return (
-    <div className="space-y-8">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Kelola Periode</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Perbarui periode &ldquo;{period.period}&rdquo;.
+    <div className="space-y-6">
+      <div className="flex flex-col gap-1">
+        <Link
+          href="/admin/managements"
+          className="mb-1 w-fit text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-900"
+        >
+          ← Kembali ke Kepengurusan
+        </Link>
+
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+          Kelola Kepengurusan
+        </h1>
+
+        <p className="text-sm text-neutral-500">
+          Kelola periode <span className="font-medium text-neutral-700">{period.period}</span>{" "}
+          dan susunan posisi di dalamnya.
+        </p>
+      </div>
+
+      <section className="mx-auto w-full max-w-3xl rounded-lg border border-neutral-200 bg-white shadow-card">
+        <div className="border-b border-neutral-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-neutral-900">Informasi Periode</h2>
+          <p className="mt-0.5 text-xs text-neutral-500">
+            Perbarui informasi dasar periode kepengurusan.
           </p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
+        <div className="p-5">
           <ManagementPeriodForm mode="edit" initialData={period} />
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-card">
-        <div className="mb-5 flex items-center justify-between gap-3">
+      <section className="rounded-lg border border-neutral-200 bg-white shadow-card">
+        <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-neutral-900">
+            <h2 className="text-base font-semibold text-neutral-900">
               {selectedPosition ? "Edit Posisi" : "Tambah Posisi"}
             </h2>
-            <p className="mt-1 text-sm text-neutral-500">
-              Pilih anggota yang sudah terdaftar dan atur jabatan, departemen, serta urutan.
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Atur anggota, jabatan, departemen, dan urutan struktur.
             </p>
           </div>
+
           {selectedPosition && (
-            <a
+            <Link
               href={`/admin/managements/${period.id}/edit`}
-              className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              className="inline-flex h-8 items-center justify-center rounded-md border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
             >
               Batal Edit
-            </a>
+            </Link>
           )}
         </div>
 
-        <ManagementPositionForm
-          mode={selectedPosition ? "edit" : "create"}
-          periodId={period.id}
-          memberProfiles={memberProfiles.map((profile) => ({
-            id: profile.id,
-            user: profile.user,
-            institution: profile.institution,
-          }))}
-          initialData={
-            selectedPosition
-              ? {
-                  id: selectedPosition.id,
-                  periodId: selectedPosition.periodId,
-                  memberProfileId: selectedPosition.memberProfileId,
-                  title: selectedPosition.title,
-                  department: selectedPosition.department,
-                  order: selectedPosition.order,
-                }
-              : undefined
-          }
-        />
-      </div>
+        <div className="p-5">
+          <ManagementPositionForm
+            mode={selectedPosition ? "edit" : "create"}
+            periodId={period.id}
+            memberProfiles={memberProfiles.map((profile) => ({
+              id: profile.id,
+              user: profile.user,
+              institution: profile.institution,
+            }))}
+            initialData={
+              selectedPosition
+                ? {
+                    id: selectedPosition.id,
+                    periodId: selectedPosition.periodId,
+                    memberProfileId: selectedPosition.memberProfileId,
+                    title: selectedPosition.title,
+                    department: selectedPosition.department,
+                    order: selectedPosition.order,
+                  }
+                : undefined
+            }
+          />
+        </div>
+      </section>
 
-      <div className="rounded-xl border border-neutral-200 bg-white shadow-card">
+      <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
         <div className="border-b border-neutral-200 px-5 py-4">
-          <h2 className="text-lg font-semibold text-neutral-900">Posisi Saat Ini</h2>
+          <h2 className="text-base font-semibold text-neutral-900">Posisi Saat Ini</h2>
+          <p className="mt-0.5 text-xs text-neutral-500">
+            Daftar posisi yang telah dimasukkan ke periode ini.
+          </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 bg-neutral-50">
-                <th className="px-5 py-3 font-medium text-neutral-600">Anggota</th>
-                <th className="px-5 py-3 font-medium text-neutral-600">Jabatan</th>
-                <th className="px-5 py-3 font-medium text-neutral-600">Departemen</th>
-                <th className="px-5 py-3 font-medium text-neutral-600">Urutan</th>
-                <th className="px-5 py-3 text-right font-medium text-neutral-600">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {period.positions.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-neutral-500">
-                    Belum ada posisi untuk periode ini.
-                  </td>
+        {period.positions.length === 0 ? (
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm font-medium text-neutral-700">
+              Belum ada posisi kepengurusan.
+            </p>
+            <p className="mt-1 text-xs text-neutral-500">
+              Gunakan form di atas untuk menambahkan posisi pertama.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-180 text-left text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200 bg-neutral-50/70">
+                  <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Anggota</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Jabatan</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Departemen</th>
+                  <th className="w-20 px-5 py-3 text-center text-xs font-semibold text-neutral-600">
+                    Urutan
+                  </th>
+                  <th className="w-32 px-5 py-3 text-right text-xs font-semibold text-neutral-600">
+                    Aksi
+                  </th>
                 </tr>
-              ) : (
-                period.positions.map((position) => (
-                  <tr key={position.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50">
-                    <td className="px-5 py-3">
+              </thead>
+
+              <tbody>
+                {period.positions.map((position) => (
+                  <tr
+                    key={position.id}
+                    className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/60"
+                  >
+                    <td className="px-5 py-3.5">
                       {position.memberProfile ? (
                         <div>
                           <p className="font-medium text-neutral-900">
                             {position.memberProfile.user.name}
                           </p>
-                          <p className="text-xs text-neutral-500">
+                          <p className="mt-0.5 text-xs text-neutral-500">
                             {position.memberProfile.institution?.shortName ??
                               position.memberProfile.institution?.name ??
                               "-"}
                           </p>
                         </div>
                       ) : (
-                        <span className="text-neutral-400">-</span>
+                        <span className="text-neutral-400">Belum ditentukan</span>
                       )}
                     </td>
-                    <td className="px-5 py-3 text-neutral-900">{position.title}</td>
-                    <td className="px-5 py-3 text-neutral-600">
+
+                    <td className="px-5 py-3.5 font-medium text-neutral-900">
+                      {position.title}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-neutral-600">
                       {position.department ?? "-"}
                     </td>
-                    <td className="px-5 py-3 text-neutral-600">{position.order}</td>
-                    <td className="px-5 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <a
-                          href={`?positionId=${position.id}`}
-                          className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-                        >
-                          Edit
-                        </a>
-                        <form action={async () => {
-                          "use server";
-                          const { deleteManagementPosition } = await import("@/actions/kepengurusan");
-                          await deleteManagementPosition(position.id);
-                        }}>
-                          <button
-                            type="submit"
-                            className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
-                          >
-                            Hapus
-                          </button>
-                        </form>
-                      </div>
+
+                    <td className="px-5 py-3.5 text-center text-neutral-600">
+                      {position.order}
+                    </td>
+
+                    <td className="px-5 py-3.5">
+                      <ManagementPositionActions
+                        positionId={position.id}
+                        positionTitle={position.title}
+                      />
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

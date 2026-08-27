@@ -20,5 +20,5 @@ export {
   createManagementPosition,
   updateManagementPosition,
   deleteManagementPosition,
-} from "./kepengurusan";
+} from "./management";
 export { markAsRead, markAsUnread, deleteMessage } from "./message";
