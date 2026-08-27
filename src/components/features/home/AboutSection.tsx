@@ -1,23 +1,19 @@
 import Image from "next/image";
-import { Button, Container, Section } from "@/components/ui";
 
+import { Button, Container, Section } from "@/components/ui";
 import { aboutItems } from "./data";
 
 export function AboutSection() {
-  
   const item = aboutItems[0];
-  const imageUrl = item?.image; 
+  const imageUrl = item?.image;
 
   return (
-    <Section
-      tone="dark"
-      className="relative overflow-visible bg-primary-900 py-0 text-white"
-    >
+    <Section tone="dark" className="relative overflow-visible bg-primary-900 py-0 text-white">
       <div className="grid min-h-155 lg:grid-cols-2">
-        <div className="relative min-h-80 w-full lg:min-h-155">
-          {imageUrl ? ( 
+        <div className="relative order-2 min-h-80 w-full lg:order-1 lg:min-h-155">
+          {imageUrl ? (
             <Image
-              src={imageUrl} 
+              src={imageUrl}
               alt="Kegiatan Physical Society of Indonesia Cabang Surabaya"
               fill
               priority
@@ -31,7 +27,7 @@ export function AboutSection() {
           )}
         </div>
 
-        <div className="flex items-center">
+        <div className="order-1 flex items-center lg:order-2">
           <Container className="w-full py-14 sm:py-16 lg:py-20 xl:pl-14 2xl:pl-20">
             <div className="max-w-2xl">
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary-300 sm:text-sm">
@@ -64,7 +60,7 @@ export function AboutSection() {
               </div>
 
               <Button
-                href={item?.href || "/about"} // Gunakan href dari data
+                href={item?.href || "/about"}
                 size="medium"
                 className="mt-7 bg-primary-600 text-white hover:bg-primary-500"
               >

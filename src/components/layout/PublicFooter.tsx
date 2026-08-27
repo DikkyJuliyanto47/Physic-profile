@@ -41,7 +41,7 @@ export function PublicFooter() {
     <footer className="bg-primary-950 text-white">
       <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-8 lg:py-20">
         <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
-          <BrandMark variant="dark" />
+          <BrandMark variant="light" />
           <p className="max-w-sm text-sm text-white/65">
             {siteConfig.description}
           </p>
