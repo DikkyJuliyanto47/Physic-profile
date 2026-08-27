@@ -7,51 +7,57 @@ const CATEGORY_LABEL: Record<PublicationCategory, string> = {
   PROSIDING: "Prosiding",
 };
 
-const CATEGORY_ORDER: PublicationCategory[] = [
-  "JURNAL",
-  "PROSIDING",
-  "BUKU",
-  "HKI",
-];
+const CATEGORY_ORDER: PublicationCategory[] = ["JURNAL", "PROSIDING", "BUKU", "HKI"];
 
 function getCategoryId(category: PublicationCategory) {
   return category.toLowerCase();
 }
 
-function PublicationItem({ publication }: { publication: Publication }) {
+function getCategoryCount(publications: Publication[], category: PublicationCategory) {
+  return publications.filter((publication) => publication.category === category).length;
+}
+
+function PublicationItem({ publication, index }: { publication: Publication; index: number }) {
+  const year = publication.meta.at(-1);
+  const source = publication.meta.length > 1 ? publication.meta.slice(0, -1) : publication.meta;
+
   return (
-    <article className="border-b border-neutral-200 py-7 first:pt-0 last:border-b-0">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_160px] lg:gap-10">
+    <article className="group border-b border-neutral-200/80 bg-white px-5 py-5 transition-all duration-200 first:rounded-t-xl last:rounded-b-xl hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] lg:px-6">
+      <div className="grid items-center gap-4 lg:grid-cols-[52px_minmax(0,1fr)_100px_130px] lg:gap-6">
+        <span className="text-sm tabular-nums text-neutral-400">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+
         <div className="min-w-0">
-          <h3 className="max-w-3xl text-base font-semibold leading-6 text-foreground">
+          <h3 className="text-[15px] font-semibold leading-6 text-neutral-900 transition-colors group-hover:text-primary-700 lg:text-base">
             {publication.title}
           </h3>
 
-          <ul className="mt-2 space-y-1 text-sm leading-6 text-foreground-muted">
-            {publication.meta.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
+          {source.length > 0 && (
+            <p className="mt-1 text-sm leading-5 text-neutral-500">
+              {source.join(" · ")}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-start lg:justify-end">
+        <div className="text-sm tabular-nums text-neutral-600">
+          <span className="lg:hidden">Tahun {year ?? "—"}</span>
+          <span className="hidden lg:inline">{year ?? "—"}</span>
+        </div>
+
+        <div className="lg:text-right">
           {publication.href ? (
             <a
               href={publication.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-primary-700 transition-colors hover:text-primary-800"
+              className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-primary-700 transition-colors hover:text-primary-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-4"
             >
-              Buka publikasi
-              <i
-                className="fa-solid fa-arrow-up-right-from-square ml-2"
-                aria-hidden="true"
-              />
+              Lihat
+              <i className="fa-solid fa-arrow-up-right-from-square text-[10px]" aria-hidden="true" />
             </a>
           ) : (
-            <span className="text-sm text-foreground-muted">
-              Tautan belum tersedia
-            </span>
+            <span className="text-sm text-neutral-400">Belum tersedia</span>
           )}
         </div>
       </div>
@@ -67,72 +73,124 @@ function PublicationGroup({
   publications: Publication[];
 }) {
   return (
-    <section
-      id={getCategoryId(category)}
-      className="scroll-mt-28 border-t border-neutral-200 py-10 lg:py-12"
-    >
-      <div className="mb-7">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
-          {CATEGORY_LABEL[category]}
-        </h2>
+    <section id={getCategoryId(category)} className="scroll-mt-28 pt-10 lg:pt-12">
+      <div className="mb-5 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
+            {CATEGORY_LABEL[category]}
+          </h2>
+          <span className="text-sm tabular-nums text-foreground-muted">
+            {publications.length}
+          </span>
+        </div>
       </div>
 
-      <div>
-        {publications.map((publication) => (
-          <PublicationItem key={publication.id} publication={publication} />
+      <div className="overflow-hidden border border-neutral-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md">
+        <div className="hidden border-b border-neutral-200 bg-neutral-50 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-neutral-500 lg:grid lg:grid-cols-[52px_minmax(0,1fr)_100px_120px] lg:gap-6 lg:px-6">
+          <span>No.</span>
+          <span>Nama Publikasi</span>
+          <span>Tahun</span>
+          <span className="text-right">Detail</span>
+        </div>
+
+        {publications.map((publication, index) => (
+          <PublicationItem
+            key={publication.id}
+            publication={publication}
+            index={index}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-export function RecentPublications({
-  publications,
-}: {
-  publications: Publication[];
-}) {
+function PublicationOverview({ publications }: { publications: Publication[] }) {
+  const categories = CATEGORY_ORDER.filter((category) =>
+    publications.some((publication) => publication.category === category),
+  );
+
+  return (
+    <nav
+      aria-label="Ringkasan publikasi"
+      className="mb-10 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+    >
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((category, index) => (
+          <a
+            key={category}
+            href={`#${getCategoryId(category)}`}
+            className={`group flex min-h-24 items-center justify-between px-5 py-5 transition-all duration-200 hover:-translate-y-px hover:bg-neutral-50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-inset lg:px-6 ${
+              index > 0 ? "border-t border-neutral-200 sm:border-l sm:border-t-0" : ""
+            } ${index === 2 ? "sm:border-l-0 lg:border-l" : ""}`}
+          >
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 transition-colors group-hover:text-primary-700">
+                {CATEGORY_LABEL[category]}
+              </span>
+
+              <p className="mt-1.5 text-sm text-neutral-400">
+                Koleksi publikasi
+              </p>
+            </div>
+
+            <span className="text-2xl font-semibold tabular-nums tracking-tight text-neutral-900">
+              {getCategoryCount(publications, category)}
+            </span>
+          </a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+export function RecentPublications({ publications }: { publications: Publication[] }) {
   const groupedPublications = CATEGORY_ORDER.map((category) => ({
     category,
-    publications: publications.filter(
-      (publication) => publication.category === category,
-    ),
+    publications: publications.filter((publication) => publication.category === category),
   })).filter((group) => group.publications.length > 0);
 
   return (
     <div id="semua-publikasi">
-      <div className="mb-10 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
+      <header className="mb-10 max-w-3xl lg:mb-12">
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-700">
           Penelitian & Publikasi
         </p>
 
-        <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Pusat Penelitian dan Publikasi
         </h2>
 
-        <p className="mt-4 text-base leading-7 text-foreground-muted">
-          Pusat informasi penelitian, publikasi ilmiah, HKI, buku, prosiding,
-          dan kolaborasi penelitian anggota PSI.
+        <p className="mt-4 max-w-2xl text-base leading-7 text-foreground-muted">
+          Pusat informasi penelitian, publikasi ilmiah, HKI, buku, prosiding, dan kolaborasi
+          penelitian anggota PSI.
         </p>
-      </div>
+      </header>
 
       {publications.length === 0 ? (
-        <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
-          Belum ada publikasi yang diterbitkan.
-        </div>
-      ) : groupedPublications.length === 0 ? (
-        <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
-          Belum ada publikasi yang dapat ditampilkan.
+        <div className="rounded-xl border border-white/10 bg-white/[0.07] px-6 py-10 backdrop-blur-md">
+          <p className="text-sm font-medium text-white">
+            Belum ada publikasi yang diterbitkan.
+          </p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">
+            Publikasi anggota PSI Cabang Surabaya akan ditampilkan di halaman ini setelah
+            diterbitkan.
+          </p>
         </div>
       ) : (
-        <div>
-          {groupedPublications.map((group) => (
-            <PublicationGroup
-              key={group.category}
-              category={group.category}
-              publications={group.publications}
-            />
-          ))}
-        </div>
+        <>
+          <PublicationOverview publications={publications} />
+
+          <div>
+            {groupedPublications.map((group) => (
+              <PublicationGroup
+                key={group.category}
+                category={group.category}
+                publications={group.publications}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
