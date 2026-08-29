@@ -141,7 +141,7 @@ export const universities: University[] = [
   {
     id: "its",
     name: "Institut Teknologi Sepuluh Nopember",
-    logo: "/assets/logo/universitas/its.webp",
+    logo: "/assets/logo/universitas/its.png",
     href: "https://www.its.ac.id/fisika/"
   },
   {
