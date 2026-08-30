@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { NewsCategory, ContentStatus } from "@/generated/prisma/client";
+import { ContentStatus } from "@/generated/prisma/client";
 
 function slugify(text: string): string {
   return text
@@ -17,7 +17,7 @@ function slugify(text: string): string {
 export type NewsInput = {
   title: string;
   slug?: string;
-  category: NewsCategory;
+  category: string;
   excerpt?: string;
   content: string;
   imageUrl?: string;
@@ -29,32 +29,63 @@ export type ActionResponse = {
   error?: string;
 };
 
+function validateCategory(category: string): string | null {
+  const value = category.trim();
+
+  if (!value) {
+    return "Kategori wajib diisi.";
+  }
+
+  if (value.length > 50) {
+    return "Kategori maksimal 50 karakter.";
+  }
+
+  return null;
+}
+
 export async function createNews(data: NewsInput): Promise<ActionResponse> {
   try {
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul berita wajib diisi." };
     }
+
     if (!data.content || data.content.trim().length === 0) {
       return { success: false, error: "Konten berita wajib diisi." };
     }
 
+    const categoryError = validateCategory(data.category);
+
+    if (categoryError) {
+      return { success: false, error: categoryError };
+    }
+
     const session = await auth();
+
     if (!session?.user?.id) {
-      return { success: false, error: "Anda harus login untuk membuat berita." };
+      return {
+        success: false,
+        error: "Anda harus login untuk membuat berita.",
+      };
     }
 
     const slug = data.slug?.trim() || slugify(data.title);
 
-    const existing = await prisma.news.findUnique({ where: { slug } });
+    const existing = await prisma.news.findUnique({
+      where: { slug },
+    });
+
     if (existing) {
-      return { success: false, error: "Slug berita sudah ada. Gunakan judul lain." };
+      return {
+        success: false,
+        error: "Slug berita sudah ada. Gunakan judul lain.",
+      };
     }
 
     await prisma.news.create({
       data: {
         title: data.title.trim(),
         slug,
-        category: data.category,
+        category: data.category.trim(),
         excerpt: data.excerpt?.trim() || null,
         content: data.content.trim(),
         imageUrl: data.imageUrl?.trim() || null,
@@ -65,36 +96,60 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
     });
 
     revalidatePath("/admin/news");
+
     return { success: true };
   } catch {
-    return { success: false, error: "Gagal membuat berita. Silakan coba lagi." };
+    return {
+      success: false,
+      error: "Gagal membuat berita. Silakan coba lagi.",
+    };
   }
 }
 
 export async function updateNews(
   id: string,
-  data: NewsInput
+  data: NewsInput,
 ): Promise<ActionResponse> {
   try {
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul berita wajib diisi." };
     }
+
     if (!data.content || data.content.trim().length === 0) {
       return { success: false, error: "Konten berita wajib diisi." };
+    }
+
+    const categoryError = validateCategory(data.category);
+
+    if (categoryError) {
+      return { success: false, error: categoryError };
     }
 
     const slug = data.slug?.trim() || slugify(data.title);
 
     const existing = await prisma.news.findFirst({
-      where: { slug, NOT: { id } },
+      where: {
+        slug,
+        NOT: { id },
+      },
     });
+
     if (existing) {
-      return { success: false, error: "Slug berita sudah ada." };
+      return {
+        success: false,
+        error: "Slug berita sudah ada.",
+      };
     }
 
-    const current = await prisma.news.findUnique({ where: { id } });
+    const current = await prisma.news.findUnique({
+      where: { id },
+    });
+
     if (!current) {
-      return { success: false, error: "Berita tidak ditemukan." };
+      return {
+        success: false,
+        error: "Berita tidak ditemukan.",
+      };
     }
 
     const publishedAt =
@@ -109,7 +164,7 @@ export async function updateNews(
       data: {
         title: data.title.trim(),
         slug,
-        category: data.category,
+        category: data.category.trim(),
         excerpt: data.excerpt?.trim() || null,
         content: data.content.trim(),
         imageUrl: data.imageUrl?.trim() || null,
@@ -120,36 +175,63 @@ export async function updateNews(
 
     revalidatePath("/admin/news");
     revalidatePath(`/admin/news/${id}/edit`);
+
     return { success: true };
   } catch {
-    return { success: false, error: "Gagal memperbarui berita." };
+    return {
+      success: false,
+      error: "Gagal memperbarui berita.",
+    };
   }
 }
 
 export async function deleteNews(id: string): Promise<ActionResponse> {
   try {
-    const news = await prisma.news.findUnique({ where: { id } });
+    const news = await prisma.news.findUnique({
+      where: { id },
+    });
+
     if (!news) {
-      return { success: false, error: "Berita tidak ditemukan." };
+      return {
+        success: false,
+        error: "Berita tidak ditemukan.",
+      };
     }
 
-    await prisma.news.delete({ where: { id } });
+    await prisma.news.delete({
+      where: { id },
+    });
+
     revalidatePath("/admin/news");
+
     return { success: true };
   } catch {
-    return { success: false, error: "Gagal menghapus berita." };
+    return {
+      success: false,
+      error: "Gagal menghapus berita.",
+    };
   }
 }
 
-export async function toggleNewsStatus(id: string): Promise<ActionResponse> {
+export async function toggleNewsStatus(
+  id: string,
+): Promise<ActionResponse> {
   try {
-    const news = await prisma.news.findUnique({ where: { id } });
+    const news = await prisma.news.findUnique({
+      where: { id },
+    });
+
     if (!news) {
-      return { success: false, error: "Berita tidak ditemukan." };
+      return {
+        success: false,
+        error: "Berita tidak ditemukan.",
+      };
     }
 
     const newStatus =
-      news.status === "PUBLISHED" ? ContentStatus.DRAFT : ContentStatus.PUBLISHED;
+      news.status === "PUBLISHED"
+        ? ContentStatus.DRAFT
+        : ContentStatus.PUBLISHED;
 
     await prisma.news.update({
       where: { id },
@@ -161,8 +243,12 @@ export async function toggleNewsStatus(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath("/admin/news");
+
     return { success: true };
   } catch {
-    return { success: false, error: "Gagal mengubah status berita." };
+    return {
+      success: false,
+      error: "Gagal mengubah status berita.",
+    };
   }
 }

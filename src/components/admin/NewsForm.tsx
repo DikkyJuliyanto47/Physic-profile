@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { NewsCategory, ContentStatus } from "@/generated/prisma/client";
+import { ContentStatus } from "@/generated/prisma/client";
 import {
   createNews,
   updateNews,
@@ -18,21 +19,12 @@ type Props = {
     id: string;
     title: string;
     slug: string;
-    category: NewsCategory;
+    category: string;
     excerpt: string | null;
     content: string;
     imageUrl: string | null;
     status: ContentStatus;
   };
-};
-
-const CATEGORY_LABELS: Record<NewsCategory, string> = {
-  ORGANISASI: "Organisasi",
-  SEMINAR: "Seminar",
-  WORKSHOP: "Workshop",
-  PERTEMUAN_RUTIN: "Pertemuan Rutin",
-  KERJASAMA: "Kerjasama",
-  PRESTASI_ANGGOTA: "Prestasi Anggota",
 };
 
 function slugify(text: string): string {
@@ -78,7 +70,7 @@ export function NewsForm({ mode, initialData }: Props) {
   const [form, setForm] = useState<NewsInput>({
     title: initialData?.title ?? "",
     slug: initialData?.slug ?? "",
-    category: initialData?.category ?? "ORGANISASI",
+    category: initialData?.category ?? "",
     excerpt: initialData?.excerpt ?? "",
     content: initialData?.content ?? "",
     imageUrl: initialData?.imageUrl ?? "",
@@ -157,12 +149,17 @@ export function NewsForm({ mode, initialData }: Props) {
     setError("");
     setIsSubmitting(true);
 
+    const payload = {
+      ...form,
+      category: form.category.trim(),
+    };
+
     let result: ActionResponse;
 
     if (mode === "create") {
-      result = await createNews(form);
+      result = await createNews(payload);
     } else {
-      result = await updateNews(initialData!.id, form);
+      result = await updateNews(initialData!.id, payload);
     }
 
     setIsSubmitting(false);
@@ -200,6 +197,7 @@ export function NewsForm({ mode, initialData }: Props) {
                 d="M5 13l4 4L19 7"
               />
             </svg>
+
             <p className="text-sm font-medium text-emerald-700">
               {successMessage}
             </p>
@@ -248,6 +246,7 @@ export function NewsForm({ mode, initialData }: Props) {
               d="M12 9v3.75m0 3.75h.008M10.29 3.86l-7.2 12.48A1.75 1.75 0 004.6 19h14.8a1.75 1.75 0 001.515-2.66l-7.2-12.48a1.75 1.75 0 00-3.03 0z"
             />
           </svg>
+
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -282,18 +281,18 @@ export function NewsForm({ mode, initialData }: Props) {
 
           <div>
             <FieldLabel required>Kategori</FieldLabel>
-            <select
+            <input
               name="category"
               value={form.category}
               onChange={handleChange}
+              required
+              maxLength={50}
+              placeholder="Contoh: Seminar"
               className={fieldClassName}
-            >
-              {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            />
+            <p className="mt-1.5 text-xs text-neutral-400">
+              Isi kategori sesuai jenis berita.
+            </p>
           </div>
 
           <div>
