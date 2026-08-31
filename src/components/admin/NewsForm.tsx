@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
