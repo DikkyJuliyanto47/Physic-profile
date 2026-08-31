@@ -9,18 +9,12 @@ import {
   type MemberInput,
 } from "@/actions/member";
 
-type UniversityOption = {
-  id: string;
-  name: string;
-  shortName: string | null;
-};
-
 type MemberInitialData = {
   id: string;
   name: string;
   email: string;
   memberProfile: {
-    institutionId: string | null;
+    institution: string | null;
     fieldOfExpertise: string | null;
     photoUrl: string | null;
     detailUrl: string | null;
@@ -30,12 +24,10 @@ type MemberInitialData = {
 type Props =
   | {
       mode: "create";
-      universities: UniversityOption[];
       initialData?: never;
     }
   | {
       mode: "edit";
-      universities: UniversityOption[];
       initialData: MemberInitialData;
     };
 
@@ -44,11 +36,7 @@ const inputClass =
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
-export function MemberForm({
-  mode,
-  universities,
-  initialData,
-}: Props) {
+export function MemberForm({ mode, initialData }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(
@@ -62,7 +50,7 @@ export function MemberForm({
   const [form, setForm] = useState<MemberInput>({
     name: initialData?.name ?? "",
     email: initialData?.email ?? "",
-    institutionId: profile?.institutionId ?? "",
+    institution: profile?.institution ?? "",
     fieldOfExpertise: profile?.fieldOfExpertise ?? "",
     photoUrl: profile?.photoUrl ?? "",
     detailUrl: profile?.detailUrl ?? "",
@@ -199,26 +187,18 @@ export function MemberForm({
         </legend>
 
         <div className="mt-4">
-          <label htmlFor="institutionId" className={labelClass}>
+          <label htmlFor="institution" className={labelClass}>
             Perguruan Tinggi
           </label>
 
-          <select
-            id="institutionId"
-            name="institutionId"
-            value={form.institutionId ?? ""}
+          <input
+            id="institution"
+            name="institution"
+            value={form.institution ?? ""}
             onChange={handleChange}
+            placeholder="Contoh: Universitas Negeri Surabaya"
             className={inputClass}
-          >
-            <option value="">Pilih Kampus</option>
-            {universities.map((uni) => (
-              <option key={uni.id} value={uni.id}>
-                {uni.shortName
-                  ? `${uni.shortName} - ${uni.name}`
-                  : uni.name}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </fieldset>
 
