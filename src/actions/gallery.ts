@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-utils";
+import { revalidatePath, updateTag } from "next/cache";
 import { MediaType } from "@/generated/prisma/client";
 
 export type GalleryInput = {
@@ -23,6 +24,11 @@ export async function createGallery(
   data: GalleryInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul wajib diisi." };
     }
@@ -42,8 +48,8 @@ export async function createGallery(
       },
     });
 
+    updateTag("gallery");
     revalidatePath("/admin/gallery");
-    revalidatePath("/gallery");
     return { success: true };
   } catch {
     return {
@@ -58,6 +64,11 @@ export async function updateGallery(
   data: GalleryInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul wajib diisi." };
     }
@@ -83,8 +94,8 @@ export async function updateGallery(
       },
     });
 
+    updateTag("gallery");
     revalidatePath("/admin/gallery");
-    revalidatePath("/gallery");
     revalidatePath(`/admin/gallery/${id}/edit`);
     return { success: true };
   } catch {
@@ -96,14 +107,19 @@ export async function deleteGallery(
   id: string
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const item = await prisma.gallery.findUnique({ where: { id } });
     if (!item) {
       return { success: false, error: "Item galeri tidak ditemukan." };
     }
 
     await prisma.gallery.delete({ where: { id } });
+    updateTag("gallery");
     revalidatePath("/admin/gallery");
-    revalidatePath("/gallery");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus item galeri." };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getAcademicStats } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,15 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AkademikPage() {
-  const [totalAnggota, expertiseGroups] = await Promise.all([
-    prisma.user.count({ where: { isActive: true } }),
-    prisma.memberProfile.groupBy({
-      by: ["fieldOfExpertise"],
-      where: { user: { isActive: true }, fieldOfExpertise: { not: null } },
-      _count: true,
-      orderBy: { _count: { fieldOfExpertise: "desc" } },
-    }),
-  ]);
+  const { totalAnggota, expertiseGroups, totalPublikasi } = await getAcademicStats();
 
   return (
     <div className="bg-neutral-50">
@@ -42,9 +34,7 @@ export default async function AkademikPage() {
             <p className="mt-1 text-sm text-neutral-500">Bidang Keahlian</p>
           </div>
           <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center shadow-card">
-            <p className="text-3xl font-bold text-primary-600">
-              {await prisma.publication.count()}
-            </p>
+            <p className="text-3xl font-bold text-primary-600">{totalPublikasi}</p>
             <p className="mt-1 text-sm text-neutral-500">Publikasi Ilmiah</p>
           </div>
         </div>
@@ -59,7 +49,7 @@ export default async function AkademikPage() {
                   key={group.fieldOfExpertise}
                   className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-card"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 text-sm font-bold text-primary-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-sm font-bold text-primary-600">
                     {group._count}
                   </div>
                   <div>

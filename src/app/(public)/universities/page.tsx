@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
+import { getUniversities } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,20 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PerguruanTinggiPage() {
-  const universities = await prisma.university.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      shortName: true,
-      address: true,
-      websiteUrl: true,
-      logoUrl: true,
-      description: true,
-      _count: { select: { members: true } },
-    },
-  });
+  const universities = await getUniversities();
 
   return (
     <div className="bg-neutral-50">

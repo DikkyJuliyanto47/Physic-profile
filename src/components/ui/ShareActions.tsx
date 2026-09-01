@@ -1,22 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 interface ShareActionsProps {
   title: string;
   url?: string;
 }
 
 export function ShareActions({ title, url }: ShareActionsProps) {
-  const [shareUrl, setShareUrl] = useState(() => url ?? window.location.href);
-
-  useEffect(() => {
-    if (url) {
-      setShareUrl(url);
-    }
-  }, [url]);
-
-  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedUrl = encodeURIComponent(url ?? "");
   const encodedTitle = encodeURIComponent(title);
 
   return (

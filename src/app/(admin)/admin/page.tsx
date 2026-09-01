@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 const STAT_CARDS = [
   {
     label: "Berita",
@@ -32,11 +30,6 @@ const STAT_CARDS = [
 
 const ADMIN_MODULES = [
   {
-    label: "Sumber Daya",
-    description: "Dokumen dan sumber akademik",
-    href: "/admin/documents",
-  },
-  {
     label: "Kepengurusan",
     description: "Struktur dan data pengurus",
     href: "/admin/managements",
@@ -50,11 +43,6 @@ const ADMIN_MODULES = [
     label: "Galeri",
     description: "Dokumentasi visual PSI",
     href: "/admin/gallery",
-  },
-  {
-    label: "Pesan",
-    description: "Pesan dan komunikasi masuk",
-    href: "/admin/messages",
   },
 ];
 
@@ -81,7 +69,7 @@ export default async function AdminDashboardPage() {
     await Promise.all([
       prisma.news.count(),
       prisma.event.count(),
-      prisma.user.count(),
+      prisma.memberProfile.count(),
       prisma.university.count(),
       prisma.university.findMany({
         take: 5,

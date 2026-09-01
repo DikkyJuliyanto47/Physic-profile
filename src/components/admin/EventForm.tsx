@@ -1,7 +1,8 @@
 "use client";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EventCategory, ContentStatus } from "@/generated/prisma/client";
@@ -22,7 +23,7 @@ type Props = {
     description: string;
     startDate: Date;
     endDate: Date | null;
-    location: string;
+    location: string | null;
     linkUrl: string | null;
     imageUrl: string | null;
     status: ContentStatus;
@@ -83,6 +84,16 @@ export function EventForm({ mode, initialData }: Props) {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(mode === "create");
+  const [debouncedLocation, setDebouncedLocation] = useState(
+    initialData?.location ?? "",
+  );
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
 
   const [form, setForm] = useState<EventInput>({
     title: initialData?.title ?? "",
@@ -117,6 +128,13 @@ export function EventForm({ mode, initialData }: Props) {
 
       return next;
     });
+
+    if (name === "location") {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        setDebouncedLocation(value);
+      }, 400);
+    }
   }
 
   function handleSlugChange(e: ChangeEvent<HTMLInputElement>) {
@@ -388,9 +406,12 @@ export function EventForm({ mode, initialData }: Props) {
 
         {previewUrl && (
           <div className="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50">
-            <img
+            <Image
               src={previewUrl}
               alt="Preview gambar agenda"
+              width={800}
+              height={224}
+              unoptimized
               className="h-48 w-full object-cover sm:h-56"
             />
           </div>
@@ -425,16 +446,30 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel required>Lokasi</FieldLabel>
+            <FieldLabel>Lokasi</FieldLabel>
 
             <input
               name="location"
-              value={form.location}
+              value={form.location ?? ""}
               onChange={handleChange}
-              required
-              placeholder="Online via Zoom / Gedung XYZ"
+              placeholder="Online via Zoom / Gedung XYZ / URL Google Maps"
               className={fieldClassName}
             />
+
+            {debouncedLocation && debouncedLocation.trim().length > 0 && (
+              <div className="mt-3 overflow-hidden rounded-md border border-neutral-200">
+                <iframe
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(debouncedLocation.trim())}&output=embed`}
+                  width="100%"
+                  height="250"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Preview lokasi"
+                />
+              </div>
+            )}
           </div>
 
           <div>

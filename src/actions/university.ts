@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-utils";
+import { revalidatePath, updateTag } from "next/cache";
 
 function slugify(text: string): string {
   return text
@@ -32,6 +33,11 @@ export async function createUniversity(
   data: UniversityInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.name || data.name.trim().length === 0) {
       return { success: false, error: "Nama kampus wajib diisi." };
     }
@@ -62,8 +68,8 @@ export async function createUniversity(
       },
     });
 
+    updateTag("universities");
     revalidatePath("/admin/universities");
-    revalidatePath("/universities");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat kampus. Silakan coba lagi." };
@@ -75,6 +81,11 @@ export async function updateUniversity(
   data: UniversityInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.name || data.name.trim().length === 0) {
       return { success: false, error: "Nama kampus wajib diisi." };
     }
@@ -109,8 +120,8 @@ export async function updateUniversity(
       },
     });
 
+    updateTag("universities");
     revalidatePath("/admin/universities");
-    revalidatePath("/universities");
     revalidatePath(`/admin/universities/${id}/edit`);
     return { success: true };
   } catch {
@@ -120,6 +131,11 @@ export async function updateUniversity(
 
 export async function deleteUniversity(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const university = await prisma.university.findUnique({
       where: { id },
       include: { _count: { select: { members: true } } },
@@ -138,8 +154,8 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
 
     await prisma.university.delete({ where: { id } });
 
+    updateTag("universities");
     revalidatePath("/admin/universities");
-    revalidatePath("/universities");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus kampus. Silakan coba lagi." };

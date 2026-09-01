@@ -2,7 +2,7 @@ import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 interface EventMetaProps {
   time: string;
-  location: string;
+  location?: string | null;
   className?: string;
 }
 
@@ -23,15 +23,19 @@ export function EventMeta({
         {time}
       </span>
 
-      <span className="hidden h-3.5 w-px bg-border sm:block" aria-hidden="true" />
+      {location && (
+        <>
+          <span className="hidden h-3.5 w-px bg-border sm:block" aria-hidden="true" />
 
-      <span className="inline-flex items-start gap-2">
-        <FaMapMarkerAlt
-          className="mt-0.5 h-3 w-3 shrink-0 text-primary-600"
-          aria-hidden="true"
-        />
-        <span>{location}</span>
-      </span>
+          <span className="inline-flex items-start gap-2">
+            <FaMapMarkerAlt
+              className="mt-0.5 h-3 w-3 shrink-0 text-primary-600"
+              aria-hidden="true"
+            />
+            <span>{location}</span>
+          </span>
+        </>
+      )}
     </div>
   );
 }

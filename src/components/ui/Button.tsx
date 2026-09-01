@@ -82,7 +82,7 @@ export function Button(props: ButtonProps) {
   );
 
   if (isLinkButton(props)) {
-    const { href, target, rel, icon, iconPosition, variant, size, fullWidth, className: _, ...anchorRest } = props;
+    const { href, target, rel, ...anchorRest } = props;
 
     return (
       <Link href={href} target={target} rel={rel} className={classes} {...anchorRest}>

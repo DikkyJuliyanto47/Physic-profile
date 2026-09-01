@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { ManagementActions } from "./ManagementActions";
 import { ManagementPositionActions } from "./ManagementPositionActions";
 
-export const dynamic = "force-dynamic";
-
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
@@ -23,7 +21,6 @@ export default async function ManagementPage() {
           include: {
             memberProfile: {
               include: {
-                user: { select: { name: true, email: true } },
                 institution: { select: { id: true, name: true, shortName: true } },
               },
             },
@@ -40,7 +37,6 @@ export default async function ManagementPage() {
           include: {
             memberProfile: {
               include: {
-                user: { select: { name: true, email: true } },
                 institution: { select: { id: true, name: true, shortName: true } },
               },
             },
@@ -206,7 +202,7 @@ export default async function ManagementPage() {
                         {position.memberProfile ? (
                           <div>
                             <p className="font-medium text-neutral-900">
-                              {position.memberProfile.user.name}
+                              {position.memberProfile.name}
                             </p>
                             <p className="mt-0.5 text-xs text-neutral-500">
                               {position.memberProfile.institution?.shortName ??

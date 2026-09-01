@@ -14,7 +14,6 @@ datasource db {
 enum Role {
   SUPER_ADMIN
   ADMIN
-  MEMBER
 }
 
 enum ContentStatus {
@@ -61,16 +60,14 @@ model User {
   name          String
   email         String         @unique
   passwordHash  String
-  role          Role           @default(MEMBER)
+  role          Role           @default(ADMIN)
   isActive      Boolean        @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   // Relations
-  memberProfile MemberProfile?
   newsCreated   News[]              @relation("NewsAuthor")
   eventsCreated Event[]             @relation("EventAuthor")
-  documentsUploaded DocumentResource[] @relation("DocumentUploader")
 }
 
 // ==========================================
@@ -95,13 +92,14 @@ model University {
 
 model MemberProfile {
   id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  email            String   @unique
   
   institutionId    String?
   institution      University? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
   
   photoUrl         String?
+  detailUrl        String?
   nidn             String?
   position         String?
   fieldOfExpertise String?
@@ -179,7 +177,7 @@ model Event {
   description String        @db.Text
   startDate   DateTime
   endDate     DateTime?
-  location    String
+  location    String?
   linkUrl     String?
   imageUrl    String?
   status      ContentStatus @default(DRAFT)
@@ -194,7 +192,7 @@ model Event {
 }
 
 // ==========================================
-// PUBLIKASI & DOKUMEN DOWNLOAD
+// PUBLIKASI
 // ==========================================
 
 model Publication {
@@ -209,25 +207,8 @@ model Publication {
   updatedAt   DateTime        @updatedAt
 }
 
-model DocumentResource {
-  id          String   @id @default(cuid())
-  title       String
-  category    String
-  description String?  @db.Text
-  fileUrl     String
-  fileType    String?
-  fileSize    String?
-  isPublic    Boolean  @default(true)
-  
-  uploaderId  String?
-  uploader    User?    @relation("DocumentUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
 // ==========================================
-// GALERI & PENGADUAN / KONTAK
+// GALERI
 // ==========================================
 
 model Gallery {
@@ -241,21 +222,4 @@ model Gallery {
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-}
-
-model ContactMessage {
-  id        String              @id @default(cuid())
-  name      String
-  email     String
-  subject   String
-  message   String              @db.Text
-  isRead    Boolean             @default(false)
-  status    MessageStatus       @default(UNREAD)
-  createdAt DateTime            @default(now())
-}
-
-enum MessageStatus {
-  UNREAD
-  READ
-  REPLIED
 }

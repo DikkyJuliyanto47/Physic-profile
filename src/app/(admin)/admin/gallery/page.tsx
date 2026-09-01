@@ -3,8 +3,6 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { GalleryActions } from "./GalleryActions";
 
-export const dynamic = "force-dynamic";
-
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",

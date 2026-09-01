@@ -117,12 +117,23 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
                       {member.email}
                     </a>
 
-                     <a
-                      href={member.detailUrl}
-                      className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
-                    >
-                      Detail
-                    </a>
+                    {member.emailPublic && member.emailPublic !== member.email && (
+                      <a
+                        href={`mailto:${member.emailPublic}`}
+                        className="mt-0.5 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                      >
+                        {member.emailPublic}
+                      </a>
+                    )}
+
+                     {member.detailUrl && (
+                      <a
+                        href={member.detailUrl}
+                        className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                      >
+                        Detail
+                      </a>
+                    )}
                   </div>
                 </article>
               ))}

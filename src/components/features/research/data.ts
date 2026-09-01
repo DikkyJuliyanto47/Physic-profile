@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cacheLife, cacheTag } from "next/cache";
 import { PublicationType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { Publication, PublicationFilter } from "./types";
@@ -17,6 +18,10 @@ function formatPublishedAt(date: Date): string {
 }
 
 export async function getPublishedPublications(): Promise<Publication[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("publications");
+
   const publications = await prisma.publication.findMany({
     where: { publishedAt: { not: null, lte: new Date() } },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],

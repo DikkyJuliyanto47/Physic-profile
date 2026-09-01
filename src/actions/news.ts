@@ -1,8 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-utils";
+import { revalidatePath, updateTag } from "next/cache";
 import { NewsCategory, ContentStatus } from "@/generated/prisma/client";
 
 function slugify(text: string): string {
@@ -38,9 +38,9 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       return { success: false, error: "Konten berita wajib diisi." };
     }
 
-    const session = await auth();
-    if (!session?.user?.id) {
-      return { success: false, error: "Anda harus login untuk membuat berita." };
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
     }
 
     const slug = data.slug?.trim() || slugify(data.title);
@@ -64,7 +64,9 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       },
     });
 
+    updateTag("news");
     revalidatePath("/admin/news");
+    revalidatePath("/news");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat berita. Silakan coba lagi." };
@@ -76,6 +78,11 @@ export async function updateNews(
   data: NewsInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul berita wajib diisi." };
     }
@@ -118,8 +125,10 @@ export async function updateNews(
       },
     });
 
+    updateTag("news");
     revalidatePath("/admin/news");
     revalidatePath(`/admin/news/${id}/edit`);
+    revalidatePath("/news");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal memperbarui berita." };
@@ -128,13 +137,20 @@ export async function updateNews(
 
 export async function deleteNews(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const news = await prisma.news.findUnique({ where: { id } });
     if (!news) {
       return { success: false, error: "Berita tidak ditemukan." };
     }
 
     await prisma.news.delete({ where: { id } });
+    updateTag("news");
     revalidatePath("/admin/news");
+    revalidatePath("/news");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus berita." };
@@ -143,6 +159,11 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
 
 export async function toggleNewsStatus(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const news = await prisma.news.findUnique({ where: { id } });
     if (!news) {
       return { success: false, error: "Berita tidak ditemukan." };
@@ -160,7 +181,9 @@ export async function toggleNewsStatus(id: string): Promise<ActionResponse> {
       },
     });
 
+    updateTag("news");
     revalidatePath("/admin/news");
+    revalidatePath("/news");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal mengubah status berita." };

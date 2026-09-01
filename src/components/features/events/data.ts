@@ -7,7 +7,7 @@ export interface EventItem {
   date: string;
   time: string;
   description: string;
-  location: string;
+  location?: string | null;
   image?: string;
   href: string;
 }
@@ -33,7 +33,7 @@ function mapEvent(event: {
   title: string;
   slug: string;
   description: string;
-  location: string;
+  location: string | null;
   imageUrl: string | null;
   startDate: Date;
 }): EventItem {
