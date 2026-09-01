@@ -32,9 +32,9 @@ const STAT_CARDS = [
 
 const ADMIN_MODULES = [
   {
-    label: "Sumber Daya",
-    description: "Dokumen dan sumber akademik",
-    href: "/admin/documents",
+    label: "Anggota",
+    description: "Kelola data anggota PSI Surabaya",
+    href: "/admin/members",
   },
   {
     label: "Kepengurusan",
@@ -50,11 +50,6 @@ const ADMIN_MODULES = [
     label: "Galeri",
     description: "Dokumentasi visual PSI",
     href: "/admin/gallery",
-  },
-  {
-    label: "Pesan",
-    description: "Pesan dan komunikasi masuk",
-    href: "/admin/messages",
   },
 ];
 
