@@ -8,26 +8,25 @@ import {
   type PublicationInput,
   type ActionResponse,
 } from "@/actions/publication";
-import type { PublicationCategory } from "@/components/features/research/types";
 
 type Props = {
   mode: "create" | "edit";
   initialData?: {
     id: string;
     title: string;
-    type: PublicationCategory;
+    type: string;
     description: string | null;
     externalUrl: string | null;
-    fileUrl: string | null;
     publishedAt: Date | null;
   };
 };
 
-const TYPE_LABELS: Record<PublicationCategory, string> = {
-  JURNAL: "Jurnal",
-  BUKU: "Buku",
-  HKI: "HKI (Hak Kekayaan Intelektual)",
-  PROSIDING: "Prosiding",
+type PublicationFormData = {
+  title: string;
+  type: string;
+  description: string;
+  externalUrl: string;
+  publishedAt: string;
 };
 
 function toDatetimeLocal(date: Date | string | null): string {
@@ -51,10 +50,9 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   const [form, setForm] = useState<PublicationInput>({
     title: initialData?.title ?? "",
-    type: initialData?.type ?? "JURNAL",
+    type: initialData?.type ?? "",
     description: initialData?.description ?? "",
     externalUrl: initialData?.externalUrl ?? "",
-    fileUrl: initialData?.fileUrl ?? "",
     publishedAt: initialData?.publishedAt
       ? toDatetimeLocal(initialData.publishedAt)
       : "",
@@ -116,41 +114,25 @@ export function PublicationForm({ mode, initialData }: Props) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="type" className={labelClass}>
-            Tipe <span className="text-red-500">*</span>
-          </label>
+      <div>
+        <label htmlFor="type" className={labelClass}>
+          Tipe <span className="text-red-500">*</span>
+        </label>
 
-          <select
-            id="type"
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className={inputClass}
-          >
-            {Object.entries(TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <input 
+          id="type" 
+          name="type"
+          value={form.type}
+          onChange={handleChange}
+          required
+          maxLength={50}
+          placeholder="Contoh: Jurnal"
+          className={inputClass}
+        />
 
-        <div>
-          <label htmlFor="publishedAt" className={labelClass}>
-            Tanggal Publikasi
-          </label>
-
-          <input
-            id="publishedAt"
-            type="datetime-local"
-            name="publishedAt"
-            value={form.publishedAt}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+        <p className="mt-1.5 text-xs text-neutral-400">
+          Masukkan tipe publikasi.
+        </p>
       </div>
 
       <div>
@@ -179,50 +161,28 @@ export function PublicationForm({ mode, initialData }: Props) {
             Referensi Publikasi
           </h2>
           <p className="mt-1 text-xs leading-5 text-neutral-500">
-            Tambahkan tautan menuju sumber eksternal atau file publikasi.
+            Tambahkan tautan menuju publikasi atau sumber terkait.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label htmlFor="externalUrl" className={labelClass}>
-              URL Eksternal
-            </label>
+        <div>
+          <label htmlFor="externalUrl" className={labelClass}>
+            URL
+          </label>
 
-            <input
-              id="externalUrl"
-              name="externalUrl"
-              value={form.externalUrl ?? ""}
-              onChange={handleChange}
-              type="url"
-              placeholder="https://..."
-              className={inputClass}
-            />
+          <input
+            id="externalUrl"
+            name="externalUrl"
+            value={form.externalUrl ?? ""}
+            onChange={handleChange}
+            type="url"
+            placeholder="https://..."
+            className={inputClass}
+          />
 
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Halaman jurnal, DOI, situs penerbit, atau sumber terkait.
-            </p>
-          </div>
-
-          <div>
-            <label htmlFor="fileUrl" className={labelClass}>
-              URL File
-            </label>
-
-            <input
-              id="fileUrl"
-              name="fileUrl"
-              value={form.fileUrl ?? ""}
-              onChange={handleChange}
-              type="url"
-              placeholder="https://..."
-              className={inputClass}
-            />
-
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Tautan langsung menuju PDF atau dokumen publikasi.
-            </p>
-          </div>
+          <p className="mt-1.5 text-xs text-neutral-400">
+            Tautan menuju jurnal, DOI, penerbit, halaman publikasi, atau dokumen terkait.
+          </p>
         </div>
       </div>
 

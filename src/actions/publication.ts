@@ -9,7 +9,6 @@ export type PublicationInput = {
   type: PublicationType;
   description?: string;
   externalUrl?: string;
-  fileUrl?: string;
   publishedAt?: string;
 };
 
@@ -36,7 +35,6 @@ export async function createPublication(
         type: data.type,
         description: data.description?.trim() || null,
         externalUrl: data.externalUrl?.trim() || null,
-        fileUrl: data.fileUrl?.trim() || null,
         publishedAt,
       },
     });
@@ -79,7 +77,6 @@ export async function updatePublication(
         type: data.type,
         description: data.description?.trim() || null,
         externalUrl: data.externalUrl?.trim() || null,
-        fileUrl: data.fileUrl?.trim() || null,
         publishedAt,
       },
     });

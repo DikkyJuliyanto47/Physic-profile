@@ -1,14 +1,14 @@
-export type PublicationCategory = "BUKU" | "HKI" | "JURNAL" | "PROSIDING";
+export type PublicationStatus = "BUKU" | "HKI" | "JURNAL" | "PROSIDING";
 
 export interface Publication {
   id: string;
-  category: PublicationCategory;
+  category: string;
   title: string;
   meta: string[];
   href: string | null;
 }
 
 export interface PublicationFilter {
-  id: "semua" | PublicationCategory;
+  id: "semua" | PublicationStatus;
   label: string;
 }
