@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-utils";
+import { revalidatePath, updateTag } from "next/cache";
 import { PublicationType } from "@/generated/prisma/client";
 
 export type PublicationInput = {
@@ -22,6 +23,11 @@ export async function createPublication(
   data: PublicationInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul publikasi wajib diisi." };
     }
@@ -41,8 +47,8 @@ export async function createPublication(
       },
     });
 
+    updateTag("publications");
     revalidatePath("/admin/publication");
-    revalidatePath("/research-publication");
     return { success: true };
   } catch {
     return {
@@ -57,6 +63,11 @@ export async function updatePublication(
   data: PublicationInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     if (!data.title || data.title.trim().length === 0) {
       return { success: false, error: "Judul publikasi wajib diisi." };
     }
@@ -84,8 +95,8 @@ export async function updatePublication(
       },
     });
 
+    updateTag("publications");
     revalidatePath("/admin/publication");
-    revalidatePath("/research-publication");
     revalidatePath(`/admin/publication/${id}/edit`);
     return { success: true };
   } catch {
@@ -95,6 +106,11 @@ export async function updatePublication(
 
 export async function deletePublication(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const publication = await prisma.publication.findUnique({
       where: { id },
     });
@@ -103,8 +119,8 @@ export async function deletePublication(id: string): Promise<ActionResponse> {
     }
 
     await prisma.publication.delete({ where: { id } });
+    updateTag("publications");
     revalidatePath("/admin/publication");
-    revalidatePath("/research-publication");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus publikasi." };

@@ -5,8 +5,6 @@ import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 
 import { NewsActions } from "./NewsActions";
 
-export const dynamic = "force-dynamic";
-
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
   ORGANISASI: "Organisasi",
   SEMINAR: "Seminar",

@@ -124,7 +124,7 @@ export function PublicNavbar() {
         <PublicMobileNav items={publicNav} />
       </Container>
 
-      {isMenuVisible && (
+      {isMenuVisible && activeItem && (
         <div className="absolute inset-x-0 top-full hidden lg:block">
           <MegaMenu item={activeItem} onClose={() => setActiveMenu(null)} />
         </div>

@@ -1,9 +1,11 @@
+import { getMembers } from "@/lib/data";
 import { PublicPageShell } from "@/components/ui/index";
 import { MembersSection } from "@/components/features/members";
-import { members } from "@/components/features/members/data";
 import { JoinCtaSection } from "@/components/features/home";
 
-export default function Page() {
+export default async function Page() {
+  const members = await getMembers();
+
   const institutions = Array.from(
     new Set(members.map((member) => member.institution)),
   );

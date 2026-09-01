@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getUniversityBySlug, getMembersByUniversity } from "@/lib/data";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -10,10 +10,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const uni = await prisma.university.findFirst({
-    where: { OR: [{ slug }, { id: slug }] },
-    select: { name: true, shortName: true, description: true, logoUrl: true },
-  });
+  const uni = await getUniversityBySlug(slug);
 
   if (!uni) return { title: "Perguruan Tidak Ditemukan" };
 
@@ -25,14 +22,15 @@ export async function generateMetadata({
   return {
     title: displayName,
     description,
-
     openGraph: {
       title: displayName,
       description,
       type: "profile",
       locale: "id_ID",
       siteName: "PSI Cabang Surabaya",
-      ...(uni.logoUrl && { images: [{ url: uni.logoUrl, width: 200, height: 200, alt: uni.name }] }),
+      ...(uni.logoUrl && {
+        images: [{ url: uni.logoUrl, width: 200, height: 200, alt: uni.name }],
+      }),
     },
     twitter: {
       card: "summary",
@@ -48,37 +46,11 @@ export default async function PerguruanTinggiDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  const uni = await prisma.university.findFirst({
-    where: { OR: [{ slug }, { id: slug }] },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      shortName: true,
-      address: true,
-      websiteUrl: true,
-      deptUrl: true,
-      logoUrl: true,
-      description: true,
-      members: {
-        select: {
-          id: true,
-          photoUrl: true,
-          position: true,
-          fieldOfExpertise: true,
-          nidn: true,
-          googleScholarUrl: true,
-          scopusUrl: true,
-          orcidUrl: true,
-          user: { select: { name: true, email: true } },
-        },
-        orderBy: { user: { name: "asc" } },
-      },
-    },
-  });
+  const uni = await getUniversityBySlug(slug);
 
   if (!uni) notFound();
+
+  const members = await getMembersByUniversity(uni.id);
 
   return (
     <div className="bg-neutral-50">
@@ -170,7 +142,7 @@ export default async function PerguruanTinggiDetailPage({
                   <svg className="h-4 w-4 shrink-0 text-neutral-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                   </svg>
-                  {uni.members.length} anggota terdaftar
+                  {members.length} anggota terdaftar
                 </div>
               </div>
             </div>
@@ -178,11 +150,11 @@ export default async function PerguruanTinggiDetailPage({
         </div>
 
         {/* Members */}
-        {uni.members.length > 0 && (
+        {members.length > 0 && (
           <div className="mt-10">
             <h2 className="text-xl font-bold text-neutral-900">Anggota dari {uni.shortName ?? uni.name}</h2>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {uni.members.map((member) => (
+              {members.map((member) => (
                 <div
                   key={member.id}
                   className="flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-card"
@@ -198,11 +170,11 @@ export default async function PerguruanTinggiDetailPage({
                         className="h-12 w-12 rounded-full object-cover"
                       />
                     ) : (
-                      member.user.name.charAt(0)
+                      member.name.charAt(0)
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-neutral-900">{member.user.name}</p>
+                    <p className="truncate font-semibold text-neutral-900">{member.name}</p>
                     {member.position && (
                       <p className="truncate text-sm text-neutral-500">{member.position}</p>
                     )}

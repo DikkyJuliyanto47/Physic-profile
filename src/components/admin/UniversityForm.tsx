@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import {
@@ -263,9 +264,12 @@ export function UniversityForm({ mode, initialData }: Props) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
             <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-md border border-neutral-200 bg-neutral-50">
               {form.logoUrl ? (
-                <img
+                <Image
                   src={form.logoUrl}
                   alt="Preview logo kampus"
+                  width={128}
+                  height={128}
+                  unoptimized
                   className="h-full w-full object-contain p-3"
                 />
               ) : (

@@ -1,5 +1,5 @@
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { PublicFooter, PublicNavbar } from "@/components/layout";
 
 const FONT_AWESOME_CDN =
@@ -14,9 +14,13 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         crossOrigin="anonymous"
         referrerPolicy="no-referrer"
       />
-      <PublicNavbar />
+      <Suspense>
+        <PublicNavbar />
+      </Suspense>
       <main className="flex flex-col flex-1">{children}</main>
-      <PublicFooter />
+      <Suspense>
+        <PublicFooter />
+      </Suspense>
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { NewsCategory, ContentStatus } from "@/generated/prisma/client";
@@ -360,9 +361,12 @@ export function NewsForm({ mode, initialData }: Props) {
 
         {previewUrl && (
           <div className="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50">
-            <img
+            <Image
               src={previewUrl}
               alt="Preview gambar berita"
+              width={800}
+              height={224}
+              unoptimized
               className="h-48 w-full object-cover sm:h-56"
             />
           </div>

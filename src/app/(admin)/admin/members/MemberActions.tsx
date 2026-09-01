@@ -2,32 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { deleteMember, toggleMemberActive } from "@/actions/member";
+import { deleteMember } from "@/actions/member";
 
 type Props = {
   memberId: string;
   memberName: string;
-  isActive: boolean;
-  isCurrentUser: boolean;
 };
 
 export function MemberActions({
   memberId,
   memberName,
-  isActive,
-  isCurrentUser,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
-
-  function handleToggle() {
-    startTransition(async () => {
-      await toggleMemberActive(memberId);
-      router.refresh();
-    });
-  }
 
   function handleDelete() {
     setError("");
@@ -47,45 +36,6 @@ export function MemberActions({
   return (
     <>
       <div className="inline-flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={handleToggle}
-          disabled={isPending || isCurrentUser}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
-          title={isActive ? "Nonaktifkan akun" : "Aktifkan akun"}
-          aria-label={isActive ? "Nonaktifkan akun" : "Aktifkan akun"}
-        >
-          {isActive ? (
-            <svg
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.6}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M18.364 18.364A9 9 0 0 1 5.636 5.636m12.728 12.728A9 9 0 0 0 5.636 5.636m12.728 12.728L5.636 5.636"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.6}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m4.5 12.75 6 6 9-13.5"
-              />
-            </svg>
-          )}
-        </button>
-
         <a
           href={`/admin/members/${memberId}/edit`}
           className="inline-flex h-8 items-center rounded-md border border-neutral-200 bg-white px-2.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
@@ -99,13 +49,8 @@ export function MemberActions({
             setError("");
             setShowConfirm(true);
           }}
-          disabled={isCurrentUser}
-          className="inline-flex h-8 items-center rounded-md border border-red-200 bg-white px-2.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-          title={
-            isCurrentUser
-              ? "Tidak dapat menghapus akun sendiri"
-              : "Hapus anggota"
-          }
+          className="inline-flex h-8 items-center rounded-md border border-red-200 bg-white px-2.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+          title="Hapus anggota"
         >
           Hapus
         </button>

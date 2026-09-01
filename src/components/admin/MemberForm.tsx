@@ -19,12 +19,16 @@ type MemberInitialData = {
   id: string;
   name: string;
   email: string;
-  memberProfile: {
-    institutionId: string | null;
-    fieldOfExpertise: string | null;
-    photoUrl: string | null;
-    detailUrl: string | null;
-  } | null;
+  institutionId: string | null;
+  fieldOfExpertise: string | null;
+  photoUrl: string | null;
+  detailUrl: string | null;
+  nidn: string | null;
+  position: string | null;
+  emailPublic: string | null;
+  googleScholarUrl: string | null;
+  scopusUrl: string | null;
+  orcidUrl: string | null;
 };
 
 type Props =
@@ -52,20 +56,24 @@ export function MemberForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(
-    initialData?.memberProfile?.photoUrl ?? "",
+    initialData?.photoUrl ?? "",
   );
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const profile = initialData?.memberProfile;
-
   const [form, setForm] = useState<MemberInput>({
     name: initialData?.name ?? "",
     email: initialData?.email ?? "",
-    institutionId: profile?.institutionId ?? "",
-    fieldOfExpertise: profile?.fieldOfExpertise ?? "",
-    photoUrl: profile?.photoUrl ?? "",
-    detailUrl: profile?.detailUrl ?? "",
+    institutionId: initialData?.institutionId ?? "",
+    fieldOfExpertise: initialData?.fieldOfExpertise ?? "",
+    photoUrl: initialData?.photoUrl ?? "",
+    detailUrl: initialData?.detailUrl ?? "",
+    nidn: initialData?.nidn ?? "",
+    position: initialData?.position ?? "",
+    emailPublic: initialData?.emailPublic ?? "",
+    googleScholarUrl: initialData?.googleScholarUrl ?? "",
+    scopusUrl: initialData?.scopusUrl ?? "",
+    orcidUrl: initialData?.orcidUrl ?? "",
   });
 
   function handleChange(
@@ -243,6 +251,20 @@ export function MemberForm({
           </div>
 
           <div>
+            <label htmlFor="position" className={labelClass}>
+              Jabatan
+            </label>
+            <input
+              id="position"
+              name="position"
+              value={form.position ?? ""}
+              onChange={handleChange}
+              placeholder="Contoh: Dosen"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
             <label htmlFor="detailUrl" className={labelClass}>
               URL Detail Anggota
             </label>
@@ -308,6 +330,88 @@ export function MemberForm({
             <p className="mt-1.5 text-xs text-neutral-400">
               PNG, JPG, atau WebP. Maksimal 1 MB.
             </p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset className="border-t border-neutral-100 pt-7">
+        <legend className="text-sm font-semibold text-neutral-900">
+          Informasi Akademik
+        </legend>
+
+        <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="nidn" className={labelClass}>
+              NIDN
+            </label>
+            <input
+              id="nidn"
+              name="nidn"
+              value={form.nidn ?? ""}
+              onChange={handleChange}
+              placeholder="Contoh: 0412068801"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="emailPublic" className={labelClass}>
+              Email Publik
+            </label>
+            <input
+              id="emailPublic"
+              type="email"
+              name="emailPublic"
+              value={form.emailPublic ?? ""}
+              onChange={handleChange}
+              placeholder="john@university.ac.id"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="googleScholarUrl" className={labelClass}>
+              Google Scholar URL
+            </label>
+            <input
+              id="googleScholarUrl"
+              type="url"
+              name="googleScholarUrl"
+              value={form.googleScholarUrl ?? ""}
+              onChange={handleChange}
+              placeholder="https://scholar.google.com/citations?user=..."
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="scopusUrl" className={labelClass}>
+              Scopus URL
+            </label>
+            <input
+              id="scopusUrl"
+              type="url"
+              name="scopusUrl"
+              value={form.scopusUrl ?? ""}
+              onChange={handleChange}
+              placeholder="https://www.scopus.com/authid/detail.uri?..."
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="orcidUrl" className={labelClass}>
+              ORCID URL
+            </label>
+            <input
+              id="orcidUrl"
+              type="url"
+              name="orcidUrl"
+              value={form.orcidUrl ?? ""}
+              onChange={handleChange}
+              placeholder="https://orcid.org/0000-0000-0000-0000"
+              className={inputClass}
+            />
           </div>
         </div>
       </fieldset>
