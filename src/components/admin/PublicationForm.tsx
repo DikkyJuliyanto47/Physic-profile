@@ -2,31 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createPublication,
-  updatePublication,
-  type PublicationInput,
-  type ActionResponse,
-} from "@/actions/publication";
+import type { ActionResponse } from "@/actions/publication";
+import { createPublication, updatePublication } from "@/actions/publication";
+import type { PublicationInput, PublicationType } from "@/types/publication";
 
 type Props = {
   mode: "create" | "edit";
   initialData?: {
     id: string;
     title: string;
-    type: string;
+    type: PublicationType;
     description: string | null;
     externalUrl: string | null;
     publishedAt: Date | null;
   };
-};
-
-type PublicationFormData = {
-  title: string;
-  type: string;
-  description: string;
-  externalUrl: string;
-  publishedAt: string;
 };
 
 function toDatetimeLocal(date: Date | string | null): string {
@@ -50,7 +39,7 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   const [form, setForm] = useState<PublicationInput>({
     title: initialData?.title ?? "",
-    type: initialData?.type ?? "",
+    type: initialData?.type ?? "JURNAL",
     description: initialData?.description ?? "",
     externalUrl: initialData?.externalUrl ?? "",
     publishedAt: initialData?.publishedAt
@@ -64,7 +53,11 @@ export function PublicationForm({ mode, initialData }: Props) {
     >
   ) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -102,7 +95,6 @@ export function PublicationForm({ mode, initialData }: Props) {
         <label htmlFor="title" className={labelClass}>
           Judul <span className="text-red-500">*</span>
         </label>
-
         <input
           id="title"
           name="title"
@@ -118,20 +110,21 @@ export function PublicationForm({ mode, initialData }: Props) {
         <label htmlFor="type" className={labelClass}>
           Tipe <span className="text-red-500">*</span>
         </label>
-
-        <input 
-          id="type" 
+        <select
+          id="type"
           name="type"
           value={form.type}
           onChange={handleChange}
           required
-          maxLength={50}
-          placeholder="Contoh: Jurnal"
           className={inputClass}
-        />
-
+        >
+          <option value="JURNAL">Jurnal</option>
+          <option value="BUKU">Buku</option>
+          <option value="HKI">HKI</option>
+          <option value="PROSIDING">Prosiding</option>
+        </select>
         <p className="mt-1.5 text-xs text-neutral-400">
-          Masukkan tipe publikasi.
+          Pilih tipe publikasi.
         </p>
       </div>
 
@@ -139,7 +132,6 @@ export function PublicationForm({ mode, initialData }: Props) {
         <label htmlFor="description" className={labelClass}>
           Deskripsi
         </label>
-
         <textarea
           id="description"
           name="description"
@@ -149,7 +141,6 @@ export function PublicationForm({ mode, initialData }: Props) {
           placeholder="Deskripsi publikasi..."
           className={`${inputClass} resize-y`}
         />
-
         <p className="mt-1.5 text-xs text-neutral-400">
           Gunakan deskripsi singkat yang membantu pengunjung memahami publikasi.
         </p>
@@ -169,7 +160,6 @@ export function PublicationForm({ mode, initialData }: Props) {
           <label htmlFor="externalUrl" className={labelClass}>
             URL
           </label>
-
           <input
             id="externalUrl"
             name="externalUrl"
@@ -179,7 +169,6 @@ export function PublicationForm({ mode, initialData }: Props) {
             placeholder="https://..."
             className={inputClass}
           />
-
           <p className="mt-1.5 text-xs text-neutral-400">
             Tautan menuju jurnal, DOI, penerbit, halaman publikasi, atau dokumen terkait.
           </p>

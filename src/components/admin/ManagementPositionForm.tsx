@@ -10,7 +10,7 @@ import {
 
 type MemberOption = {
   id: string;
-  user: { name: string; email: string };
+  name: string;
   institution?: { name: string; shortName?: string | null } | null;
 };
 
@@ -101,7 +101,7 @@ export function ManagementPositionForm({
             <option value="">Tanpa anggota</option>
             {memberProfiles.map((member) => (
               <option key={member.id} value={member.id}>
-                {member.user.name}
+                {member.name}
                 {member.institution
                   ? ` - ${member.institution.shortName ?? member.institution.name}`
                   : ""}

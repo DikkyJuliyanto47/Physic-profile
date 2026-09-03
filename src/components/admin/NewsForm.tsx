@@ -2,9 +2,10 @@
 
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { ContentStatus } from "@/generated/prisma/client";
+import { ContentStatus, NewsCategory } from "@/generated/prisma/browser";
 import {
   createNews,
   updateNews,
@@ -18,7 +19,7 @@ type Props = {
     id: string;
     title: string;
     slug: string;
-    category: string;
+    category: NewsCategory;
     excerpt: string | null;
     content: string;
     imageUrl: string | null;
@@ -40,6 +41,15 @@ const fieldClassName =
 
 const textareaClassName =
   "w-full rounded-md border border-neutral-200 bg-white px-3.5 py-3 text-sm leading-6 text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500";
+
+const NEWS_CATEGORY_OPTIONS: Array<{ value: NewsCategory; label: string }> = [
+  { value: NewsCategory.ORGANISASI, label: "Organisasi" },
+  { value: NewsCategory.SEMINAR, label: "Seminar" },
+  { value: NewsCategory.WORKSHOP, label: "Workshop" },
+  { value: NewsCategory.PERTEMUAN_RUTIN, label: "Pertemuan Rutin" },
+  { value: NewsCategory.KERJASAMA, label: "Kerjasama" },
+  { value: NewsCategory.PRESTASI_ANGGOTA, label: "Prestasi Anggota" },
+];
 
 function FieldLabel({
   children,
@@ -69,19 +79,20 @@ export function NewsForm({ mode, initialData }: Props) {
   const [form, setForm] = useState<NewsInput>({
     title: initialData?.title ?? "",
     slug: initialData?.slug ?? "",
-    category: initialData?.category ?? "",
+    category: initialData?.category ?? NewsCategory.ORGANISASI,
     excerpt: initialData?.excerpt ?? "",
     content: initialData?.content ?? "",
     imageUrl: initialData?.imageUrl ?? "",
-    status: initialData?.status ?? "DRAFT",
+    status: initialData?.status ?? ContentStatus.DRAFT,
   });
 
-  function handleChange(
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) {
+  function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target;
 
     setForm((prev) => {
+      if (name === "category") return { ...prev, category: value as NewsCategory };
+      if (name === "status") return { ...prev, status: value as ContentStatus };
+
       const next = { ...prev, [name]: value };
 
       if (name === "title" && autoSlug) {
@@ -148,10 +159,7 @@ export function NewsForm({ mode, initialData }: Props) {
     setError("");
     setIsSubmitting(true);
 
-    const payload = {
-      ...form,
-      category: form.category.trim(),
-    };
+    const payload: NewsInput = form;
 
     let result: ActionResponse;
 
@@ -167,6 +175,7 @@ export function NewsForm({ mode, initialData }: Props) {
       router.push("/admin/news?success=true");
       router.refresh();
     } else {
+      console.error("createNews/updateNews failed:", result);
       setError(result.error ?? "Terjadi kesalahan.");
     }
   }
@@ -280,18 +289,22 @@ export function NewsForm({ mode, initialData }: Props) {
 
           <div>
             <FieldLabel required>Kategori</FieldLabel>
-            <input
+            <select
               name="category"
               value={form.category}
               onChange={handleChange}
               required
-              maxLength={50}
-              placeholder="Contoh: Seminar"
               className={fieldClassName}
-            />
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Isi kategori sesuai jenis berita.
-            </p>
+            >
+              <option value="" disabled>
+                Pilih kategori
+              </option>
+              {NEWS_CATEGORY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -302,8 +315,11 @@ export function NewsForm({ mode, initialData }: Props) {
               onChange={handleChange}
               className={fieldClassName}
             >
-              <option value="DRAFT">Draf</option>
-              <option value="PUBLISHED">Terbitkan</option>
+              <option value={ContentStatus.DRAFT}>Draf</option>
+              <option value={ContentStatus.PUBLISHED}>Terbitkan</option>
+              {mode === "edit" && (
+                <option value={ContentStatus.ARCHIVED}>Arsipkan</option>
+              )}
             </select>
           </div>
 
@@ -358,9 +374,12 @@ export function NewsForm({ mode, initialData }: Props) {
 
         {previewUrl && (
           <div className="overflow-hidden rounded-md border border-neutral-200 bg-neutral-50">
-            <img
+            <Image
               src={previewUrl}
               alt="Preview gambar berita"
+              width={800}
+              height={224}
+              unoptimized
               className="h-48 w-full object-cover sm:h-56"
             />
           </div>

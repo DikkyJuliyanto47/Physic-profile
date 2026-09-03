@@ -1,23 +1,14 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
-import { ContentStatus } from "@/generated/prisma/client";
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-}
+import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
+import { revalidatePath, updateTag } from "next/cache";
 
 export type NewsInput = {
   title: string;
   slug?: string;
-  category: string;
+  category: NewsCategory;
   excerpt?: string;
   content: string;
   imageUrl?: string;
@@ -29,55 +20,85 @@ export type ActionResponse = {
   error?: string;
 };
 
-function validateCategory(category: string): string | null {
-  const value = category.trim();
+function slugify(text: string): string {
+  return text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-  if (!value) {
-    return "Kategori wajib diisi.";
-  }
+function validateInput(data: NewsInput): string | null {
+  if (!data.title?.trim()) return "Judul berita wajib diisi.";
+  if (data.title.trim().length > 200) return "Judul berita maksimal 200 karakter.";
+  if (!data.content?.trim()) return "Konten berita wajib diisi.";
+  if (!data.category) return "Kategori berita wajib dipilih.";
+  if (!data.status) return "Status berita wajib dipilih.";
 
-  if (value.length > 50) {
-    return "Kategori maksimal 50 karakter.";
+  if (data.excerpt && data.excerpt.trim().length > 1000) {
+    return "Ringkasan maksimal 1000 karakter.";
   }
 
   return null;
 }
 
+function getSlug(data: NewsInput): string {
+  return data.slug?.trim() || slugify(data.title);
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2002"
+  );
+}
+
+function revalidateNews(): void {
+  updateTag("news");
+  revalidatePath("/news");
+  revalidatePath("/admin/news");
+}
+
 export async function createNews(data: NewsInput): Promise<ActionResponse> {
   try {
-    if (!data.title || data.title.trim().length === 0) {
-      return { success: false, error: "Judul berita wajib diisi." };
-    }
-
-    if (!data.content || data.content.trim().length === 0) {
-      return { success: false, error: "Konten berita wajib diisi." };
-    }
-
-    const categoryError = validateCategory(data.category);
-
-    if (categoryError) {
-      return { success: false, error: categoryError };
-    }
-
-    const session = await auth();
+    const session = await requireAdmin();
 
     if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
+    const validationError = validateInput(data);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
+    if (data.status === ContentStatus.ARCHIVED) {
       return {
         success: false,
-        error: "Anda harus login untuk membuat berita.",
+        error: "Berita baru tidak dapat langsung diarsipkan.",
       };
     }
 
-    const slug = data.slug?.trim() || slugify(data.title);
+    const slug = getSlug(data);
+
+    if (!slug) {
+      return { success: false, error: "Slug berita tidak valid." };
+    }
 
     const existing = await prisma.news.findUnique({
       where: { slug },
+      select: { id: true },
     });
 
     if (existing) {
       return {
         success: false,
-        error: "Slug berita sudah ada. Gunakan judul lain.",
+        error: "Slug berita sudah digunakan. Gunakan slug lain.",
       };
     }
 
@@ -85,20 +106,28 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       data: {
         title: data.title.trim(),
         slug,
-        category: data.category.trim(),
+        category: data.category,
         excerpt: data.excerpt?.trim() || null,
         content: data.content.trim(),
         imageUrl: data.imageUrl?.trim() || null,
         status: data.status,
-        publishedAt: data.status === "PUBLISHED" ? new Date() : null,
+        publishedAt:
+          data.status === ContentStatus.PUBLISHED ? new Date() : null,
         authorId: session.user.id,
       },
     });
 
-    revalidatePath("/admin/news");
+    revalidateNews();
 
     return { success: true };
-  } catch {
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return {
+        success: false,
+        error: "Slug berita sudah digunakan. Gunakan slug lain.",
+      };
+    }
+
     return {
       success: false,
       error: "Gagal membuat berita. Silakan coba lagi.",
@@ -111,60 +140,64 @@ export async function updateNews(
   data: NewsInput,
 ): Promise<ActionResponse> {
   try {
-    if (!data.title || data.title.trim().length === 0) {
-      return { success: false, error: "Judul berita wajib diisi." };
+    const session = await requireAdmin();
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    if (!data.content || data.content.trim().length === 0) {
-      return { success: false, error: "Konten berita wajib diisi." };
+    const validationError = validateInput(data);
+    if (validationError) {
+      return { success: false, error: validationError };
     }
 
-    const categoryError = validateCategory(data.category);
+    const current = await prisma.news.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        publishedAt: true,
+      },
+    });
 
-    if (categoryError) {
-      return { success: false, error: categoryError };
+    if (!current) {
+      return { success: false, error: "Berita tidak ditemukan." };
     }
 
-    const slug = data.slug?.trim() || slugify(data.title);
+    const slug = getSlug(data);
+
+    if (!slug) {
+      return { success: false, error: "Slug berita tidak valid." };
+    }
 
     const existing = await prisma.news.findFirst({
       where: {
         slug,
         NOT: { id },
       },
+      select: { id: true },
     });
 
     if (existing) {
       return {
         success: false,
-        error: "Slug berita sudah ada.",
-      };
-    }
-
-    const current = await prisma.news.findUnique({
-      where: { id },
-    });
-
-    if (!current) {
-      return {
-        success: false,
-        error: "Berita tidak ditemukan.",
+        error: "Slug berita sudah digunakan. Gunakan slug lain.",
       };
     }
 
     const publishedAt =
-      data.status === "PUBLISHED" && current.status !== "PUBLISHED"
-        ? new Date()
-        : data.status === "PUBLISHED"
+      data.status === ContentStatus.PUBLISHED
+        ? current.status === ContentStatus.PUBLISHED
           ? current.publishedAt
-          : null;
+          : new Date()
+        : null;
 
     await prisma.news.update({
       where: { id },
       data: {
         title: data.title.trim(),
         slug,
-        category: data.category.trim(),
+        category: data.category,
         excerpt: data.excerpt?.trim() || null,
         content: data.content.trim(),
         imageUrl: data.imageUrl?.trim() || null,
@@ -173,42 +206,54 @@ export async function updateNews(
       },
     });
 
-    revalidatePath("/admin/news");
-    revalidatePath(`/admin/news/${id}/edit`);
+    revalidateNews();
+    revalidatePath(`/news/${slug}`);
 
     return { success: true };
-  } catch {
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return {
+        success: false,
+        error: "Slug berita sudah digunakan. Gunakan slug lain.",
+      };
+    }
+
     return {
       success: false,
-      error: "Gagal memperbarui berita.",
+      error: "Gagal memperbarui berita. Silakan coba lagi.",
     };
   }
 }
 
 export async function deleteNews(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const news = await prisma.news.findUnique({
       where: { id },
+      select: { id: true, slug: true },
     });
 
     if (!news) {
-      return {
-        success: false,
-        error: "Berita tidak ditemukan.",
-      };
+      return { success: false, error: "Berita tidak ditemukan." };
     }
 
     await prisma.news.delete({
       where: { id },
     });
 
-    revalidatePath("/admin/news");
+    revalidateNews();
+    revalidatePath(`/news/${news.slug}`);
 
     return { success: true };
   } catch {
     return {
       success: false,
-      error: "Gagal menghapus berita.",
+      error: "Gagal menghapus berita. Silakan coba lagi.",
     };
   }
 }
@@ -217,19 +262,36 @@ export async function toggleNewsStatus(
   id: string,
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const news = await prisma.news.findUnique({
       where: { id },
+      select: {
+        id: true,
+        status: true,
+      },
     });
 
     if (!news) {
+      return { success: false, error: "Berita tidak ditemukan." };
+    }
+
+    if (
+      news.status !== ContentStatus.DRAFT &&
+      news.status !== ContentStatus.PUBLISHED
+    ) {
       return {
         success: false,
-        error: "Berita tidak ditemukan.",
+        error: "Berita terarsip hanya dapat diubah melalui form edit.",
       };
     }
 
     const newStatus =
-      news.status === "PUBLISHED"
+      news.status === ContentStatus.PUBLISHED
         ? ContentStatus.DRAFT
         : ContentStatus.PUBLISHED;
 
@@ -238,17 +300,17 @@ export async function toggleNewsStatus(
       data: {
         status: newStatus,
         publishedAt:
-          newStatus === "PUBLISHED" ? new Date() : null,
+          newStatus === ContentStatus.PUBLISHED ? new Date() : null,
       },
     });
 
-    revalidatePath("/admin/news");
+    revalidateNews();
 
     return { success: true };
   } catch {
     return {
       success: false,
-      error: "Gagal mengubah status berita.",
+      error: "Gagal mengubah status berita. Silakan coba lagi.",
     };
   }
 }

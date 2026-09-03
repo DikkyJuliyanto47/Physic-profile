@@ -5,8 +5,6 @@ import { ContentStatus, EventCategory } from "@/generated/prisma/client";
 
 import { EventActions } from "./EventActions";
 
-export const dynamic = "force-dynamic";
-
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   SEMINAR_NASIONAL: "Seminar Nasional",
   KULIAH_TAMU: "Kuliah Tamu",

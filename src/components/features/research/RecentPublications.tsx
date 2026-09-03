@@ -1,24 +1,33 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { Publication, PublicationStatus } from "./types";
 
-import type { Publication, PublicationCategory } from "./types";
+const CATEGORY_ORDER: PublicationStatus[] = [
+  "JURNAL",
+  "BUKU",
+  "HKI",
+  "PROSIDING",
+];
 
-const CATEGORY_LABEL: Record<PublicationCategory, string> = {
+const CATEGORY_LABEL: Record<PublicationStatus, string> = {
   BUKU: "Buku",
   HKI: "HKI",
   JURNAL: "Jurnal",
   PROSIDING: "Prosiding",
 };
 
-const CATEGORY_ORDER: PublicationCategory[] = ["JURNAL", "PROSIDING", "BUKU", "HKI"];
-
-function getCategoryId(category: PublicationCategory) {
+function getCategoryId(category: PublicationStatus) {
   return category.toLowerCase();
 }
 
-function getCategoryCount(publications: Publication[], category: PublicationCategory) {
-  return publications.filter((publication) => publication.category === category).length;
+function getCategoryCount(
+  publications: Publication[],
+  category: PublicationStatus,
+) {
+  return publications.filter(
+    (publication) => publication.category === category,
+  ).length;
 }
 
 function PublicationItem({
@@ -29,10 +38,13 @@ function PublicationItem({
   index: number;
 }) {
   const year = publication.meta.at(-1);
-  const source = publication.meta.length > 1 ? publication.meta.slice(0, -1) : publication.meta;
+  const source =
+    publication.meta.length > 1
+      ? publication.meta.slice(0, -1)
+      : publication.meta;
 
   return (
-    <article className="group border-b border-neutral-200/80 bg-white px-5 py-5 transition-all duration-200 first:rounded-t-xl last:rounded-b-xl hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] lg:px-6">
+    <article className="group border-b border-neutral-200 bg-white px-5 py-5 last:border-b-0 lg:px-6">
       <div className="grid items-center gap-4 lg:grid-cols-[52px_minmax(0,1fr)_100px_130px] lg:gap-6">
         <span className="text-sm tabular-nums text-neutral-400">
           {String(index + 1).padStart(2, "0")}
@@ -61,7 +73,7 @@ function PublicationItem({
               href={publication.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-primary-700 transition-colors hover:text-primary-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-4"
+              className="inline-flex min-h-10 items-center gap-2 rounded-md px-2 text-sm font-semibold text-primary-700 transition-colors hover:bg-primary-50 hover:text-primary-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
             >
               Lihat
               <i
@@ -82,27 +94,30 @@ function PublicationGroup({
   category,
   publications,
 }: {
-  category: PublicationCategory;
+  category: PublicationStatus;
   publications: Publication[];
 }) {
   if (publications.length === 0) return null;
 
   return (
-    <section id={getCategoryId(category)} className="scroll-mt-28 pt-10 lg:pt-12">
-      <div className="mb-5 flex items-center justify-between gap-6">
+    <section
+      id={getCategoryId(category)}
+      className="scroll-mt-28 pt-10 lg:pt-12"
+    >
+      <div className="mb-4 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
             {CATEGORY_LABEL[category]}
           </h2>
 
-          <span className="text-sm tabular-nums text-foreground-muted">
+          <span className="inline-flex min-w-6 items-center justify-center rounded-md bg-neutral-100 px-1.5 py-0.5 text-xs font-medium tabular-nums text-neutral-500">
             {publications.length}
           </span>
         </div>
       </div>
 
-      <div className="overflow-hidden border border-neutral-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md">
-        <div className="hidden border-b border-neutral-200 bg-neutral-50 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-neutral-500 lg:grid lg:grid-cols-[52px_minmax(0,1fr)_100px_120px] lg:gap-6 lg:px-6">
+      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+        <div className="hidden border-b border-neutral-200 bg-neutral-50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 lg:grid lg:grid-cols-[52px_minmax(0,1fr)_100px_120px] lg:gap-6 lg:px-6">
           <span>No.</span>
           <span>Nama Publikasi</span>
           <span>Tahun</span>
@@ -121,7 +136,11 @@ function PublicationGroup({
   );
 }
 
-function PublicationOverview({ publications }: { publications: Publication[] }) {
+function PublicationOverview({
+  publications,
+}: {
+  publications: Publication[];
+}) {
   const categories = CATEGORY_ORDER.filter((category) =>
     publications.some((publication) => publication.category === category),
   );
@@ -129,15 +148,17 @@ function PublicationOverview({ publications }: { publications: Publication[] }) 
   return (
     <nav
       aria-label="Ringkasan publikasi"
-      className="mb-8 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+      className="mb-8 overflow-hidden rounded-lg border border-neutral-200 bg-white"
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4">
         {categories.map((category, index) => (
           <a
             key={category}
             href={`#${getCategoryId(category)}`}
-            className={`group flex min-h-24 items-center justify-between px-5 py-5 transition-all duration-200 hover:-translate-y-px hover:bg-neutral-50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-inset lg:px-6 ${
-              index > 0 ? "border-t border-neutral-200 sm:border-l sm:border-t-0" : ""
+            className={`group flex min-h-24 items-center justify-between px-5 py-5 transition-colors hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-inset lg:px-6 ${
+              index > 0
+                ? "border-t border-neutral-200 sm:border-l sm:border-t-0"
+                : ""
             } ${index === 2 ? "sm:border-l-0 lg:border-l" : ""}`}
           >
             <div>
@@ -160,7 +181,11 @@ function PublicationOverview({ publications }: { publications: Publication[] }) 
   );
 }
 
-export function RecentPublications({ publications }: { publications: Publication[] }) {
+export function RecentPublications({
+  publications,
+}: {
+  publications: Publication[];
+}) {
   const [query, setQuery] = useState("");
 
   const filteredPublications = useMemo(() => {
@@ -169,11 +194,9 @@ export function RecentPublications({ publications }: { publications: Publication
     if (!normalizedQuery) return publications;
 
     return publications.filter((publication) =>
-      [
-        publication.title,
-        publication.category,
-        ...publication.meta,
-      ].some((value) => value.toLowerCase().includes(normalizedQuery)),
+      [publication.title, publication.category, ...publication.meta].some(
+        (value) => value.toLowerCase().includes(normalizedQuery),
+      ),
     );
   }, [publications, query]);
 
@@ -186,30 +209,15 @@ export function RecentPublications({ publications }: { publications: Publication
 
   return (
     <div id="semua-publikasi">
-      <header className="mb-10 max-w-3xl lg:mb-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-700">
-          Penelitian & Publikasi
-        </p>
-
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Pusat Penelitian dan Publikasi
-        </h2>
-
-        <p className="mt-4 max-w-2xl text-base leading-7 text-foreground-muted">
-          Pusat informasi penelitian, publikasi ilmiah, HKI, buku, prosiding, dan kolaborasi
-          penelitian anggota PSI.
-        </p>
-      </header>
-
       {publications.length === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-white/[0.07] px-6 py-10 backdrop-blur-md">
-          <p className="text-sm font-medium text-white">
+        <div className="rounded-lg border border-neutral-200 bg-white px-6 py-10">
+          <p className="text-sm font-semibold text-neutral-900">
             Belum ada publikasi yang diterbitkan.
           </p>
 
-          <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">
-            Publikasi anggota PSI Cabang Surabaya akan ditampilkan di halaman ini setelah
-            diterbitkan.
+          <p className="mt-2 max-w-xl text-sm leading-6 text-neutral-500">
+            Publikasi anggota PSI Cabang Surabaya akan ditampilkan di halaman
+            ini setelah diterbitkan.
           </p>
         </div>
       ) : (
@@ -232,7 +240,7 @@ export function RecentPublications({ publications }: { publications: Publication
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Cari publikasi..."
-              className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
+              className="h-11 w-full rounded-md border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
             />
           </div>
 
@@ -247,8 +255,14 @@ export function RecentPublications({ publications }: { publications: Publication
               ))}
             </div>
           ) : (
-            <div className="border-y border-neutral-200 py-10 text-sm text-foreground-muted">
-              Tidak ada publikasi yang sesuai dengan pencarian.
+            <div className="rounded-md border-y border-neutral-200 py-10">
+              <p className="text-sm font-semibold text-neutral-900">
+                Publikasi tidak ditemukan.
+              </p>
+
+              <p className="mt-1 text-sm text-foreground-muted">
+                Tidak ada publikasi yang sesuai dengan pencarian.
+              </p>
             </div>
           )}
         </>

@@ -9,25 +9,31 @@ import {
   type MemberInput,
 } from "@/actions/member";
 
+type UniversityOption = {
+  id: string;
+  name: string;
+  shortName: string | null;
+};
+
 type MemberInitialData = {
   id: string;
   name: string;
   email: string;
-  memberProfile: {
-    institution: string | null;
-    fieldOfExpertise: string | null;
-    photoUrl: string | null;
-    detailUrl: string | null;
-  } | null;
+  institutionId: string | null;
+  fieldOfExpertise: string | null;
+  photoUrl: string | null;
+  detailUrl: string | null;
 };
 
 type Props =
   | {
       mode: "create";
+      universities: UniversityOption[];
       initialData?: never;
     }
   | {
       mode: "edit";
+      universities: UniversityOption[];
       initialData: MemberInitialData;
     };
 
@@ -36,29 +42,23 @@ const inputClass =
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
-export function MemberForm({ mode, initialData }: Props) {
+export function MemberForm({ mode, universities, initialData }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(
-    initialData?.memberProfile?.photoUrl ?? "",
-  );
+  const [previewUrl, setPreviewUrl] = useState(initialData?.photoUrl ?? "");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-
-  const profile = initialData?.memberProfile;
 
   const [form, setForm] = useState<MemberInput>({
     name: initialData?.name ?? "",
     email: initialData?.email ?? "",
-    institution: profile?.institution ?? "",
-    fieldOfExpertise: profile?.fieldOfExpertise ?? "",
-    photoUrl: profile?.photoUrl ?? "",
-    detailUrl: profile?.detailUrl ?? "",
+    institutionId: initialData?.institutionId ?? "",
+    fieldOfExpertise: initialData?.fieldOfExpertise ?? "",
+    photoUrl: initialData?.photoUrl ?? "",
+    detailUrl: initialData?.detailUrl ?? "",
   });
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
 
     setForm((prev) => ({
@@ -67,9 +67,7 @@ export function MemberForm({ mode, initialData }: Props) {
     }));
   }
 
-  async function handleImageUpload(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -187,18 +185,26 @@ export function MemberForm({ mode, initialData }: Props) {
         </legend>
 
         <div className="mt-4">
-          <label htmlFor="institution" className={labelClass}>
+          <label htmlFor="institutionId" className={labelClass}>
             Perguruan Tinggi
           </label>
 
-          <input
-            id="institution"
-            name="institution"
-            value={form.institution ?? ""}
+          <select
+            id="institutionId"
+            name="institutionId"
+            value={form.institutionId ?? ""}
             onChange={handleChange}
-            placeholder="Contoh: Universitas Negeri Surabaya"
             className={inputClass}
-          />
+          >
+            <option value="">Pilih perguruan tinggi</option>
+            {universities.map((university) => (
+              <option key={university.id} value={university.id}>
+                {university.shortName
+                  ? `${university.shortName} — ${university.name}`
+                  : university.name}
+              </option>
+            ))}
+          </select>
         </div>
       </fieldset>
 

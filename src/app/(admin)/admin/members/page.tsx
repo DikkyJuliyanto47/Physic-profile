@@ -1,65 +1,48 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
-import { Prisma, Role } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { MemberActions } from "./MemberActions";
-
-export const dynamic = "force-dynamic";
-
-const ROLE_LABELS: Record<Role, string> = {
-  SUPER_ADMIN: "Super Admin",
-  ADMIN: "Admin",
-  MEMBER: "Anggota",
-};
-
-const ROLE_COLORS: Record<Role, string> = {
-  SUPER_ADMIN: "bg-red-50 text-red-700",
-  ADMIN: "bg-purple-50 text-purple-700",
-  MEMBER: "bg-blue-50 text-blue-700",
-};
 
 export default async function MembersListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; universityId?: string; role?: string }>;
+  searchParams: Promise<{ q?: string; universityId?: string }>;
 }) {
-  const { q, universityId, role } = await searchParams;
-  const session = await auth();
+  const { q, universityId } = await searchParams;
 
-  const where: Prisma.UserWhereInput = {};
+  const where: Prisma.MemberProfileWhereInput = {};
 
   if (q) {
     where.OR = [
       { name: { contains: q, mode: "insensitive" } },
       { email: { contains: q, mode: "insensitive" } },
-      {
-        memberProfile: {
-          fieldOfExpertise: { contains: q, mode: "insensitive" },
-        },
-      },
+      { fieldOfExpertise: { contains: q, mode: "insensitive" } },
     ];
   }
 
   if (universityId) {
-    where.memberProfile = { institutionId: universityId };
+    where.institutionId = universityId;
   }
 
-  if (role && ["SUPER_ADMIN", "ADMIN", "MEMBER"].includes(role)) {
-    where.role = role as Role;
-  }
-
-  const [users, universities] = await Promise.all([
-    prisma.user.findMany({
+  const [members, universities] = await Promise.all([
+    prisma.memberProfile.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      include: {
-        memberProfile: {
-          include: {
-            institution: {
-              select: { id: true, name: true, shortName: true },
-            },
-          },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        position: true,
+        fieldOfExpertise: true,
+        photoUrl: true,
+        nidn: true,
+        emailPublic: true,
+        googleScholarUrl: true,
+        scopusUrl: true,
+        orcidUrl: true,
+        institution: {
+          select: { id: true, name: true, shortName: true },
         },
       },
     }),
@@ -122,17 +105,6 @@ export default async function MembersListPage({
               ))}
             </select>
 
-            <select
-              name="role"
-              defaultValue={role ?? ""}
-              className="h-10 rounded-md border border-neutral-200 bg-white px-3.5 text-sm text-neutral-700 shadow-sm outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-            >
-              <option value="">Semua Role</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-              <option value="ADMIN">Admin</option>
-              <option value="MEMBER">Anggota</option>
-            </select>
-
             <button
               type="submit"
               className="h-10 shrink-0 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
@@ -168,12 +140,12 @@ export default async function MembersListPage({
               Daftar Anggota
             </p>
             <p className="mt-0.5 text-xs text-neutral-500">
-              {users.length} anggota terdaftar.
+              {members.length} anggota terdaftar.
             </p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-240 text-left text-sm">
+            <table className="w-full min-w-200 text-left text-sm">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50/70">
                   <th className="px-5 py-3 text-xs font-medium text-neutral-500">
@@ -183,13 +155,10 @@ export default async function MembersListPage({
                     Kampus
                   </th>
                   <th className="px-5 py-3 text-xs font-medium text-neutral-500">
-                    Role & Jabatan
+                    Jabatan
                   </th>
                   <th className="px-5 py-3 text-xs font-medium text-neutral-500">
                     Akademik
-                  </th>
-                  <th className="px-5 py-3 text-xs font-medium text-neutral-500">
-                    Status
                   </th>
                   <th className="px-5 py-3 text-right text-xs font-medium text-neutral-500">
                     Aksi
@@ -198,34 +167,32 @@ export default async function MembersListPage({
               </thead>
 
               <tbody>
-                {users.length === 0 ? (
+                {members.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={5}
                       className="px-5 py-14 text-center text-sm text-neutral-500"
                     >
-                      {q || universityId || role
+                      {q || universityId
                         ? "Tidak ada anggota yang cocok dengan filter."
                         : "Belum ada anggota terdaftar."}
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => {
-                    const profile = user.memberProfile;
-                    const uni = profile?.institution;
-                    const isCurrentUser = session?.user?.id === user.id;
+                  members.map((member) => {
+                    const uni = member.institution;
 
                     return (
                       <tr
-                        key={user.id}
+                        key={member.id}
                         className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/60"
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            {profile?.photoUrl ? (
+                            {member.photoUrl ? (
                               <Image
-                                src={profile.photoUrl}
-                                alt={user.name}
+                                src={member.photoUrl}
+                                alt={member.name}
                                 width={40}
                                 height={40}
                                 unoptimized
@@ -233,16 +200,16 @@ export default async function MembersListPage({
                               />
                             ) : (
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
-                                {user.name.charAt(0).toUpperCase()}
+                                {member.name.charAt(0).toUpperCase()}
                               </div>
                             )}
 
                             <div className="min-w-0">
                               <p className="truncate font-medium text-neutral-900">
-                                {user.name}
+                                {member.name}
                               </p>
                               <p className="mt-0.5 truncate text-xs text-neutral-500">
-                                {user.email}
+                                {member.email}
                               </p>
                             </div>
                           </div>
@@ -266,33 +233,39 @@ export default async function MembersListPage({
                         </td>
 
                         <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLORS[user.role]}`}
-                          >
-                            {ROLE_LABELS[user.role]}
-                          </span>
-
-                          {profile?.position && (
-                            <p className="mt-1 text-xs text-neutral-500">
-                              {profile.position}
+                          {member.position ? (
+                            <p className="text-sm text-neutral-800">
+                              {member.position}
                             </p>
+                          ) : (
+                            <span className="text-neutral-400">—</span>
                           )}
                         </td>
 
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-2 text-xs">
-                            {profile?.nidn && (
+                            {member.nidn && (
                               <span
                                 className="font-medium text-neutral-500"
-                                title={`NIDN: ${profile.nidn}`}
+                                title={`NIDN: ${member.nidn}`}
                               >
                                 NIDN
                               </span>
                             )}
 
-                            {profile?.googleScholarUrl && (
+                            {member.emailPublic && (
                               <a
-                                href={profile.googleScholarUrl}
+                                href={`mailto:${member.emailPublic}`}
+                                className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
+                                title={`Email: ${member.emailPublic}`}
+                              >
+                                Email
+                              </a>
+                            )}
+
+                            {member.googleScholarUrl && (
+                              <a
+                                href={member.googleScholarUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
@@ -302,9 +275,9 @@ export default async function MembersListPage({
                               </a>
                             )}
 
-                            {profile?.scopusUrl && (
+                            {member.scopusUrl && (
                               <a
-                                href={profile.scopusUrl}
+                                href={member.scopusUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
@@ -314,9 +287,9 @@ export default async function MembersListPage({
                               </a>
                             )}
 
-                            {profile?.orcidUrl && (
+                            {member.orcidUrl && (
                               <a
-                                href={profile.orcidUrl}
+                                href={member.orcidUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
@@ -326,40 +299,20 @@ export default async function MembersListPage({
                               </a>
                             )}
 
-                            {!profile?.nidn &&
-                              !profile?.googleScholarUrl &&
-                              !profile?.scopusUrl &&
-                              !profile?.orcidUrl && (
+                            {!member.nidn &&
+                              !member.emailPublic &&
+                              !member.googleScholarUrl &&
+                              !member.scopusUrl &&
+                              !member.orcidUrl && (
                                 <span className="text-neutral-400">—</span>
                               )}
                           </div>
                         </td>
 
-                        <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-                              user.isActive
-                                ? "text-green-700"
-                                : "text-neutral-500"
-                            }`}
-                          >
-                            <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                user.isActive
-                                  ? "bg-green-500"
-                                  : "bg-neutral-400"
-                              }`}
-                            />
-                            {user.isActive ? "Aktif" : "Nonaktif"}
-                          </span>
-                        </td>
-
                         <td className="px-5 py-3.5 text-right">
                           <MemberActions
-                            memberId={user.id}
-                            memberName={user.name}
-                            isActive={user.isActive}
-                            isCurrentUser={isCurrentUser}
+                            memberId={member.id}
+                            memberName={member.name}
                           />
                         </td>
                       </tr>

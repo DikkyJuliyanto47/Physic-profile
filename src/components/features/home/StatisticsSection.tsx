@@ -1,5 +1,23 @@
+import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/ui";
-import { statistics } from "./data";
+
+async function getStatistics() {
+  const [members, universities, activities] = await Promise.all([
+    prisma.memberProfile.count(),
+    prisma.university.count(),
+    prisma.event.count({
+      where: {
+        status: "PUBLISHED",
+      },
+    }),
+  ]);
+
+  return [
+    { id: "stat-members", value: `${members}`, label: "Anggota Aktif" },
+    { id: "stat-universities", value: `${universities}`, label: "Perguruan Tinggi" },
+    { id: "stat-activities", value: `${activities}`, label: "Kegiatan" },
+  ];
+}
 
 function StatisticIcon({ index }: { index: number }) {
   if (index === 0) {
@@ -79,7 +97,9 @@ function StatisticIcon({ index }: { index: number }) {
   );
 }
 
-export function StatisticsSection() {
+export async function StatisticsSection() {
+  const statistics = await getStatistics();
+
   const decorativeCircles = [
     "right-4 top-12 h-16 w-16 bg-primary-50",
     "left-4 bottom-8 h-20 w-20 bg-primary-100/60",

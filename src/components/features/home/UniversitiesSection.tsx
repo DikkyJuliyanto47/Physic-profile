@@ -1,16 +1,26 @@
+// components/features/home/UniversitiesSection.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { Container, Section, SectionHeading } from "@/components/ui";
-import { universities } from "./data";
-import type { University } from "./data";
 
-export function UniversitiesSection() {
-  const [selectedUniversity, setSelectedUniversity] =
-    useState<University | null>(null);
+export type UniversityItem = {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  deptUrl: string | null;
+  websiteUrl: string | null;
+};
+
+interface UniversitiesSectionProps {
+  universities: UniversityItem[];
+}
+
+export function UniversitiesSection({ universities }: UniversitiesSectionProps) {
+  const [selectedUniversity, setSelectedUniversity] = useState<UniversityItem | null>(null);
 
   useEffect(() => {
     if (!selectedUniversity) return;
@@ -22,16 +32,11 @@ export function UniversitiesSection() {
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedUniversity]);
 
   return (
-    <Section
-      className="bg-primary-950 py-14 text-white sm:py-16 lg:py-20"
-    >
+    <Section className="bg-primary-950 py-14 text-white sm:py-16 lg:py-20">
       <Container>
         <div className="flex flex-col">
           <div className="mx-auto flex w-full max-w-4xl flex-col items-center text-center">
@@ -46,16 +51,26 @@ export function UniversitiesSection() {
           <div className="mx-auto mt-8 w-full max-w-5xl border-t border-white/20 pt-8 sm:mt-9 sm:pt-9 lg:mt-10 lg:pt-10">
             <div className="flex flex-wrap justify-center">
               {universities.map((university) => {
+                const hasDeptUrl = Boolean(university.deptUrl);
+                const hasWebsiteUrl = Boolean(university.websiteUrl);
+                const hasMultipleLinks = hasDeptUrl && hasWebsiteUrl;
+
                 const content = (
                   <div className="flex min-h-36 w-full flex-col items-center justify-center px-3 py-6 sm:min-h-40 sm:px-4 sm:py-7 lg:min-h-44 lg:px-5">
                     <div className="flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20 lg:h-22 lg:w-22">
-                      <Image
-                        src={university.logo}
-                        alt={university.name}
-                        width={88}
-                        height={88}
-                        className="h-full w-full object-contain"
-                      />
+                      {university.logoUrl ? (
+                        <Image
+                          src={university.logoUrl}
+                          alt={university.name}
+                          width={88}
+                          height={88}
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center border border-white/20 text-xs text-white/50">
+                          Logo
+                        </div>
+                      )}
                     </div>
 
                     <p className="mt-4 max-w-40 text-center text-xs font-medium leading-5 text-white/90 sm:text-sm">
@@ -67,25 +82,27 @@ export function UniversitiesSection() {
                 const itemClassName =
                   "w-1/2 sm:w-1/3 lg:w-1/5 outline-none transition-colors hover:bg-white/[0.035] focus-visible:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-300";
 
-                if (university.options?.length) {
+                if (hasMultipleLinks) {
                   return (
                     <button
                       key={university.id}
                       type="button"
                       onClick={() => setSelectedUniversity(university)}
                       className={itemClassName}
-                      aria-label={`Pilih program studi ${university.name}`}
+                      aria-label={`Pilih informasi ${university.name}`}
                     >
                       {content}
                     </button>
                   );
                 }
 
-                if (university.href) {
+                const href = university.deptUrl ?? university.websiteUrl;
+
+                if (href) {
                   return (
                     <Link
                       key={university.id}
-                      href={university.href}
+                      href={href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={itemClassName}
@@ -131,8 +148,9 @@ export function UniversitiesSection() {
                 >
                   {selectedUniversity.name}
                 </h3>
+
                 <p className="mt-1 text-sm text-foreground-muted">
-                  Pilih program studi
+                  Pilih informasi
                 </p>
               </div>
 
@@ -147,24 +165,33 @@ export function UniversitiesSection() {
             </div>
 
             <div className="space-y-2 px-6 py-5 sm:px-7">
-              {selectedUniversity.options?.map((option) => (
+              {selectedUniversity.deptUrl && (
                 <Link
-                  key={option.href}
-                  href={option.href}
+                  href={selectedUniversity.deptUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex min-h-12 items-center justify-between gap-4 border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
                 >
-                  <span>{option.label}</span>
-
-                  <span
-                    aria-hidden="true"
-                    className="shrink-0 text-primary-600"
-                  >
+                  <span>Program Studi / Departemen</span>
+                  <span aria-hidden="true" className="shrink-0 text-primary-600">
                     →
                   </span>
                 </Link>
-              ))}
+              )}
+
+              {selectedUniversity.websiteUrl && (
+                <Link
+                  href={selectedUniversity.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-12 items-center justify-between gap-4 border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
+                >
+                  <span>Website Universitas</span>
+                  <span aria-hidden="true" className="shrink-0 text-primary-600">
+                    →
+                  </span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

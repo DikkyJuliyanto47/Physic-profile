@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { PublicationType } from "@/generated/prisma/client";
 import { PublicationActions } from "./PublicationActions";
 
-export const dynamic = "force-dynamic";
-
 const TYPE_LABELS: Record<PublicationType, string> = {
   JURNAL: "Jurnal",
   BUKU: "Buku",

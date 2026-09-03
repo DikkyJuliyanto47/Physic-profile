@@ -2,7 +2,7 @@ export type PublicationStatus = "BUKU" | "HKI" | "JURNAL" | "PROSIDING";
 
 export interface Publication {
   id: string;
-  category: string;
+  category: PublicationStatus;
   title: string;
   meta: string[];
   href: string | null;

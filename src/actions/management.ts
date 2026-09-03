@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth-utils";
+import { revalidatePath, updateTag } from "next/cache";
 
 export type ActionResponse = {
   success: boolean;
@@ -25,6 +26,11 @@ export async function createManagementPeriod(
   data: ManagementPeriodInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const period = data.period?.trim();
     if (!period) {
       return { success: false, error: "Periode wajib diisi." };
@@ -54,8 +60,8 @@ export async function createManagementPeriod(
       });
     });
 
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat periode kepengurusan." };
@@ -67,6 +73,11 @@ export async function updateManagementPeriod(
   data: ManagementPeriodInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const period = data.period?.trim();
     if (!period) {
       return { success: false, error: "Periode wajib diisi." };
@@ -100,8 +111,8 @@ export async function updateManagementPeriod(
       });
     });
 
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${id}/edit`);
     return { success: true };
   } catch {
@@ -111,14 +122,19 @@ export async function updateManagementPeriod(
 
 export async function deleteManagementPeriod(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const period = await prisma.managementPeriod.findUnique({ where: { id } });
     if (!period) {
       return { success: false, error: "Periode tidak ditemukan." };
     }
 
     await prisma.managementPeriod.delete({ where: { id } });
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus periode kepengurusan." };
@@ -129,6 +145,11 @@ export async function setActiveManagementPeriod(
   id: string
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const period = await prisma.managementPeriod.findUnique({ where: { id } });
     if (!period) {
       return { success: false, error: "Periode tidak ditemukan." };
@@ -146,8 +167,8 @@ export async function setActiveManagementPeriod(
       });
     });
 
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal mengaktifkan periode." };
@@ -158,6 +179,11 @@ export async function createManagementPosition(
   data: ManagementPositionInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const periodId = data.periodId?.trim();
     const title = data.title?.trim();
 
@@ -202,8 +228,8 @@ export async function createManagementPosition(
       },
     });
 
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
     return { success: true };
   } catch {
@@ -216,6 +242,11 @@ export async function updateManagementPosition(
   data: ManagementPositionInput
 ): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const periodId = data.periodId?.trim();
     const title = data.title?.trim();
 
@@ -261,8 +292,8 @@ export async function updateManagementPosition(
       },
     });
 
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
     return { success: true };
   } catch {
@@ -272,14 +303,19 @@ export async function updateManagementPosition(
 
 export async function deleteManagementPosition(id: string): Promise<ActionResponse> {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return { success: false, error: "Unauthorized. Silakan login." };
+    }
+
     const position = await prisma.managementPosition.findUnique({ where: { id } });
     if (!position) {
       return { success: false, error: "Posisi tidak ditemukan." };
     }
 
     await prisma.managementPosition.delete({ where: { id } });
+    updateTag("managements");
     revalidatePath("/admin/kepengurusan");
-    revalidatePath("/managements");
     revalidatePath(`/admin/kepengurusan/${position.periodId}/edit`);
     return { success: true };
   } catch {

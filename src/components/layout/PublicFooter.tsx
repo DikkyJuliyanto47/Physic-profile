@@ -1,3 +1,4 @@
+"use client";
 
 import Link from "next/link";
 import { Container } from "@/components/ui";
@@ -22,7 +23,7 @@ function FooterColumn({ title, items }: { title: string; items: NavItem[] }) {
          {items.map((item) => (
           <li key={`${item.href}-${item.label}`}>
             <Link
-              href={item.href}
+              href={item.href ?? "#"}
               className="text-sm text-white/65 transition-colors hover:text-white"
               >
                 {item.label}
@@ -35,7 +36,7 @@ function FooterColumn({ title, items }: { title: string; items: NavItem[] }) {
 }
 
 export function PublicFooter() {
-  const year = new Date().getFullYear();
+  const year = 2026;
 
   return (
     <footer className="bg-primary-950 text-white">
@@ -62,9 +63,11 @@ export function PublicFooter() {
 
       <div className="border-t border-white/15">
         <Container className="flex flex-col-reverse items-center gap-6 py-7 text-sm text-white/65 sm:flex-row sm:justify-between">
-          <span>
-            &copy; {year} {siteConfig.name}
-          </span>
+          <div className="flex items-center gap-4">
+            <span>
+              &copy; {year} {siteConfig.name}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             {socialLinks.map((social) => (
               <a

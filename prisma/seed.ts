@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hash } from "bcryptjs";
@@ -6,49 +7,34 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      "ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env before running the seed script."
+    );
+  }
+
   console.log("Seeding database...\n");
 
-  // 1. Create Super Admin user
-  const passwordHash = await hash("Admin123!", 10);
+  const passwordHash = await hash(password, 10);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: "admin@psi-surabaya.or.id" },
-    update: {},
+    where: { email },
+    update: { passwordHash },
     create: {
       name: "Super Admin PSI",
-      email: "admin@psi-surabaya.or.id",
+      email,
       passwordHash,
       role: "SUPER_ADMIN",
       isActive: true,
     },
   });
 
-  console.log(`[User] Super Admin created: ${superAdmin.email} (id: ${superAdmin.id})`);
+  console.log(`[Admin] Seeded ${superAdmin.email} successfully (id: ${superAdmin.id}).`);
 
-  // 2. Seed Universities
-  const universities = [
-    { name: "Universitas Negeri Surabaya", shortName: "UNESA" },
-    { name: "Universitas Airlangga", shortName: "UNAIR" },
-    { name: "Institut Teknologi Sepuluh Nopember", shortName: "ITS" },
-    { name: "UPN Veteran Jawa Timur", shortName: "UPN" },
-    { name: "Universitas Katolik Widya Mandala Surabaya", shortName: "UKWMS" },
-    { name: "Universitas Jember", shortName: "UNEJ" },
-    { name: "Universitas Islam Madura", shortName: "UIM" },
-    { name: "Universitas Bilfath", shortName: "UNIBA" },
-    { name: "Universitas NU Pasuruan", shortName: "UNU Pasuruan" },
-  ];
-
-  for (const uni of universities) {
-    const created = await prisma.university.upsert({
-      where: { name: uni.name },
-      update: { shortName: uni.shortName },
-      create: {
-        name: uni.name,
-        shortName: uni.shortName,
-      },
-    });
-    console.log(`[University] ${created.name} (${created.shortName})`);
-  }
+  // University seed removed — universities are now managed manually via /admin/universities
 
   console.log("\nSeed completed successfully.");
 }

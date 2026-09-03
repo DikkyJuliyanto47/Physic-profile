@@ -13,18 +13,15 @@ export default async function EditMemberPage({
 }) {
   const { id } = await params;
 
-  const [user, universities] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id },
-      include: { memberProfile: true },
-    }),
+  const [member, universities] = await Promise.all([
+    prisma.memberProfile.findUnique({ where: { id } }),
     prisma.university.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true, shortName: true },
     }),
   ]);
 
-  if (!user) {
+  if (!member) {
     notFound();
   }
 
@@ -36,7 +33,7 @@ export default async function EditMemberPage({
             Edit Anggota
           </h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-500">
-            Perbarui data &ldquo;{user.name}&rdquo;.
+            Perbarui data &ldquo;{member.name}&rdquo;.
           </p>
         </header>
 
@@ -54,7 +51,7 @@ export default async function EditMemberPage({
             <MemberForm
               mode="edit"
               universities={universities}
-              initialData={user}
+              initialData={member}
             />
           </div>
         </div>

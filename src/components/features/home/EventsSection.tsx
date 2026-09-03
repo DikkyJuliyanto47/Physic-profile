@@ -4,81 +4,21 @@ import Link from "next/link";
 import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 import { Button, Container, Section } from "@/components/ui/index";
-import type { EventItem } from "@/components/features/events/data";
+
+interface EventSectionItem {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  startDate: Date;
+  location: string | null;
+}
 
 interface EventsSectionProps {
-  events: EventItem[];
+  events: EventSectionItem[];
 }
 
 export function EventsSection({ events }: EventsSectionProps) {
-  const mockEvents: EventItem[] = [
-    {
-      id: "event-1",
-      slug: "penyelarasan-kurikulum-asesmen-obe",
-      title: "Penyelarasan Kurikulum: Asesmen OBE",
-      date: "29 Juli 2026",
-      time: "09.30 - 12.30 WIB",
-      location:
-        "Ruang Meeting Rumpun Fisika, Gedung C3 Lantai 1, Universitas Negeri Surabaya",
-      description:
-        "Pertemuan anggota dan akademisi untuk membahas pengembangan serta penyelarasan kegiatan keilmuan fisika.",
-      image: "/assets/activity/penyelarasan-kurikulum.jpeg",
-      href: "/events/penyelarasan-kurikulum-asesmen-obe",
-    },
-    {
-      id: "event-2",
-      slug: "diskusi-pengembangan-komunitas-fisika",
-      title: "Diskusi dan Pengembangan Komunitas Fisika",
-      date: "8 Agustus 2026",
-      time: "10.00 - 12.00 WIB",
-      location: "Ruang Seminar Departemen Fisika, Universitas Negeri Surabaya",
-      description:
-        "Forum diskusi untuk memperkuat komunikasi, kolaborasi akademik, dan pengembangan komunitas fisika.",
-      image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      href: "/events/diskusi-pengembangan-komunitas-fisika",
-    },
-    {
-      id: "event-3",
-      slug: "pertemuan-anggota-psi-cabang-surabaya",
-      title: "Pertemuan Anggota PSI Cabang Surabaya",
-      date: "22 Agustus 2026",
-      time: "09.00 - 11.30 WIB",
-      location: "Surabaya",
-      description:
-        "Pertemuan anggota sebagai ruang koordinasi dan pertukaran informasi kegiatan PSI Cabang Surabaya.",
-      image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      href: "/events/pertemuan-anggota-psi-cabang-surabaya",
-    },
-    {
-      id: "event-4",
-      slug: "forum-kolaborasi-fisika-surabaya",
-      title: "Forum Kolaborasi Fisika Surabaya",
-      date: "5 September 2026",
-      time: "09.00 - 12.00 WIB",
-      location: "Surabaya",
-      description:
-        "Forum kolaborasi antara akademisi, peneliti, pendidik, mahasiswa, dan anggota komunitas fisika.",
-      image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      href: "/events/forum-kolaborasi-fisika-surabaya",
-    },
-    {
-      id: "event-5",
-      slug: "seminar-fisika-dan-pendidikan",
-      title: "Seminar Fisika dan Pendidikan",
-      date: "19 September 2026",
-      time: "08.30 - 13.00 WIB",
-      location: "Gedung Auditorium Universitas Negeri Surabaya",
-      description:
-        "Seminar yang mempertemukan akademisi, pendidik, mahasiswa, dan praktisi untuk membahas perkembangan fisika dan pendidikan.",
-      image: "/assets/activity/pertemuan-07-27-01.jpeg",
-      href: "/events/seminar-fisika-dan-pendidikan",
-    },
-  ];
-
-  const agenda = events.length > 0 ? events : mockEvents;
-  const latestEvents = agenda.slice(0, 3);
-  const featuredEvents = agenda.slice(0, 4);
-
   return (
     <Section className="bg-background py-14 sm:py-16 lg:py-20">
       <Container>
@@ -93,14 +33,18 @@ export function EventsSection({ events }: EventsSectionProps) {
             </h2>
 
             <div className="mt-7 divide-y divide-border">
-              {latestEvents.map((event) => (
+              {events.map((event) => (
                 <article key={event.id} className="py-5 first:pt-0 last:pb-0">
                   <time className="block text-sm text-foreground-muted">
-                    {event.date}
+                    {new Intl.DateTimeFormat("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }).format(event.startDate)}
                   </time>
 
                   <Link
-                    href={event.href}
+                    href={`/events/${event.slug}`}
                     className="mt-1.5 block text-base font-semibold leading-6 text-primary-900 transition-colors hover:text-primary-600"
                   >
                     {event.title}
@@ -134,7 +78,7 @@ export function EventsSection({ events }: EventsSectionProps) {
                 </span>
 
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-                  Agenda PSI Cabang Surabaya
+                  Agenda Physical Society of Indonesia (PSI) Cabang Surabaya
                 </h2>
               </div>
 
@@ -147,8 +91,20 @@ export function EventsSection({ events }: EventsSectionProps) {
             </div>
 
             <div className="mt-8 divide-y divide-white/10">
-              {featuredEvents.map((event) => {
-                const [day, month, year] = event.date.split(" ");
+              {events.map((event) => {
+                const dateParts = new Intl.DateTimeFormat("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }).formatToParts(event.startDate);
+                const day = dateParts.find((part) => part.type === "day")?.value;
+                const month = dateParts.find((part) => part.type === "month")?.value;
+                const year = dateParts.find((part) => part.type === "year")?.value;
+                const time = new Intl.DateTimeFormat("id-ID", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                }).format(event.startDate);
 
                 return (
                   <article
@@ -167,7 +123,7 @@ export function EventsSection({ events }: EventsSectionProps) {
 
                     <div className="min-w-0">
                       <Link
-                        href={event.href}
+                        href={`/events/${event.slug}`}
                         className="block text-base font-semibold leading-6 text-white transition-colors hover:text-primary-300 sm:text-lg"
                       >
                         {event.title}
@@ -178,7 +134,7 @@ export function EventsSection({ events }: EventsSectionProps) {
                           className="mt-1 h-3 w-3 shrink-0"
                           aria-hidden="true"
                         />
-                        <span>{event.time}</span>
+                        <span>{time}</span>
                       </div>
 
                       <div className="mt-1 flex items-start gap-2 text-xs leading-5 text-white/60 sm:text-sm">
@@ -194,7 +150,7 @@ export function EventsSection({ events }: EventsSectionProps) {
                       </p>
 
                       <Link
-                        href={event.href}
+                        href={`/events/${event.slug}`}
                         className="mt-4 inline-flex text-sm font-medium text-white transition-colors hover:text-primary-300"
                       >
                         Lihat Detail →

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Search } from "lucide-react";
-
 import type { Member } from "./data";
+import { UniversitiesSection } from "@/components/features/universities/UniversitiesSection";
 
 interface MembersSectionProps {
   members: Member[];
@@ -74,62 +74,78 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
       </form>
 
       <div>
-        {Object.entries(groupedMembers).map(([institution, institutionMembers]) => (
-          <section
-            id={getInstitutionId(institution)}
-            key={institution}
-            className="scroll-mt-28 border-t border-neutral-200 py-10 first:border-t-0 first:pt-0 lg:py-12"
-          >
-            <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2">
-              {institutionMembers.map((member) => (
-                <article
-                  key={member.id}
-                  className="flex min-w-0 items-center gap-5"
-                >
-                  {member.photo ? (
-                    <Image
-                      src={member.photo}
-                      alt={member.name}
-                      width={72}
-                      height={72}
-                      unoptimized
-                      className="h-18 w-18 shrink-0 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
-                      {getInitials(member.name)}
+        {Object.entries(groupedMembers).map(
+          ([institution, institutionMembers]) => (
+            <section
+              id={getInstitutionId(institution)}
+              key={institution}
+              className="scroll-mt-28 border-t border-neutral-200 py-10 first:border-t-0 first:pt-0 lg:py-12"
+            >
+              <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2">
+                {institutionMembers.map((member) => (
+                  <article
+                    key={member.id}
+                    className="flex min-w-0 items-center gap-5"
+                  >
+                    {member.photo ? (
+                      <Image
+                        src={member.photo}
+                        alt={member.name}
+                        width={72}
+                        height={72}
+                        unoptimized
+                        className="h-18 w-18 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
+                        {getInitials(member.name)}
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <h2 className="truncate text-base font-semibold leading-snug text-foreground">
+                        {member.name}
+                      </h2>
+
+                      <p className="mt-1 truncate text-sm font-medium text-primary-700">
+                        {member.field}
+                      </p>
+
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                      >
+                        {member.email}
+                      </a>
+
+                      {member.emailPublic &&
+                        member.emailPublic !== member.email && (
+                          <a
+                            href={`mailto:${member.emailPublic}`}
+                            className="mt-0.5 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                          >
+                            {member.emailPublic}
+                          </a>
+                        )}
+
+                      {member.detailUrl && (
+                        <a
+                          href={member.detailUrl}
+                          className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                        >
+                          Detail
+                        </a>
+                      )}
                     </div>
-                  )}
-
-                  <div className="min-w-0">
-                    <h2 className="truncate text-base font-semibold leading-snug text-foreground">
-                      {member.name}
-                    </h2>
-
-                    <p className="mt-1 truncate text-sm font-medium text-primary-700">
-                      {member.field}
-                    </p>
-
-                    <a
-                      href={`mailto:${member.email}`}
-                      className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
-                    >
-                      {member.email}
-                    </a>
-
-                     <a
-                      href={member.detailUrl}
-                      className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
-                    >
-                      Detail
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ),
+        )}
       </div>
+
+      <UniversitiesSection />
     </div>
   );
 }

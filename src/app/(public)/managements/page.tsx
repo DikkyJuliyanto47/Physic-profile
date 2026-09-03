@@ -1,9 +1,11 @@
+import { getActiveManagement } from "@/lib/data";
 import { PublicPageShell } from "@/components/ui/index";
 import { ManagementSection } from "@/components/features/management/ManagementSection";
-import { managementGroups } from "@/components/features/management/data";
 import { JoinCtaSection } from "@/components/features/home";
 
-export default function Page() {
+export default async function Page() {
+  const managementGroups = await getActiveManagement();
+
   return (
     <>
       <PublicPageShell

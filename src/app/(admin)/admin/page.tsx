@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-
 const STAT_CARDS = [
   {
     label: "Berita",
@@ -76,7 +74,7 @@ export default async function AdminDashboardPage() {
     await Promise.all([
       prisma.news.count(),
       prisma.event.count(),
-      prisma.user.count(),
+      prisma.memberProfile.count(),
       prisma.university.count(),
       prisma.university.findMany({
         take: 5,
