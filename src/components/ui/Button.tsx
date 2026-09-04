@@ -82,10 +82,10 @@ export function Button(props: ButtonProps) {
   );
 
   if (isLinkButton(props)) {
-    const { href, target, rel, ...anchorRest } = rest as AnchorHTMLAttributes<HTMLAnchorElement>;
+    const { target, rel, ...anchorRest } = rest as AnchorHTMLAttributes<HTMLAnchorElement>;
 
     return (
-      <Link href={href} target={target} rel={rel} className={classes} {...anchorRest}>
+      <Link href={props.href} target={target} rel={rel} className={classes} {...anchorRest}>
         {content}
       </Link>
     );
