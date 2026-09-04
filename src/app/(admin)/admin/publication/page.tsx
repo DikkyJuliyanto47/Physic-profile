@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PublicationType } from "@/generated/prisma/client";
-import { PublicationActions } from "./PublicationActions";
+import { PublicationActions } from "@/components/ui/actions/PublicationActions";
 
 const TYPE_LABELS: Record<PublicationType, string> = {
   JURNAL: "Jurnal",

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ManagementActions } from "./ManagementActions";
-import { ManagementPositionActions } from "./ManagementPositionActions";
+import { ManagementActions } from "@/components/ui/actions/ManagementActions";
+import { ManagementPositionActions } from "@/components/ui/actions/ManagementPositionActions";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {

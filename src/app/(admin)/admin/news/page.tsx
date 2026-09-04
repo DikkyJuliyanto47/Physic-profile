@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 
-import { NewsActions } from "./NewsActions";
+import { NewsActions } from "@/components/ui/actions/NewsActions";
 
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
   ORGANISASI: "Organisasi",

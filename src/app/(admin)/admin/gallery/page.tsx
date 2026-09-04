@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { GalleryActions } from "./GalleryActions";
+import { GalleryActions } from "@/components/ui/actions/GalleryActions";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {

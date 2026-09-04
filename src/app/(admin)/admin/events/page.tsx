@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ContentStatus, EventCategory } from "@/generated/prisma/client";
 
-import { EventActions } from "./EventActions";
+import { EventActions } from "@/components/ui/actions/EventActions";
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   SEMINAR_NASIONAL: "Seminar Nasional",

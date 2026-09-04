@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { prisma } from "@/lib/prisma";
-import { UniversityActions } from "./UniversityActions";
+import { UniversityActions } from "@/components/ui/actions/UniversityActions";
 
 export default async function UniversitiesPage({
   searchParams,
