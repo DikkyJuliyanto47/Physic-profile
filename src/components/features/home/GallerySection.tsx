@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container, Section } from "@/components/ui";
-import type { DocumentationItem } from "@/components/features/gallery/data";
+import { galleryItems } from "./data";
+import type { GalleryItem } from "./data";
 
 // Gradient fallback dipakai saat item belum memiliki asset foto
 const FALLBACK_GRADIENTS = [
@@ -13,11 +14,7 @@ const FALLBACK_GRADIENTS = [
   "from-primary-900 via-primary-700 to-primary-600",
 ];
 
-interface GallerySectionProps {
-  items: DocumentationItem[];
-}
-
-export function GallerySection({ items }: GallerySectionProps) {
+export function GallerySection() {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -26,11 +23,11 @@ export function GallerySection({ items }: GallerySectionProps) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const next = () => {
-    setCurrent((prev) => (prev + 1) % items.length);
+    setCurrent((prev) => (prev + 1) % galleryItems.length);
   };
 
   const prev = () => {
-    setCurrent((prev) => (prev === 0 ? items.length - 1 : prev - 1));
+    setCurrent((prev) => (prev === 0 ? galleryItems.length - 1 : prev - 1));
   };
 
   const goTo = (index: number) => {
@@ -39,12 +36,12 @@ export function GallerySection({ items }: GallerySectionProps) {
 
   // Auto-rotate, berhenti sementara saat hover/di-hover pointer
   useEffect(() => {
-    if (isPaused || items.length <= 1) return;
+    if (isPaused || galleryItems.length <= 1) return;
     timerRef.current = setInterval(next, 5000);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused, items.length]);
+  }, [isPaused]);
 
   const handleTouchStart = (e: React.TouchEvent): void => {
     setTouchStart(e.targetTouches[0].clientX);
@@ -64,9 +61,7 @@ export function GallerySection({ items }: GallerySectionProps) {
     setTouchEnd(null);
   };
 
-  if (items.length === 0) return null;
-
-  const item = items[current];
+  const item = galleryItems[current];
 
   return (
    <Section tone="muted" padding="none" className="overflow-hidden">
@@ -79,32 +74,34 @@ export function GallerySection({ items }: GallerySectionProps) {
         onTouchEnd={handleTouchEnd}
       >
         <div className="relative h-80 w-full overflow-hidden sm:h-100 md:h-115 lg:h-130 xl:h-140">
-          {items.map((galleryItem: DocumentationItem, index: number) => (
-            <div
-              key={galleryItem.id}
-              aria-hidden={index !== current}
-              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-                index === current ? "opacity-100" : "pointer-events-none opacity-0"
-              }`}
-            >
-              {galleryItem.image ? (
-                <Image
-                  src={galleryItem.image}
-                  alt={galleryItem.title ?? galleryItem.description ?? ""}
-                  fill
-                  priority={index === 0}
-                  sizes="100vw"
-                  className="object-cover object-center"
-                />
-              ) : (
-                <div
-                  className={`h-full w-full bg-linear-to-br ${FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]}`}
-                />
-              )}
+          {galleryItems.map((galleryItem: GalleryItem, index: number) => {
+            return (
+              <div
+                key={galleryItem.id}
+                aria-hidden={index !== current}
+                className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+                  index === current ? "opacity-100" : "pointer-events-none opacity-0"
+                }`}
+              >
+                {galleryItem.image ? (
+                  <Image
+                    src={galleryItem.image}
+                    alt={galleryItem.title ?? galleryItem.caption ?? ""}
+                    fill
+                    priority={index === 0}
+                    sizes="100vw"
+                    className="object-cover object-center"
+                  />
+                ) : (
+                  <div
+                    className={`h-full w-full bg-linear-to-br ${FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length]}`}
+                  />
+                )}
 
-              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/0" />
-            </div>
-          ))}
+                <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/0" />
+              </div>
+            );
+          })}
 
           <div className="absolute inset-x-0 bottom-0 z-10">
             <Container className="pb-8 pt-16 sm:pb-10 md:pb-12">
@@ -120,12 +117,12 @@ export function GallerySection({ items }: GallerySectionProps) {
               </div>
 
               <p className="mt-3 max-w-2xl text-lg font-semibold leading-snug text-white sm:text-xl md:text-2xl">
-                {item.title ?? item.description}
+                {item.title ?? item.caption}
               </p>
 
-              {item.title && item.description && (
+              {item.title && item.caption && (
                 <p className="mt-1.5 max-w-xl line-clamp-2 text-sm leading-6 text-white/80 sm:text-base">
-                  {item.description}
+                  {item.caption}
                 </p>
               )}
 
@@ -154,7 +151,7 @@ export function GallerySection({ items }: GallerySectionProps) {
             type="button"
             onClick={prev}
             aria-label="Sebelumnya"
-            disabled={items.length <= 1}
+            disabled={galleryItems.length <= 1}
             className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:left-6 sm:h-11 sm:w-11"
           >
             <svg
@@ -173,7 +170,7 @@ export function GallerySection({ items }: GallerySectionProps) {
             type="button"
             onClick={next}
             aria-label="Berikutnya"
-            disabled={items.length <= 1}
+            disabled={galleryItems.length <= 1}
             className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-md transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:right-6 sm:h-11 sm:w-11"
           >
             <svg
@@ -188,9 +185,9 @@ export function GallerySection({ items }: GallerySectionProps) {
             </svg>
           </button>
 
-          {items.length > 1 && (
+          {galleryItems.length > 1 && (
             <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 sm:bottom-6 sm:right-8">
-              {items.map((galleryItem: DocumentationItem, index: number) => (
+              {galleryItems.map((galleryItem: GalleryItem, index: number) => (
                 <button
                   key={galleryItem.id}
                   type="button"

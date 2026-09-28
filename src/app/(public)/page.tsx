@@ -8,11 +8,10 @@ import {
   UniversitiesSection,
 } from "@/components/features/home";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { getGallery } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
 
 export default async function Page() {
-  const [events, universities, gallery] = await Promise.all([
+  const [events, universities] = await Promise.all([
     prisma.event.findMany({
       where: {
         status: "PUBLISHED",
@@ -40,12 +39,11 @@ export default async function Page() {
         websiteUrl: true,
       },
     }),
-    getGallery(),
   ]);
 
   return (
     <>
-      <GallerySection items={gallery} />
+      <GallerySection />
       <AboutSection />
 
       <ScrollReveal delayMs={80}>
