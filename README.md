@@ -1,283 +1,258 @@
-# Physical Society of Indonesia (PSI) Surabaya Website
+# Physical Society of Indonesia - Surabaya Branch
 
-Website Physical Society of Indonesia (PSI) Surabaya yang digunakan sebagai platform publikasi kegiatan, profil organisasi, informasi akademik, serta sistem administrasi untuk mengelola konten dan anggota organisasi.
+This repository contains the web application for the Physical Society of Indonesia (PSI) Surabaya Branch. It provides public organizational information and an authenticated administration area for managing content stored in PostgreSQL.
 
-## Gambaran Proyek
+## Overview
 
-Proyek ini terdiri dari dua bagian utama:
+The public application includes a landing page, organization/about information, events, news, research and publications, gallery content, member and management information, university information, and contact information. Public listings and detail pages read content from the database where implemented.
 
-* Website publik
-   - Menampilkan profil organisasi, kegiatan, berita, agenda, kepengurusan, anggota, galeri, dan publikasi.
-   - Dirancang untuk kebutuhan komunikasi institusional dan penguatan citra organisasi.
-
-* Panel administrasi
-   - Digunakan untuk mengelola data konten dan struktur organisasi.
-   - Memiliki dashboard serta modul pengelolaan berita, agenda, anggota, perguruan tinggi, publikasi, galeri, dokumen, dan pesan.
-
-Aplikasi dibangun menggunakan Next.js App Router dan dihubungkan ke PostgreSQL melalui Prisma. Autentikasi admin dilakukan melalui NextAuth dengan validasi kredensial.
+The `/admin` area provides authenticated CRUD screens for managing news, events, members, management periods and positions, universities, publications, and gallery items. Authentication uses NextAuth credentials with a Prisma-backed user record. A development-only mock-auth path is controlled by `NEXT_PUBLIC_MOCK_AUTH`.
 
 ## Tech Stack
 
-Teknologi yang benar-benar digunakan dalam proyek ini:
+Versions below are taken from `package.json` and `package-lock.json`:
 
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS
-- Prisma ORM
-- PostgreSQL
-- NextAuth
-- Turbopack untuk development
-- PostgreSQL adapter via Prisma (`@prisma/adapter-pg`)
-- Node.js runtime dan ecosystem modern untuk project web
+- Next.js `16.2.12` with the App Router
+- React `19.2.4` and React DOM `19.2.4`
+- TypeScript `5.x` with strict checking enabled
+- Tailwind CSS `4.x` through `@tailwindcss/postcss`
+- Prisma `7.9.1` with PostgreSQL and `@prisma/adapter-pg`
+- NextAuth `5.0.0-beta.32` for credentials authentication and JWT sessions
+- ESLint `9.x` with `eslint-config-next` rules
+- `next/image` for image rendering and `framer-motion` for animation
+- `lucide-react`, `react-icons`, and Font Awesome packages for icons
+- npm, identified by `package-lock.json` (`lockfileVersion: 3`)
 
-Catatan:
-- Project ini menggunakan App Router dari Next.js.
-- Pengembangan lokal berjalan melalui `next dev`, yang pada Next.js 16 memanfaatkan ekosistem Turbopack secara default.
+## Application Architecture
 
-## Struktur Folder
+```text
+Browser
+  -> Next.js App Router route
+  -> server/client page and feature components
+  -> server actions or cached data helpers
+  -> Prisma Client with PostgreSQL
 
-Pohon folder berikut merupakan versi yang disederhanakan dari repositori yang ada saat ini:
+Browser
+  -> /api/auth/[...nextauth] or /api/upload
+  -> Next.js route handler
+  -> authentication or local file-system operation
+```
+
+The application uses Server Components by default. Client Components are used for browser interaction such as the home gallery carousel and admin forms. `src/lib/data.ts` contains cached server-side readers for published news, events, members, management, gallery, and universities. The home page also queries published events and universities directly with Prisma.
+
+There are three distinct content and asset paths:
+
+- **Database-backed content:** public news, events, members, management, gallery, and university pages use Prisma data readers. Publication data is used by the research/publication area and admin screens.
+- **Static frontend content:** the home page's `GallerySection` imports local `galleryItems` from `src/components/features/home/data.ts`.
+- **Static assets:** files under `public/assets` are served directly by Next.js.
+- **Uploaded assets:** `POST /api/upload` writes uploaded files to `public/uploads/news` and returns a URL such as `/uploads/news/<filename>`.
+
+## Project Structure
 
 ```text
 .
-├── docs/
-│   └── frontend/
-├── prisma/
-│   ├── migrations/
-│   ├── schema.prisma
-│   └── seed.ts
+├── docs/frontend/              Frontend architecture and design documentation
+├── prisma/                     Schema, migrations, and seed script
 ├── public/
-│   └── assets/
+│   ├── assets/                 Bundled logos, hero, gallery, news, and other images
+│   └── uploads/news/           Files written by the upload route
 ├── src/
-│   ├── actions/
-│   ├── app/
-│   │   ├── (admin)/
-│   │   ├── (public)/
-│   │   ├── api/
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   ├── robots.ts
-│   │   └── sitemap.ts
+│   ├── app/                    App Router layouts, pages, metadata, and API routes
+│   ├── actions/                Server actions for admin content mutations
 │   ├── components/
-│   │   ├── admin/
-│   │   ├── features/
-│   │   ├── forms/
-│   │   ├── layout/
-│   │   └── ui/
-│   ├── config/
-│   ├── generated/
-│   ├── hooks/
-│   ├── lib/
-│   ├── server/
-│   ├── types/
-│   ├── utils/
-│   ├── auth.config.ts
-│   ├── auth.ts
-│   ├── middleware.ts
-│   └── lib/prisma.ts
-├── docker-compose.yml
-├── eslint.config.mjs
-├── next.config.ts
-├── next-env.d.ts
-├── package.json
-├── postcss.config.mjs
-├── prisma.config.ts
-├── tsconfig.json
-├── README.md
-└── skills-lock.json
+│   │   ├── admin/              Reusable admin forms
+│   │   ├── features/           Feature-level public and dashboard components
+│   │   ├── forms/              Shared form exports
+│   │   ├── layout/             Public and admin navigation/layout components
+│   │   └── ui/                 Reusable UI primitives
+│   ├── config/                 Site configuration
+│   ├── generated/prisma/       Generated Prisma client output
+│   ├── hooks/                  Hook exports (currently minimal)
+│   ├── lib/                    Prisma, auth, mock-auth, and data helpers
+│   ├── server/                 Server entry points and database exports
+│   ├── types/                  Shared TypeScript types
+│   └── utils/                  Small utilities such as `cn`
+├── docker-compose.yml          Local PostgreSQL 16 service
+├── next.config.ts              Next.js image and cache configuration
+├── prisma.config.ts            Prisma schema, migration, and seed configuration
+└── package.json                Dependencies and npm scripts
 ```
 
-Penjelasan folder penting:
+## Pages and Routes
 
-- `src/app/` : entrypoint utama aplikasi berdasarkan App Router. Terdiri dari route publik dan route admin.
-- `src/actions/` : fungsi server action dan logika operasi data yang terkait dengan content management.
-- `src/components/` : komponen antarmuka dan fitur. Dibagi menjadi komponen layout, admin, features, forms, dan UI umum.
-- `src/lib/` : utilitas aplikasi, termasuk konfigurasi Prisma dan autentikasi mock.
-- `src/config/` : konfigurasi umum situs seperti navigasi publik dan metadata.
-- `src/server/` : logika backend dan service layer terkait server-side process.
-- `src/types/` : definisi tipe TypeScript aplikasi.
-- `prisma/` : schema database Prisma, migrasi, dan seed.
-- `public/` : aset statis seperti logo, gambar, hero, galeri, dan sumber daya publik.
-- `docs/` : dokumentasi frontend dan arsitektur proyek.
+### Public routes
 
-## Cara Menjalankan Project
+| Route | Purpose |
+|---|---|
+| `/` | Landing page with the static gallery, about, statistics, latest news, events, universities, and join CTA sections |
+| `/about` | Organization/about information |
+| `/events` and `/events/[slug]` | Published event listing and event details |
+| `/gallery` | Database-backed gallery listing |
+| `/managements` | Active management information |
+| `/members` | Member directory |
+| `/news` and `/news/[slug]` | Published news listing and news details |
+| `/research` | Research and publication content |
+| `/universities` and `/universities/[slug]` | University listing and details |
+| `/contact` | Contact information |
 
-Persyaratan minimum:
+### Authentication and administration routes
 
-- Node.js 20+ (direkomendasikan Node.js LTS)
-- npm
-- PostgreSQL yang dapat diakses dan siap dipakai
-- File `.env` yang dikonfigurasi dengan benar
+`/login`, `/forgot-password`, and `/reset-password` provide authentication-related pages. `/admin` is protected and contains dashboard, news, events, members, managements, universities, publication, and gallery management screens, including their create and edit routes where present.
 
-Langkah setup:
+### API routes
+
+- `GET`/`POST` `/api/auth/[...nextauth]` exposes the NextAuth handlers.
+- `POST` `/api/upload` accepts a multipart form file and writes it under `public/uploads/news`.
+
+## Main Components
+
+Public layout components include `PublicNavbar`, `PublicMobileNav`, and `PublicFooter`. Home feature components are exported from `src/components/features/home/index.ts`, including `GallerySection`, `AboutSection`, `StatisticsSection`, `LatestNewsPanel`, `EventsSection`, `UniversitiesSection`, and `JoinCtaSection`.
+
+Feature folders also contain the news, events, gallery, management, members, research, universities, about, contact, and dashboard components. Shared presentation primitives such as `Container`, `Section`, `PageHeader`, `Card`, `Button`, `ScrollReveal`, and `PersonCard` are in `src/components/ui`.
+
+## Data Flow
+
+Static home gallery:
+
+```text
+GallerySection
+  -> galleryItems in src/components/features/home/data.ts
+  -> /public/assets/gallery/*
+  -> next/image
+```
+
+This carousel is intentionally not connected to the gallery database reader, news responses, or `/uploads/news`.
+
+Dynamic public content:
+
+```text
+Public page or feature
+  -> src/lib/data.ts cached reader, or direct Prisma query on the home page
+  -> Prisma Client
+  -> PostgreSQL
+  -> mapped data
+  -> UI
+```
+
+Admin mutations are implemented as server actions in `src/actions`, protected by `requireAdmin()` and the admin layout/middleware. Credentials are checked against the Prisma `User` model using `bcryptjs`.
+
+## Image Handling
+
+- Local images in `public/assets` and `public/uploads/news` can be referenced by root-relative URLs.
+- Components use Next.js `Image` (`next/image`) for rendered images.
+- `next.config.ts` permits remote images only from `https://img.youtube.com/vi/**`.
+- The home `GallerySection` uses the three local images defined in `src/components/features/home/data.ts`.
+- The upload route creates `public/uploads/news` when needed and returns a root-relative URL. It does not upload to a separate storage service.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and replace the placeholders. Do not commit real credentials.
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string used by Prisma and the seed script |
+| `AUTH_SECRET` | Yes | Secret used by NextAuth |
+| `NEXT_PUBLIC_SITE_URL` | No | Base URL for metadata, robots, and sitemap; the application has a fallback when omitted |
+| `NEXT_PUBLIC_MOCK_AUTH` | No | Set to `true` only for the development mock-auth path; it is ignored outside development |
+| `ADMIN_EMAIL` | For seeding | Admin email read by `prisma/seed.ts` |
+| `ADMIN_PASSWORD` | For seeding | Admin password read by `prisma/seed.ts` |
+| `NODE_ENV` | Set by runtime | Used to distinguish development mock auth and Prisma client behavior |
+
+`NEXTAUTH_URL` is not required by the current source and is intentionally not listed.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm compatible with Next.js `16.2.12` (use a current Node.js LTS release).
+- PostgreSQL accessible through `DATABASE_URL`. The included Docker Compose file provides PostgreSQL 16 for local development.
+
+### Installation
 
 ```bash
+git clone https://github.com/DikkyJuliyanto47/Physic-profile.git
+cd Physic-profile
 npm install
+```
+
+Create the environment file:
+
+```bash
+copy .env.example .env
+```
+
+On shells that support `cp`, the equivalent is `cp .env.example .env`.
+
+To start the local database with Docker Compose:
+
+```bash
+docker compose up -d postgres
+```
+
+Set `DATABASE_URL` to match the PostgreSQL service, for example:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
+```
+
+Apply migrations and optionally seed an admin user using the Prisma CLI. The seed reads `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+
+### Development
+
+```bash
 npm run dev
 ```
 
-Setelah itu, aplikasi dapat diakses di:
+Open `http://localhost:3000`.
 
-```text
-http://localhost:3000
-```
-
-Untuk build produksi:
+### Production build
 
 ```bash
 npm run build
 npm run start
 ```
 
-Untuk pemeriksaan kualitas kode:
+`npm run build` generates the Prisma client before building the Next.js application.
 
-```bash
-npm run lint
-```
+## Available Scripts
 
-## Environment Variables
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Generate Prisma Client and create a production Next.js build |
+| `npm run start` | Start the production Next.js server |
+| `npm run lint` | Run ESLint |
 
-Project ini menggunakan variabel lingkungan untuk koneksi database dan autentikasi. Contoh konfigurasi yang benar adalah:
-
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
-AUTH_SECRET="replace-with-secure-secret"
-NEXTAUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-NEXT_PUBLIC_MOCK_AUTH="false"
-```
-
-Catatan penting:
-- `DATABASE_URL` wajib ada untuk Prisma dan koneksi database.
-- `AUTH_SECRET` dipakai pada konfigurasi NextAuth di `src/auth.ts`.
-- `NEXT_PUBLIC_SITE_URL` dipakai pada konfigurasi sitemap, robots, dan metadata situs.
-- `NEXT_PUBLIC_MOCK_AUTH` digunakan untuk mode testing admin lokal.
-- Jangan menyimpan nilai asli di repository.
-
-## Prisma
-
-Project ini memakai Prisma ORM untuk mengelola database PostgreSQL. Workflow umum adalah:
-
-```bash
-npx prisma generate
-npx prisma migrate dev
-npx prisma studio
-```
-
-Penjelasan masing-masing:
-
-- `npx prisma generate` : menghasilkan Prisma Client sesuai dengan schema yang ada di `prisma/schema.prisma`.
-- `npx prisma migrate dev` : membuat dan menerapkan migrasi database saat pengembangan. Digunakan untuk menyesuaikan struktur tabel dengan model Prisma.
-- `npx prisma studio` : membuka Prisma Studio untuk melihat data yang tersimpan di database secara interaktif.
-
-Seed database dapat dijalankan berdasarkan konfigurasi di `package.json`:
-
-```bash
-npx tsx prisma/seed.ts
-```
-
-Schema utama berada di `prisma/schema.prisma` dan mencakup model seperti `User`, `University`, `MemberProfile`, `ManagementPeriod`, `ManagementPosition`, `News`, `Event`, `Publication`, `DocumentResource`, `Gallery`, dan `ContactMessage`.
-
-## Fitur
-
-### Website Publik
-
-Berikut fitur yang terlihat pada struktur halaman dan route yang tersedia:
-
-- Beranda — Sudah ada di `src/app/(public)/page.tsx`
-- Tentang — Route tersedia di `src/app/(public)/about/`
-- Kepengurusan — Route tersedia di `src/app/(public)/managements/`
-- Anggota — Route tersedia di `src/app/(public)/members/`
-- Riset & Publikasi — Route tersedia di `src/app/(public)/research-publication/`
-- Berita — Route tersedia di `src/app/(public)/news/`
-- Agenda — Route tersedia di `src/app/(public)/agenda/`
-- Galeri — Route tersedia di `src/app/(public)/gallery/`
-- Universitas / Perguruan Tinggi — Route tersedia di `src/app/(public)/universities/`
-- Dokumen — Route tersedia di `src/app/(public)/documents/`
-- Kontak — Route tersedia di `src/app/(public)/contact/`
-
-Status umum:
-- Fitur publik utama sudah memiliki struktur page, komponen, dan model data yang sesuai.
-- Beberapa bagian masih dapat dilanjutkan pada sisi integrasi data atau polishing UI sesuai kebutuhan produk.
-
-### Admin
-
-Panel administrasi tersedia pada route `/admin` dan dilengkapi dengan modul utama berikut:
-
-- Dashboard — Sudah ada di `src/app/(admin)/admin/page.tsx`
-- Manajemen Berita — Route `src/app/(admin)/admin/news/`
-- Manajemen Agenda — Route `src/app/(admin)/admin/events/` dan `agenda/`
-- Manajemen Anggota — Route `src/app/(admin)/admin/members/`
-- Manajemen Kepengurusan — Route `src/app/(admin)/admin/managements/`
-- Manajemen Perguruan Tinggi — Route `src/app/(admin)/admin/universities/`
-- Manajemen Publikasi — Route `src/app/(admin)/admin/publication/`
-- Manajemen Galeri — Route `src/app/(admin)/admin/gallery/`
-- Manajemen Dokumen — Route `src/app/(admin)/admin/documents/`
-- Pesan/Kontak — Route `src/app/(admin)/admin/messages/`
-- Login Admin — Route `src/app/(admin)/login/page.tsx`
-
-Status umum:
-- Struktur admin sudah dibuat secara jelas di repository.
-- Beberapa modul perlu proses validasi data, integrasi lanjut, dan penyempurnaan UX tergantung kebutuhan produksi.
-
-## Arsitektur
-
-Arsitektur proyek mengikuti pendekatan yang umum digunakan pada aplikasi Next.js modern:
-
-- App Router sebagai bentuk routing utama aplikasi.
-- Server Components dijadikan default untuk rendering di sisi server.
-- Client Components dipakai hanya ketika dibutuhkan untuk interaksi seperti form, state, atau autentikasi.
-- Prisma digunakan sebagai ORM untuk akses data PostgreSQL.
-- Struktur organisasi feature-based dan modular: route, komponen fitur, layout, serta utilitas dipisahkan berdasarkan fungsi.
-
-Prinsip utama:
-- Memprioritaskan komponen yang dapat dipakai ulang.
-- Memisahkan logika data, UI, dan konfigurasi situs.
-- Menjaga struktur project agar mudah diakses oleh anggota tim baru.
+Additional database operations are available through the installed Prisma CLI, including `npx prisma migrate dev`, `npx prisma studio`, and `npx prisma generate`.
 
 ## Development Guidelines
 
-Beberapa pedoman yang perlu diikuti selama pengembangan:
+- Keep application code in TypeScript and preserve the strict compiler configuration.
+- Follow the App Router structure in `src/app`; use Server Components unless client-side interaction requires a Client Component.
+- Keep feature-specific UI in `src/components/features` and shared primitives in `src/components/ui`.
+- Use `src/lib/prisma.ts` for the shared Prisma client and `src/lib/data.ts` for cached public data readers.
+- Keep admin mutations behind the existing `requireAdmin()` guard and authentication middleware.
+- Place bundled static images in `public/assets`; treat uploaded content as URLs returned by the upload route.
 
-- Gunakan TypeScript secara ketat dan hindari tipe `any` jika tidak benar-benar diperlukan.
-- Jangan membuat Client Component jika fitur tersebut tidak memerlukan interaksi browser.
-- Gunakan Prisma Client dari `src/lib/prisma.ts` agar konfigurasi database konsisten di seluruh aplikasi.
-- Ikuti struktur feature-based dan hindari menumpuk logika bisnis ke dalam satu file besar.
-- Pertahankan UI yang sederhana, konsisten, dan mudah dibaca.
-- Gunakan folder dan naming yang konsisten dengan pola yang sudah ada di project.
-- Untuk route admin, pastikan akses dikelola melalui auth dan middleware sesuai konfigurasi NextAuth.
+## Deployment
 
-## Kontribusi
-
-Workflow kontribusi yang sederhana dan umum dipakai:
+The repository contains no provider-specific deployment or CI/CD configuration. A production deployment must provide the required environment variables and PostgreSQL database, then run:
 
 ```bash
-git checkout -b feature/nama-fitur
-# lakukan perubahan
-git add .
-git commit -m "feat: menambahkan fitur X"
-git push origin feature/nama-fitur
+npm run build
+npm run start
 ```
 
-Setelah itu:
+`docker-compose.yml` is a local PostgreSQL setup, not an application deployment configuration.
 
-- Buat Pull Request ke branch utama.
-- Jelaskan perubahan secara singkat.
-- Pastikan build dan lint berjalan tanpa error sebelum merge.
+## Maintenance Notes
+
+- Home landing-page content and its static gallery items are maintained in `src/components/features/home`.
+- Database-backed public readers and response mapping are maintained in `src/lib/data.ts`.
+- Prisma schema, migrations, and seed behavior are under `prisma/`.
+- Site metadata, robots, and sitemap use `NEXT_PUBLIC_SITE_URL` with an application fallback.
+- The remote image allowlist is maintained in `next.config.ts`.
 
 ## License
 
-Proyek ini belum memiliki lisensi resmi yang ditetapkan. Silakan tambahkan lisensi yang sesuai sebelum digunakan dalam lingkungan produksi atau publikasi komersial.
-
-## Catatan
-
-Untuk memahami alur kerja secara cepat, disarankan untuk memulai dari:
-
-- `src/app/` untuk melihat route publik dan admin
-- `prisma/schema.prisma` untuk memahami model data
-- `src/lib/prisma.ts` untuk konfigurasi database
-- `src/auth.ts` dan `src/auth.config.ts` untuk autentikasi
-- `src/config/site.ts` untuk konfigurasi navigasi dan metadata situs
-
-README ini disusun agar menjadi dokumentasi dasar bagi tim, dengan fokus pada struktur project yang benar-benar ada di repository saat ini.
+No license file or licensing information is specified in this repository.
