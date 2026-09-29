@@ -41,6 +41,7 @@ export default async function Page() {
         defaultActiveHref={
           institutions[0] ? `#${getInstitutionId(institutions[0])}` : "#perguruan-tinggi"
         }
+        framed={false}
       >
         <MembersSection members={members} />
         <UniversitiesSection />

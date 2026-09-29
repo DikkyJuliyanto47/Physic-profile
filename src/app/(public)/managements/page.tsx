@@ -21,6 +21,7 @@ export default async function Page() {
         defaultActiveHref={
           managementGroups[0] ? `#${managementGroups[0].id}` : undefined
         }
+        framed={false}
       >
         <ManagementSection groups={managementGroups} />
       </PublicPageShell>

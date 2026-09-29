@@ -17,8 +17,9 @@ export default function Page() {
           { label: "Visi & Misi", href: "#visi-misi" },
         ]}
         defaultActiveHref="#tentang"
+        framed={false}
       >
-      <AboutSection />
+        <AboutSection />
       </PublicPageShell>
 
       <JoinCtaSection />
