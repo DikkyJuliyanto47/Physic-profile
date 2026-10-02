@@ -26,7 +26,6 @@ export default async function RisetPublikasiPage() {
           { label: "HKI", href: "#hki" },
         ]}
         defaultActiveHref="#semua-publikasi"
-        framed={false}
       >
         <ResearchPublicationSectionWithProps publications={publications} />
       </PublicPageShell>

@@ -39,7 +39,6 @@ export default async function Page() {
                 .replace(/^-|-$/g, "")}`
             : undefined
         }
-        framed={false}
       >
         <MembersSection members={members} />
       </PublicPageShell>

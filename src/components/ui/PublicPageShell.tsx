@@ -7,7 +7,6 @@ interface PublicPageShellProps {
   breadcrumbs: { label: string; href?: string }[];
   navItems?: { label: string; href: string }[];
   defaultActiveHref?: string;
-  framed?: boolean;
   children: ReactNode;
 }
 
@@ -16,13 +15,12 @@ export function PublicPageShell({
   breadcrumbs,
   navItems = [],
   defaultActiveHref,
-  framed = true,
   children,
 }: PublicPageShellProps) {
   return (
     <>
       <Hero title={title} breadcrumbs={breadcrumbs} />
-      <Section padding="none">
+      <Section tone="muted" padding="none">
         <Container>
           <div className="relative z-10 -mt-14 pb-16 sm:-mt-16 sm:pb-20 lg:-mt-20 lg:pb-24">
             <div className="relative">
@@ -30,14 +28,7 @@ export function PublicPageShell({
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-0 left-[calc(100%+16px)] top-0 z-0 hidden w-32 bg-[url('/images/patterns/psi-batik.svg')] bg-right bg-size-[auto_100%] bg-no-repeat opacity-[0.07] lg:block xl:w-36"
               />
-              <div
-                className={[
-                  "relative z-10 bg-background",
-                  framed ? "border border-neutral-200" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
+              <div className="relative z-10 border-y border-neutral-200 bg-background">
                 <header className="sticky top-0 z-20 border-b border-neutral-200 bg-background px-6 py-5 sm:px-8 lg:px-10">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <h1 className="max-w-3xl text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">

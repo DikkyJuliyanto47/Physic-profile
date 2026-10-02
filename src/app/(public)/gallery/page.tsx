@@ -23,7 +23,6 @@ export default async function GaleriPage() {
           { label: "Video", href: "#video" },
         ]}
         defaultActiveHref="#semua"
-        framed={false}
       >
         <DocumentationGrid items={documentationItems} />
       </PublicPageShell>
