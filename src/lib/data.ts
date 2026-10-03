@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
+import sanitizeHtml from "sanitize-html";
 import { prisma } from "@/lib/prisma";
 import type { NewsItem } from "@/components/features/news";
 import type { EventItem } from "@/components/features/events";
@@ -85,7 +86,7 @@ export async function getNewsBySlug(slug: string) {
   cacheLife("hours");
   cacheTag("news");
 
-  return prisma.news.findUnique({
+  const news = await prisma.news.findUnique({
     where: { slug, status: "PUBLISHED" },
     select: {
       id: true,
@@ -99,6 +100,13 @@ export async function getNewsBySlug(slug: string) {
       author: { select: { name: true } },
     },
   });
+
+  if (!news) return null;
+
+  return {
+    ...news,
+    content: sanitizeHtml(news.content),
+  };
 }
 
 // ──────────────────────────────────────────────
@@ -178,7 +186,7 @@ export async function getEventBySlug(slug: string) {
   cacheLife("hours");
   cacheTag("events");
 
-  return prisma.event.findUnique({
+  const event = await prisma.event.findUnique({
     where: { slug, status: "PUBLISHED" },
     select: {
       id: true,
@@ -192,6 +200,13 @@ export async function getEventBySlug(slug: string) {
       linkUrl: true,
     },
   });
+
+  if (!event) return null;
+
+  return {
+    ...event,
+    description: sanitizeHtml(event.description),
+  };
 }
 
 // ──────────────────────────────────────────────
