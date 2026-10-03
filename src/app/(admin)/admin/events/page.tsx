@@ -116,7 +116,7 @@ export default async function EventsListPage({
 
         <Link
           href="/admin/events/new"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg
             className="h-4 w-4"
@@ -155,14 +155,14 @@ export default async function EventsListPage({
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari judul atau lokasi..."
-            className="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            className="h-10 w-full rounded-md border border-neutral-200 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-700 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          className="h-10 rounded-md border border-neutral-200 bg-white px-3.5 text-sm text-neutral-700 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
         >
           <option value="">Semua Status</option>
           <option value="DRAFT">Draf</option>
@@ -172,13 +172,13 @@ export default async function EventsListPage({
 
         <button
           type="submit"
-          className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+          className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
         >
           Filter
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>

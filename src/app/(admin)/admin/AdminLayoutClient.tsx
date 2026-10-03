@@ -15,7 +15,7 @@ export function AdminLayoutClient({
 
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-neutral-50">
+      <div className="admin-shell min-h-screen bg-neutral-50">
         <AdminSidebar
           isOpen={sidebarOpen}
           pinned={sidebarPinned}

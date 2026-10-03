@@ -141,7 +141,7 @@ export function EventActions({
                   setShowConfirm(false);
                   setError("");
                 }}
-                className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
               >
                 Batal
               </button>
@@ -150,7 +150,7 @@ export function EventActions({
                 type="button"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-10 rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Menghapus..." : "Ya, Hapus"}
               </button>

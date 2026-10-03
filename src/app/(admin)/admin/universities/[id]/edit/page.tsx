@@ -31,7 +31,7 @@ export default async function EditUniversityPage({
         </p>
       </div>
 
-      <div className="border border-neutral-200 bg-white p-6 shadow-card">
+      <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-card">
         <UniversityForm mode="edit" initialData={university} />
       </div>
     </div>

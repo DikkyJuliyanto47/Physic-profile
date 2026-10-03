@@ -60,7 +60,7 @@ export default async function ManagementPage() {
 
         <Link
           href="/admin/managements/create"
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary-600 px-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-600 px-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -86,7 +86,7 @@ export default async function ManagementPage() {
           </div>
         </div>
       ) : (
-        <div className="border border-neutral-200 bg-white px-4 py-3.5 text-sm text-neutral-500">
+        <div className="rounded-md border border-neutral-200 bg-white px-4 py-3.5 text-sm text-neutral-500">
           Belum ada periode kepengurusan.
         </div>
       )}

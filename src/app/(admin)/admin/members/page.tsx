@@ -88,7 +88,7 @@ export default async function MembersListPage({
                 name="q"
                 defaultValue={q ?? ""}
                 placeholder="Cari nama, email, atau bidang keahlian..."
-                className="h-10 w-full rounded-md border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                className="h-10 w-full rounded-md border border-neutral-200 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
               />
             </div>
 

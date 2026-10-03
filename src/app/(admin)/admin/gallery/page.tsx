@@ -68,7 +68,7 @@ export default async function GalleryListPage({
 
         <Link
           href="/admin/gallery/new"
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg
             className="h-4 w-4"
@@ -107,14 +107,14 @@ export default async function GalleryListPage({
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari judul atau caption..."
-            className="w-full rounded-md border border-neutral-300 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
         <select
           name="category"
           defaultValue={category ?? ""}
-          className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="h-10 rounded-md border border-neutral-300 bg-white px-3.5 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
         >
           <option value="">Semua Kategori</option>
           {categories.map((item) => (
@@ -126,14 +126,14 @@ export default async function GalleryListPage({
 
         <button
           type="submit"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+          className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
         >
           Filter
         </button>
       </form>
 
       {items.length === 0 ? (
-        <div className="rounded-md border border-neutral-200 bg-white px-6 py-16 text-center">
+        <div className="rounded-lg border border-neutral-200 bg-white px-6 py-16 text-center shadow-card">
           <svg
             className="mx-auto h-10 w-10 text-neutral-300"
             fill="none"
@@ -164,7 +164,7 @@ export default async function GalleryListPage({
 
             return (
               <article key={item.id} className="group min-w-0">
-                <div className="overflow-hidden rounded-md border border-neutral-200 bg-white transition-shadow hover:shadow-card">
+                <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white transition-shadow hover:shadow-card">
                   <div className="relative aspect-4/3 overflow-hidden bg-neutral-100">
                     {thumbnail ? (
                       <Image

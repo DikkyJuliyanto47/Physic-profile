@@ -66,7 +66,7 @@ export function UniversityActions({
 
     {showConfirm && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-        <div className="w-full max-w-md border border-neutral-200 bg-white p-6 shadow-elevated">
+        <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
           <h3 className="text-lg font-semibold text-neutral-900">
             Hapus Kampus?
           </h3>
@@ -80,7 +80,7 @@ export function UniversityActions({
           </p>
 
           {error && (
-            <div className="mt-3 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -92,7 +92,7 @@ export function UniversityActions({
                 setShowConfirm(false);
                 setError("");
               }}
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
               Batal
             </button>
@@ -101,7 +101,7 @@ export function UniversityActions({
               type="button"
               onClick={handleDelete}
               disabled={isPending}
-              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-10 rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? "Menghapus..." : "Ya, Hapus"}
             </button>

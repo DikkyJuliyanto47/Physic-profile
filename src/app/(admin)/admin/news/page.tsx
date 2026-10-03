@@ -97,7 +97,7 @@ export default async function NewsListPage({
 
         <Link
           href="/admin/news/new"
-          className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 sm:w-auto"
+          className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 sm:w-auto"
         >
           <svg
             className="h-4 w-4"
@@ -139,7 +139,7 @@ export default async function NewsListPage({
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari judul atau slug..."
-            className="h-10 w-full rounded-md border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+            className="h-10 w-full rounded-md border border-neutral-200 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
           />
         </div>
 

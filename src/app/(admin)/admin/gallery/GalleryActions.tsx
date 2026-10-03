@@ -85,7 +85,7 @@ export function GalleryActions({
           onClick={() => setShowPreview(false)}
         >
           <div
-            className="w-full max-w-5xl overflow-hidden rounded-md bg-white"
+            className="w-full max-w-5xl overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-elevated"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
@@ -101,7 +101,7 @@ export function GalleryActions({
               <button
                 type="button"
                 onClick={() => setShowPreview(false)}
-                className="shrink-0 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 px-3 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
               >
                 Tutup
               </button>
@@ -145,7 +145,7 @@ export function GalleryActions({
           }}
         >
           <div
-            className="w-full max-w-md rounded-md bg-white"
+            className="w-full max-w-md overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-elevated"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="border-b border-neutral-200 px-5 py-4">
@@ -178,7 +178,7 @@ export function GalleryActions({
                   setError("");
                 }}
                 disabled={isPending}
-                className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+                className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
               >
                 Batal
               </button>
@@ -187,7 +187,7 @@ export function GalleryActions({
                 type="button"
                 onClick={handleDelete}
                 disabled={isPending}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                className="h-10 rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Menghapus..." : "Ya, Hapus"}
               </button>

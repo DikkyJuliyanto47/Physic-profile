@@ -41,7 +41,7 @@ export default async function UniversitiesPage({
 
         <Link
           href="/admin/universities/new"
-          className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+          className="inline-flex h-10 items-center gap-2 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
           <svg
             className="h-4 w-4"
@@ -80,12 +80,12 @@ export default async function UniversitiesPage({
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cari nama kampus atau singkatan..."
-            className="w-full rounded-md border border-neutral-300 py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
       </form>
 
-      <div className="border border-neutral-200 bg-white shadow-card">
+      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
