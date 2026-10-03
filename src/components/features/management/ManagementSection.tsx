@@ -65,12 +65,14 @@ export function ManagementSection({ groups, query }: ManagementSectionProps) {
                     {member.role}
                   </p>
 
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
-                  >
-                    {member.email}
-                  </a>
+                  {member.email && (
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                    >
+                      {member.email}
+                    </a>
+                  )}
                 </div>
               </article>
             ))}

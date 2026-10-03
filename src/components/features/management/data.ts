@@ -2,7 +2,7 @@ export interface ManagementMember {
   id: string;
   name: string;
   role: string;
-  email: string;
+  email: string | null;
   image: string;
 }
 

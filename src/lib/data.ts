@@ -222,7 +222,6 @@ export async function getMembers(): Promise<Member[]> {
     select: {
       id: true,
       name: true,
-      email: true,
       fieldOfExpertise: true,
       photoUrl: true,
       detailUrl: true,
@@ -235,7 +234,7 @@ export async function getMembers(): Promise<Member[]> {
   return profiles.map((p) => ({
     id: p.id,
     name: p.name,
-    email: p.email,
+    email: p.emailPublic,
     field: p.fieldOfExpertise ?? "Dosen",
     institution: p.institution?.name ?? "Tidak diketahui",
     institutionSlug: p.institution?.slug,
@@ -256,11 +255,16 @@ export async function getActiveManagement(): Promise<ManagementGroup[]> {
 
   const activePeriod = await prisma.managementPeriod.findFirst({
     where: { isActive: true },
-    include: {
+    select: {
+      id: true,
+      period: true,
       positions: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          department: true,
           memberProfile: {
-            select: { id: true, name: true, email: true, photoUrl: true },
+            select: { name: true, emailPublic: true, photoUrl: true },
           },
         },
         orderBy: { order: "asc" },
@@ -280,7 +284,7 @@ export async function getActiveManagement(): Promise<ManagementGroup[]> {
         role: pos.department
           ? `${pos.title} — ${pos.department}`
           : pos.title,
-        email: pos.memberProfile?.email ?? "",
+        email: pos.memberProfile?.emailPublic ?? null,
         image: pos.memberProfile?.photoUrl ?? "/assets/members/profile.jpg",
       })),
     },

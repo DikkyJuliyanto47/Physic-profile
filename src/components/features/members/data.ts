@@ -1,7 +1,7 @@
 export interface Member {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   field: string;
   institution: string;
   institutionSlug?: string | null;

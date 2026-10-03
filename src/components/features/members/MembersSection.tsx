@@ -111,22 +111,14 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
                         {member.field}
                       </p>
 
-                      <a
-                        href={`mailto:${member.email}`}
-                        className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
-                      >
-                        {member.email}
-                      </a>
-
-                      {member.emailPublic &&
-                        member.emailPublic !== member.email && (
-                          <a
-                            href={`mailto:${member.emailPublic}`}
-                            className="mt-0.5 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
-                          >
-                            {member.emailPublic}
-                          </a>
-                        )}
+                      {member.email && (
+                        <a
+                          href={`mailto:${member.email}`}
+                          className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                        >
+                          {member.email}
+                        </a>
+                      )}
 
                       {member.detailUrl && (
                         <a

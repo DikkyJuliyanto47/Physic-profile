@@ -61,7 +61,8 @@ export async function createManagementPeriod(
     });
 
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat periode kepengurusan." };
@@ -112,8 +113,9 @@ export async function updateManagementPeriod(
     });
 
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
-    revalidatePath(`/admin/kepengurusan/${id}/edit`);
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
+    revalidatePath(`/admin/managements/${id}/edit`);
     return { success: true };
   } catch {
     return { success: false, error: "Gagal memperbarui periode kepengurusan." };
@@ -134,7 +136,8 @@ export async function deleteManagementPeriod(id: string): Promise<ActionResponse
 
     await prisma.managementPeriod.delete({ where: { id } });
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus periode kepengurusan." };
@@ -168,7 +171,8 @@ export async function setActiveManagementPeriod(
     });
 
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
     return { success: true };
   } catch {
     return { success: false, error: "Gagal mengaktifkan periode." };
@@ -229,8 +233,9 @@ export async function createManagementPosition(
     });
 
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
-    revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
+    revalidatePath(`/admin/managements/${periodId}/edit`);
     return { success: true };
   } catch {
     return { success: false, error: "Gagal membuat posisi kepengurusan." };
@@ -293,8 +298,9 @@ export async function updateManagementPosition(
     });
 
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
-    revalidatePath(`/admin/kepengurusan/${periodId}/edit`);
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
+    revalidatePath(`/admin/managements/${periodId}/edit`);
     return { success: true };
   } catch {
     return { success: false, error: "Gagal memperbarui posisi kepengurusan." };
@@ -315,8 +321,9 @@ export async function deleteManagementPosition(id: string): Promise<ActionRespon
 
     await prisma.managementPosition.delete({ where: { id } });
     updateTag("managements");
-    revalidatePath("/admin/kepengurusan");
-    revalidatePath(`/admin/kepengurusan/${position.periodId}/edit`);
+    revalidatePath("/managements");
+    revalidatePath("/admin/managements");
+    revalidatePath(`/admin/managements/${position.periodId}/edit`);
     return { success: true };
   } catch {
     return { success: false, error: "Gagal menghapus posisi kepengurusan." };
