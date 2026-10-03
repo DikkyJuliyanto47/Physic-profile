@@ -82,6 +82,8 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
     });
 
     updateTag("events");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };
@@ -133,6 +135,8 @@ export async function updateEvent(
     });
 
     updateTag("events");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/events");
     revalidatePath(`/admin/events/${id}/edit`);
     revalidatePath("/events");
@@ -156,6 +160,8 @@ export async function deleteEvent(id: string): Promise<ActionResponse> {
 
     await prisma.event.delete({ where: { id } });
     updateTag("events");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };
@@ -185,6 +191,8 @@ export async function toggleEventStatus(id: string): Promise<ActionResponse> {
     });
 
     updateTag("events");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };

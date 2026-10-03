@@ -71,6 +71,9 @@ export async function createUniversity(
     });
 
     updateTag("universities");
+    updateTag("members");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/universities");
     return { success: true };
   } catch {
@@ -120,6 +123,9 @@ export async function updateUniversity(
     });
 
     updateTag("universities");
+    updateTag("members");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/universities");
     revalidatePath(`/admin/universities/${id}/edit`);
     return { success: true };
@@ -154,6 +160,9 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
     await prisma.university.delete({ where: { id } });
 
     updateTag("universities");
+    updateTag("members");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/universities");
     return { success: true };
   } catch {

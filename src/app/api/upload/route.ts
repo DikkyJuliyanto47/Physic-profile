@@ -5,12 +5,7 @@ import { randomUUID } from "node:crypto";
 import path from "path";
 import { requireAdmin } from "@/lib/auth-utils";
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024;
-const ALLOWED_UPLOAD_TYPES: Record<string, readonly string[]> = {
-  "image/png": ["png"],
-  "image/jpeg": ["jpg", "jpeg"],
-  "image/webp": ["webp"],
-};
+import { MAX_FILE_SIZE, ALLOWED_UPLOAD_TYPES } from "@/lib/upload-constraints";
 
 function hasValidImageSignature(buffer: Buffer, mimeType: string): boolean {
   if (mimeType === "image/png") {

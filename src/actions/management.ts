@@ -286,6 +286,11 @@ export async function updateManagementPosition(
       return { success: false, error: "Urutan harus angka." };
     }
 
+    const previous = await prisma.managementPosition.findUnique({
+      where: { id },
+      select: { periodId: true },
+    });
+
     await prisma.managementPosition.update({
       where: { id },
       data: {
@@ -301,6 +306,9 @@ export async function updateManagementPosition(
     revalidatePath("/managements");
     revalidatePath("/admin/managements");
     revalidatePath(`/admin/managements/${periodId}/edit`);
+    if (previous && previous.periodId !== periodId) {
+      revalidatePath(`/admin/managements/${previous.periodId}/edit`);
+    }
     return { success: true };
   } catch {
     return { success: false, error: "Gagal memperbarui posisi kepengurusan." };

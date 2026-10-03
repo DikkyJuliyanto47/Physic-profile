@@ -381,7 +381,7 @@ export async function getUniversityBySlug(slug: string) {
 export async function getMembersByUniversity(institutionId: string) {
   "use cache";
   cacheLife("hours");
-  cacheTag("universities");
+  cacheTag("universities", "members");
 
   return prisma.memberProfile.findMany({
     where: { institutionId },

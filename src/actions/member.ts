@@ -2,7 +2,7 @@
 
 import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 export type MemberInput = {
   detailUrl: string;
@@ -56,6 +56,11 @@ export async function createMember(
       },
     });
 
+    updateTag("members");
+    updateTag("managements");
+    updateTag("universities");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/members");
     revalidatePath("/members");
 
@@ -108,6 +113,11 @@ export async function updateMember(
       },
     });
 
+    updateTag("members");
+    updateTag("managements");
+    updateTag("universities");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/members");
     revalidatePath("/members");
     revalidatePath(`/admin/members/${id}/edit`);
@@ -132,6 +142,11 @@ export async function deleteMember(id: string): Promise<ActionResponse> {
 
     await prisma.memberProfile.delete({ where: { id } });
 
+    updateTag("members");
+    updateTag("managements");
+    updateTag("universities");
+    revalidatePath("/");
+    revalidatePath("/admin");
     revalidatePath("/admin/members");
     revalidatePath("/members");
     return { success: true };

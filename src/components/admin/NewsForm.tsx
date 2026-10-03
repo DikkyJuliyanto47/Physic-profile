@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  MAX_FILE_SIZE,
+  ALLOWED_UPLOAD_TYPES,
+  IMAGE_UPLOAD_ACCEPT,
+} from "@/lib/upload-constraints";
+
 import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import Image from "next/image";
@@ -92,8 +98,29 @@ export function NewsForm({ mode, initialData }: Props) {
 
     setError("");
 
-    if (file.size > 1 * 1024 * 1024) {
-      setError("Ukuran gambar maksimal 1 MB.");
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Ukuran file maksimal 1 MB.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size === 0) {
+      setError("File kosong.");
+      e.target.value = "";
+      return;
+    }
+
+    if (!file.name || /[\\/\u0000-\u001f\u007f]/.test(file.name)) {
+      setError("Nama file tidak valid.");
+      e.target.value = "";
+      return;
+    }
+
+    const dotIndex = file.name.lastIndexOf(".");
+    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
+    if (!allowedExtensions || !allowedExtensions.includes(extension)) {
+      setError("Format file tidak didukung.");
       e.target.value = "";
       return;
     }
@@ -295,7 +322,7 @@ export function NewsForm({ mode, initialData }: Props) {
             >
               <input
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept={IMAGE_UPLOAD_ACCEPT}
                 onChange={handleImageUpload}
                 disabled={uploading}
                 className="sr-only"

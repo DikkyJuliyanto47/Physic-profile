@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  MAX_FILE_SIZE,
+  ALLOWED_UPLOAD_TYPES,
+  IMAGE_UPLOAD_ACCEPT,
+} from "@/lib/upload-constraints";
+
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -64,14 +70,29 @@ export function UniversityForm({ mode, initialData }: Props) {
 
     setUploadError("");
 
-    if (file.size > 1 * 1024 * 1024) {
-      setUploadError("Ukuran gambar maksimal 1 MB.");
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError("Ukuran file maksimal 1 MB.");
       e.target.value = "";
       return;
     }
 
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      setUploadError("Format gambar harus PNG, JPG, atau WebP.");
+    if (file.size === 0) {
+      setUploadError("File kosong.");
+      e.target.value = "";
+      return;
+    }
+
+    if (!file.name || /[\\/\u0000-\u001f\u007f]/.test(file.name)) {
+      setUploadError("Nama file tidak valid.");
+      e.target.value = "";
+      return;
+    }
+
+    const dotIndex = file.name.lastIndexOf(".");
+    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
+    if (!allowedExtensions || !allowedExtensions.includes(extension)) {
+      setUploadError("Format file tidak didukung.");
       e.target.value = "";
       return;
     }
@@ -276,7 +297,7 @@ export function UniversityForm({ mode, initialData }: Props) {
 
                 <input
                   type="file"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept={IMAGE_UPLOAD_ACCEPT}
                   onChange={handleImageUpload}
                   disabled={uploading || isSubmitting}
                   className="sr-only"

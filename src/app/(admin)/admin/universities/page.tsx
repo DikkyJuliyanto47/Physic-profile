@@ -60,30 +60,36 @@ export default async function UniversitiesPage({
         </Link>
       </div>
 
-      <form method="GET" className="max-w-md">
-        <div className="relative">
-          <svg
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-            />
-          </svg>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <form method="GET" className="w-full sm:max-w-sm">
+          <div className="relative">
+            <svg
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.75}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
 
-          <input
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder="Cari nama kampus atau singkatan..."
-            className="h-10 w-full rounded-md border border-neutral-300 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-          />
-        </div>
-      </form>
+            <input
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Cari nama kampus atau singkatan..."
+              className="h-10 w-full rounded-md border border-neutral-200 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            />
+          </div>
+        </form>
+
+        <p className="text-xs text-neutral-500 sm:text-sm">
+          {universities.length} kampus {q ? "ditemukan" : "terdaftar"}
+        </p>
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
         <div className="overflow-x-auto">

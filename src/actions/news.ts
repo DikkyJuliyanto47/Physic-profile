@@ -55,6 +55,7 @@ function isUniqueConstraintError(error: unknown): boolean {
 
 function revalidateNews(): void {
   updateTag("news");
+  revalidatePath("/admin");
   revalidatePath("/news");
   revalidatePath("/admin/news");
 }

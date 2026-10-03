@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  MAX_FILE_SIZE,
+  ALLOWED_UPLOAD_TYPES,
+  IMAGE_UPLOAD_ACCEPT,
+} from "@/lib/upload-constraints";
+
 import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -110,14 +116,29 @@ export function GalleryForm({ mode, initialData }: Props) {
 
     setError("");
 
-    if (!file.type.startsWith("image/")) {
-      setError("File harus berupa gambar.");
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Ukuran file maksimal 1 MB.");
       e.target.value = "";
       return;
     }
 
-    if (file.size > 1 * 1024 * 1024) {
-      setError("Ukuran gambar maksimal 1 MB.");
+    if (file.size === 0) {
+      setError("File kosong.");
+      e.target.value = "";
+      return;
+    }
+
+    if (!file.name || /[\\/\u0000-\u001f\u007f]/.test(file.name)) {
+      setError("Nama file tidak valid.");
+      e.target.value = "";
+      return;
+    }
+
+    const dotIndex = file.name.lastIndexOf(".");
+    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
+    if (!allowedExtensions || !allowedExtensions.includes(extension)) {
+      setError("Format file tidak didukung.");
       e.target.value = "";
       return;
     }
@@ -319,7 +340,7 @@ export function GalleryForm({ mode, initialData }: Props) {
 
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept={IMAGE_UPLOAD_ACCEPT}
                   onChange={handleImageUpload}
                   disabled={uploading}
                   className="sr-only"

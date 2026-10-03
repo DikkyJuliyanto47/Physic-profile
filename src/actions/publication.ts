@@ -72,6 +72,7 @@ export async function createPublication(
     });
 
     updateTag("publications");
+    revalidatePath("/research");
     revalidatePath("/admin/publication");
     return { success: true };
   } catch {
@@ -119,6 +120,7 @@ export async function updatePublication(
     });
 
     updateTag("publications");
+    revalidatePath("/research");
     revalidatePath("/admin/publication");
     revalidatePath(`/admin/publication/${id}/edit`);
     return { success: true };
@@ -143,6 +145,7 @@ export async function deletePublication(id: string): Promise<ActionResponse> {
 
     await prisma.publication.delete({ where: { id } });
     updateTag("publications");
+    revalidatePath("/research");
     revalidatePath("/admin/publication");
     return { success: true };
   } catch {

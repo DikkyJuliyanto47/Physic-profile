@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Card } from "@/components/ui";
 
 import type { RecentMessageItem } from "./types";
@@ -24,12 +22,6 @@ export function RecentMessagesCard({
             {unreadCount} pesan belum dibaca
           </p>
         </div>
-        <Link
-          href="/admin/pesan"
-          className="text-sm font-medium text-primary-600 hover:underline"
-        >
-          Lihat Semua
-        </Link>
       </div>
 
       <ul>
