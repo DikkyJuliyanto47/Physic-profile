@@ -16,6 +16,16 @@ export default async function EditUniversityPage({
 
   const university = await prisma.university.findUnique({
     where: { id },
+    select: {
+      id: true,
+      name: true,
+      shortName: true,
+      address: true,
+      deptUrl: true,
+      websiteUrl: true,
+      logoUrl: true,
+      description: true,
+    },
   });
 
   if (!university) {

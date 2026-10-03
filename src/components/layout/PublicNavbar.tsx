@@ -82,7 +82,7 @@ export function PublicNavbar() {
           <BrandMark variant="light" />
         </Link>
 
-        <div className="ml-auto hidden items-center gap-8 lg:flex">
+        <div className="ml-auto hidden items-center gap-8 xl:flex">
           <nav className="flex h-full items-center gap-7" aria-label="Navigasi utama">
             {publicNav.map((item) => {
               const hasChildren = Boolean(item.children?.length);

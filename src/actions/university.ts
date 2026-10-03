@@ -10,13 +10,12 @@ function slugify(text: string): string {
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .trim();
+    .replace(/^-+|-+$/g, "");
 }
 
 export type UniversityInput = {
   name: string;
   shortName?: string;
-  slug?: string;
   address?: string;
   deptUrl?: string;
   websiteUrl?: string;
@@ -42,7 +41,10 @@ export async function createUniversity(
       return { success: false, error: "Nama kampus wajib diisi." };
     }
 
-    const slug = data.slug?.trim() || slugify(data.name);
+    const slug = slugify(data.name);
+    if (!slug) {
+      return { success: false, error: "Nama kampus harus mengandung huruf atau angka." };
+    }
 
     const existing = await prisma.university.findFirst({
       where: { OR: [{ name: data.name }, { slug }] },
@@ -51,7 +53,7 @@ export async function createUniversity(
     if (existing) {
       return {
         success: false,
-        error: "Nama atau slug kampus sudah ada.",
+        error: "Nama kampus atau alamat yang dihasilkan sudah digunakan. Gunakan nama lain.",
       };
     }
 
@@ -90,11 +92,9 @@ export async function updateUniversity(
       return { success: false, error: "Nama kampus wajib diisi." };
     }
 
-    const slug = data.slug?.trim() || slugify(data.name);
-
     const existing = await prisma.university.findFirst({
       where: {
-        OR: [{ name: data.name }, { slug }],
+        name: data.name,
         NOT: { id },
       },
     });
@@ -102,7 +102,7 @@ export async function updateUniversity(
     if (existing) {
       return {
         success: false,
-        error: "Nama atau slug kampus sudah ada.",
+        error: "Nama kampus sudah ada. Gunakan nama lain.",
       };
     }
 
@@ -110,7 +110,6 @@ export async function updateUniversity(
       where: { id },
       data: {
         name: data.name.trim(),
-        slug,
         shortName: data.shortName?.trim() || null,
         address: data.address?.trim() || null,
         deptUrl: data.deptUrl?.trim() || null,

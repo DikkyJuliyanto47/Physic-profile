@@ -18,7 +18,6 @@ type Props = {
   initialData?: {
     id: string;
     title: string;
-    slug: string;
     category: NewsCategory;
     excerpt: string | null;
     content: string;
@@ -26,15 +25,6 @@ type Props = {
     status: ContentStatus;
   };
 };
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-}
 
 const fieldClassName =
   "h-10 w-full rounded-md border border-neutral-200 bg-white px-3.5 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500";
@@ -74,11 +64,9 @@ export function NewsForm({ mode, initialData }: Props) {
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [autoSlug, setAutoSlug] = useState(mode === "create");
 
   const [form, setForm] = useState<NewsInput>({
     title: initialData?.title ?? "",
-    slug: initialData?.slug ?? "",
     category: initialData?.category ?? NewsCategory.ORGANISASI,
     excerpt: initialData?.excerpt ?? "",
     content: initialData?.content ?? "",
@@ -93,22 +81,8 @@ export function NewsForm({ mode, initialData }: Props) {
       if (name === "category") return { ...prev, category: value as NewsCategory };
       if (name === "status") return { ...prev, status: value as ContentStatus };
 
-      const next = { ...prev, [name]: value };
-
-      if (name === "title" && autoSlug) {
-        next.slug = slugify(value);
-      }
-
-      return next;
+      return { ...prev, [name]: value };
     });
-  }
-
-  function handleSlugChange(e: ChangeEvent<HTMLInputElement>) {
-    setAutoSlug(false);
-    setForm((prev) => ({
-      ...prev,
-      slug: e.target.value,
-    }));
   }
 
   async function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
@@ -273,20 +247,6 @@ export function NewsForm({ mode, initialData }: Props) {
         </div>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <div>
-            <FieldLabel>Slug</FieldLabel>
-            <input
-              name="slug"
-              value={form.slug ?? ""}
-              onChange={handleSlugChange}
-              placeholder="judul-berita"
-              className={fieldClassName}
-            />
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Slug dibuat otomatis dari judul.
-            </p>
-          </div>
-
           <div>
             <FieldLabel required>Kategori</FieldLabel>
             <select

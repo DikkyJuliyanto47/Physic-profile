@@ -33,7 +33,7 @@ export function PublicMobileNav({ items }: PublicMobileNavProps) {
   }, [menuVisible]);
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         aria-label={menuVisible ? "Tutup menu" : "Buka menu"}

@@ -138,7 +138,7 @@ export default async function NewsListPage({
           <input
             name="q"
             defaultValue={q ?? ""}
-            placeholder="Cari judul atau slug..."
+            placeholder="Cari judul berita..."
             className="h-10 w-full rounded-md border border-neutral-200 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
           />
         </div>

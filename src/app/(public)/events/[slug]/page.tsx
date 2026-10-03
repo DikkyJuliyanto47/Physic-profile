@@ -134,7 +134,7 @@ export default async function EventDetailPage({
               )}
 
               <div
-                className="prose prose-lg mt-8 max-w-none prose-headings:font-semibold prose-headings:text-primary-950 prose-p:text-foreground-muted prose-a:text-primary-600"
+                className="prose prose-lg mt-8 max-w-none wrap-break-word [&_iframe]:max-w-full [&_img]:h-auto [&_img]:max-w-full [&_video]:max-w-full prose-headings:font-semibold prose-headings:text-primary-950 prose-p:text-foreground-muted prose-a:text-primary-600"
                 dangerouslySetInnerHTML={{
                   __html: event.description,
                 }}

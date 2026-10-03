@@ -26,7 +26,7 @@ export function PublicPageShell({
             <div className="relative">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute bottom-0 left-[calc(100%+16px)] top-0 z-0 hidden w-32 bg-[url('/images/patterns/psi-batik.svg')] bg-right bg-size-[auto_100%] bg-no-repeat opacity-[0.07] lg:block xl:w-36"
+                className="pointer-events-none absolute bottom-0 left-[calc(100%+16px)] top-0 z-0 hidden w-32 bg-[url('/images/patterns/psi-batik.svg')] bg-right bg-size-[auto_100%] bg-no-repeat opacity-[0.07] 2xl:block 2xl:w-36"
               />
               <div className="relative z-10 border-y border-neutral-200 bg-background">
                 <header className="sticky top-0 z-20 border-b border-neutral-200 bg-background px-6 py-5 sm:px-8 lg:px-10">

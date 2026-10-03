@@ -11,12 +11,11 @@ function slugify(text: string): string {
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .trim();
+    .replace(/^-+|-+$/g, "");
 }
 
 export type EventInput = {
   title: string;
-  slug?: string;
   category: EventCategory;
   description: string;
   startDate: string;
@@ -49,11 +48,14 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const slug = data.slug?.trim() || slugify(data.title);
+    const slug = slugify(data.title);
+    if (!slug) {
+      return { success: false, error: "Judul event harus mengandung huruf atau angka." };
+    }
 
     const existing = await prisma.event.findUnique({ where: { slug } });
     if (existing) {
-      return { success: false, error: "Slug event sudah ada." };
+      return { success: false, error: "Judul event menghasilkan alamat yang sudah digunakan. Gunakan judul lain." };
     }
 
     const startDate = new Date(data.startDate);
@@ -108,15 +110,6 @@ export async function updateEvent(
       return { success: false, error: "Tanggal mulai wajib diisi." };
     }
 
-    const slug = data.slug?.trim() || slugify(data.title);
-
-    const existing = await prisma.event.findFirst({
-      where: { slug, NOT: { id } },
-    });
-    if (existing) {
-      return { success: false, error: "Slug event sudah ada." };
-    }
-
     const startDate = new Date(data.startDate);
     const endDate = data.endDate ? new Date(data.endDate) : null;
 
@@ -128,7 +121,6 @@ export async function updateEvent(
       where: { id },
       data: {
         title: data.title.trim(),
-        slug,
         category: data.category,
         description: data.description.trim(),
         startDate,

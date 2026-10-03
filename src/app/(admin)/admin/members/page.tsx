@@ -36,11 +36,6 @@ export default async function MembersListPage({
         position: true,
         fieldOfExpertise: true,
         photoUrl: true,
-        nidn: true,
-        emailPublic: true,
-        googleScholarUrl: true,
-        scopusUrl: true,
-        orcidUrl: true,
         institution: {
           select: { id: true, name: true, shortName: true },
         },
@@ -155,10 +150,7 @@ export default async function MembersListPage({
                     Kampus
                   </th>
                   <th className="px-5 py-3 text-xs font-medium text-neutral-500">
-                    Jabatan
-                  </th>
-                  <th className="px-5 py-3 text-xs font-medium text-neutral-500">
-                    Akademik
+                    Bidang Keahlian
                   </th>
                   <th className="px-5 py-3 text-right text-xs font-medium text-neutral-500">
                     Aksi
@@ -169,8 +161,8 @@ export default async function MembersListPage({
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={5}
+                        <td
+                      colSpan={4}
                       className="px-5 py-14 text-center text-sm text-neutral-500"
                     >
                       {q || universityId
@@ -233,81 +225,16 @@ export default async function MembersListPage({
                         </td>
 
                         <td className="px-5 py-3.5">
-                          {member.position ? (
+                          {member.fieldOfExpertise ? (
                             <p className="text-sm text-neutral-800">
-                              {member.position}
+                              {member.fieldOfExpertise}
                             </p>
                           ) : (
                             <span className="text-neutral-400">—</span>
                           )}
                         </td>
 
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-2 text-xs">
-                            {member.nidn && (
-                              <span
-                                className="font-medium text-neutral-500"
-                                title={`NIDN: ${member.nidn}`}
-                              >
-                                NIDN
-                              </span>
-                            )}
 
-                            {member.emailPublic && (
-                              <a
-                                href={`mailto:${member.emailPublic}`}
-                                className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
-                                title={`Email: ${member.emailPublic}`}
-                              >
-                                Email
-                              </a>
-                            )}
-
-                            {member.googleScholarUrl && (
-                              <a
-                                href={member.googleScholarUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
-                                title="Google Scholar"
-                              >
-                                GS
-                              </a>
-                            )}
-
-                            {member.scopusUrl && (
-                              <a
-                                href={member.scopusUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
-                                title="Scopus"
-                              >
-                                Scopus
-                              </a>
-                            )}
-
-                            {member.orcidUrl && (
-                              <a
-                                href={member.orcidUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900"
-                                title="ORCID"
-                              >
-                                ORCID
-                              </a>
-                            )}
-
-                            {!member.nidn &&
-                              !member.emailPublic &&
-                              !member.googleScholarUrl &&
-                              !member.scopusUrl &&
-                              !member.orcidUrl && (
-                                <span className="text-neutral-400">—</span>
-                              )}
-                          </div>
-                        </td>
 
                         <td className="px-5 py-3.5 text-right">
                           <MemberActions

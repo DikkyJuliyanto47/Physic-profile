@@ -90,17 +90,6 @@ export function AdminTopbar({
               />
             </svg>
           </button>
-
-          <div className="hidden items-center gap-2 lg:flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary-600" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
-              Admin Panel
-            </span>
-          </div>
-
-          <span className="truncate text-sm font-semibold text-primary-900 lg:hidden">
-            PSI Surabaya
-          </span>
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">

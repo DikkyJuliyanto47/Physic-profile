@@ -115,7 +115,7 @@ export default async function BeritaDetailPage({
 
       <Section padding="normal" className="pt-0">
         <Container>
-          <article className="mx-auto max-w-4xl">
+          <article className="mx-auto min-w-0 max-w-4xl">
             {news.imageUrl && (
               <div className="relative aspect-video overflow-hidden rounded-md bg-background-muted">
                 <Image
@@ -136,7 +136,7 @@ export default async function BeritaDetailPage({
             )}
 
             <div
-              className="prose prose-lg mt-8 max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-primary-950 prose-p:text-foreground-muted prose-a:text-primary-600 prose-img:rounded-md"
+              className="prose prose-lg mt-8 max-w-none break-words [overflow-wrap:anywhere] [&_iframe]:max-w-full [&_img]:h-auto [&_img]:max-w-full [&_video]:max-w-full prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-primary-950 prose-p:text-foreground-muted prose-a:text-primary-600 prose-img:rounded-md"
               dangerouslySetInnerHTML={{
                 __html: news.content,
               }}

@@ -17,7 +17,6 @@ type Props = {
     id: string;
     name: string;
     shortName: string | null;
-    slug: string | null;
     address: string | null;
     deptUrl: string | null;
     websiteUrl: string | null;
@@ -26,15 +25,6 @@ type Props = {
   };
 };
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-}
-
 export function UniversityForm({ mode, initialData }: Props) {
   const router = useRouter();
 
@@ -42,12 +32,10 @@ export function UniversityForm({ mode, initialData }: Props) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [uploadError, setUploadError] = useState("");
-  const [autoSlug, setAutoSlug] = useState(mode === "create");
 
   const [form, setForm] = useState<UniversityInput>({
     name: initialData?.name ?? "",
     shortName: initialData?.shortName ?? "",
-    slug: initialData?.slug ?? "",
     address: initialData?.address ?? "",
     deptUrl: initialData?.deptUrl ?? "",
     websiteUrl: initialData?.websiteUrl ?? "",
@@ -61,19 +49,8 @@ export function UniversityForm({ mode, initialData }: Props) {
     const { name, value } = e.target;
 
     setForm((prev) => {
-      const next = { ...prev, [name]: value };
-
-      if (name === "name" && autoSlug) {
-        next.slug = slugify(value);
-      }
-
-      return next;
+      return { ...prev, [name]: value };
     });
-  }
-
-  function handleSlugChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setAutoSlug(false);
-    setForm((prev) => ({ ...prev, slug: e.target.value }));
   }
 
   async function handleImageUpload(
@@ -196,24 +173,6 @@ export function UniversityForm({ mode, initialData }: Props) {
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
-            Slug
-          </label>
-
-          <input
-            name="slug"
-            value={form.slug ?? ""}
-            onChange={handleSlugChange}
-            placeholder="unesa"
-            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-          />
-
-          <p className="mt-1 text-xs text-neutral-500">
-            Otomatis dari nama kampus. Ubah jika perlu.
-          </p>
-        </div>
-
         <div className="sm:col-span-2">
           <label className="mb-1 block text-sm font-medium text-neutral-700">
             Alamat
@@ -230,7 +189,7 @@ export function UniversityForm({ mode, initialData }: Props) {
 
         <div>
           <label className="mb-1 block text-sm font-medium text-neutral-700">
-            Dept URL
+            Departemen URL
           </label>
 
           <input

@@ -18,7 +18,6 @@ type Props = {
   initialData?: {
     id: string;
     title: string;
-    slug: string;
     category: EventCategory;
     description: string;
     startDate: Date;
@@ -59,15 +58,6 @@ function FieldLabel({
   );
 }
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-}
-
 function toDatetimeLocal(date: Date | string): string {
   const d = new Date(date);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -83,7 +73,6 @@ export function EventForm({ mode, initialData }: Props) {
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [autoSlug, setAutoSlug] = useState(mode === "create");
   const [debouncedLocation, setDebouncedLocation] = useState(
     initialData?.location ?? "",
   );
@@ -97,7 +86,6 @@ export function EventForm({ mode, initialData }: Props) {
 
   const [form, setForm] = useState<EventInput>({
     title: initialData?.title ?? "",
-    slug: initialData?.slug ?? "",
     category: initialData?.category ?? "SEMINAR_NASIONAL",
     description: initialData?.description ?? "",
     startDate: initialData?.startDate
@@ -120,13 +108,7 @@ export function EventForm({ mode, initialData }: Props) {
     const { name, value } = e.target;
 
     setForm((prev) => {
-      const next = { ...prev, [name]: value };
-
-      if (name === "title" && autoSlug) {
-        next.slug = slugify(value);
-      }
-
-      return next;
+      return { ...prev, [name]: value };
     });
 
     if (name === "location") {
@@ -135,15 +117,6 @@ export function EventForm({ mode, initialData }: Props) {
         setDebouncedLocation(value);
       }, 400);
     }
-  }
-
-  function handleSlugChange(e: ChangeEvent<HTMLInputElement>) {
-    setAutoSlug(false);
-
-    setForm((prev) => ({
-      ...prev,
-      slug: e.target.value,
-    }));
   }
 
   async function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
@@ -308,22 +281,6 @@ export function EventForm({ mode, initialData }: Props) {
         </div>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <div>
-            <FieldLabel>Slug</FieldLabel>
-
-            <input
-              name="slug"
-              value={form.slug ?? ""}
-              onChange={handleSlugChange}
-              placeholder="judul-agenda"
-              className={fieldClassName}
-            />
-
-            <p className="mt-1.5 text-xs text-neutral-400">
-              Slug dibuat otomatis dari judul.
-            </p>
-          </div>
-
           <div>
             <FieldLabel required>Kategori</FieldLabel>
 

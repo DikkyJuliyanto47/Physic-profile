@@ -16,6 +16,15 @@ export default async function EditNewsPage({
 
   const news = await prisma.news.findUnique({
     where: { id },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      excerpt: true,
+      content: true,
+      imageUrl: true,
+      status: true,
+    },
   });
 
   if (!news) {

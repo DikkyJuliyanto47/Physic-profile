@@ -7,7 +7,6 @@ import { revalidatePath, updateTag } from "next/cache";
 
 export type NewsInput = {
   title: string;
-  slug?: string;
   category: NewsCategory;
   excerpt?: string;
   content: string;
@@ -45,10 +44,6 @@ function validateInput(data: NewsInput): string | null {
   return null;
 }
 
-function getSlug(data: NewsInput): string {
-  return data.slug?.trim() || slugify(data.title);
-}
-
 function isUniqueConstraintError(error: unknown): boolean {
   return (
     typeof error === "object" &&
@@ -84,10 +79,10 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       };
     }
 
-    const slug = getSlug(data);
+    const slug = slugify(data.title);
 
     if (!slug) {
-      return { success: false, error: "Slug berita tidak valid." };
+      return { success: false, error: "Judul berita harus mengandung huruf atau angka." };
     }
 
     const existing = await prisma.news.findUnique({
@@ -98,7 +93,7 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
     if (existing) {
       return {
         success: false,
-        error: "Slug berita sudah digunakan. Gunakan slug lain.",
+        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
       };
     }
 
@@ -124,7 +119,7 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
     if (isUniqueConstraintError(error)) {
       return {
         success: false,
-        error: "Slug berita sudah digunakan. Gunakan slug lain.",
+        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
       };
     }
 
@@ -155,6 +150,7 @@ export async function updateNews(
       where: { id },
       select: {
         id: true,
+        slug: true,
         status: true,
         publishedAt: true,
       },
@@ -162,27 +158,6 @@ export async function updateNews(
 
     if (!current) {
       return { success: false, error: "Berita tidak ditemukan." };
-    }
-
-    const slug = getSlug(data);
-
-    if (!slug) {
-      return { success: false, error: "Slug berita tidak valid." };
-    }
-
-    const existing = await prisma.news.findFirst({
-      where: {
-        slug,
-        NOT: { id },
-      },
-      select: { id: true },
-    });
-
-    if (existing) {
-      return {
-        success: false,
-        error: "Slug berita sudah digunakan. Gunakan slug lain.",
-      };
     }
 
     const publishedAt =
@@ -196,7 +171,6 @@ export async function updateNews(
       where: { id },
       data: {
         title: data.title.trim(),
-        slug,
         category: data.category,
         excerpt: data.excerpt?.trim() || null,
         content: data.content.trim(),
@@ -207,14 +181,14 @@ export async function updateNews(
     });
 
     revalidateNews();
-    revalidatePath(`/news/${slug}`);
+    revalidatePath(`/news/${current.slug}`);
 
     return { success: true };
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       return {
         success: false,
-        error: "Slug berita sudah digunakan. Gunakan slug lain.",
+        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
       };
     }
 
