@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -18,11 +19,20 @@ export type ActionResponse = {
   error?: string;
 };
 
-export async function createMember(data: MemberInput): Promise<ActionResponse> {
+export async function createMember(
+  data: MemberInput
+): Promise<ActionResponse> {
+  const session = await requireAdmin();
+
+  if (!session) {
+    return { success: false, error: "Unauthorized." };
+  }
+
   try {
     if (!data.name?.trim()) {
       return { success: false, error: "Nama wajib diisi." };
     }
+
     if (!data.email?.trim()) {
       return { success: false, error: "Email wajib diisi." };
     }
@@ -30,6 +40,7 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
     const existing = await prisma.memberProfile.findUnique({
       where: { email: data.email.trim() },
     });
+
     if (existing) {
       return { success: false, error: "Email sudah terdaftar." };
     }
@@ -47,9 +58,13 @@ export async function createMember(data: MemberInput): Promise<ActionResponse> {
 
     revalidatePath("/admin/members");
     revalidatePath("/members");
+
     return { success: true };
   } catch {
-    return { success: false, error: "Gagal membuat anggota. Silakan coba lagi." };
+    return {
+      success: false,
+      error: "Gagal membuat anggota. Silakan coba lagi.",
+    };
   }
 }
 
@@ -57,6 +72,12 @@ export async function updateMember(
   id: string,
   data: MemberInput
 ): Promise<ActionResponse> {
+  const session = await requireAdmin();
+
+  if (!session) {
+    return { success: false, error: "Unauthorized." };
+  }
+
   try {
     if (!data.name?.trim()) {
       return { success: false, error: "Nama wajib diisi." };
@@ -69,7 +90,10 @@ export async function updateMember(
       where: { email: data.email.trim(), NOT: { id } },
     });
     if (existing) {
-      return { success: false, error: "Email sudah digunakan oleh anggota lain." };
+      return {
+        success: false,
+        error: "Email sudah digunakan oleh anggota lain.",
+      };
     }
 
     await prisma.memberProfile.update({
@@ -94,6 +118,12 @@ export async function updateMember(
 }
 
 export async function deleteMember(id: string): Promise<ActionResponse> {
+  const session = await requireAdmin();
+
+  if (!session) {
+    return { success: false, error: "Unauthorized." };
+  }
+
   try {
     const member = await prisma.memberProfile.findUnique({ where: { id } });
     if (!member) {
