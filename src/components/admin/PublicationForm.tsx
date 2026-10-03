@@ -28,7 +28,10 @@ function toDatetimeLocal(date: Date | string | null): string {
 }
 
 const inputClass =
-  "w-full rounded-md border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100";
+  "h-10 w-full rounded-md border border-neutral-300 bg-white px-3.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100";
+
+const textareaClass =
+  "min-h-32 w-full resize-y rounded-md border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
@@ -139,7 +142,7 @@ export function PublicationForm({ mode, initialData }: Props) {
           onChange={handleChange}
           rows={5}
           placeholder="Deskripsi publikasi..."
-          className={`${inputClass} resize-y`}
+          className={textareaClass}
         />
         <p className="mt-1.5 text-xs text-neutral-400">
           Gunakan deskripsi singkat yang membantu pengunjung memahami publikasi.
@@ -179,7 +182,7 @@ export function PublicationForm({ mode, initialData }: Props) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
@@ -191,7 +194,7 @@ export function PublicationForm({ mode, initialData }: Props) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+          className="h-10 rounded-md border border-neutral-200 bg-white px-5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
         >
           Batal
         </button>

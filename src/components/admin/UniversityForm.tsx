@@ -178,7 +178,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             onChange={handleChange}
             required
             placeholder="Universitas Negeri Surabaya"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
@@ -192,7 +192,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             value={form.shortName ?? ""}
             onChange={handleChange}
             placeholder="UNESA"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
@@ -206,7 +206,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             value={form.slug ?? ""}
             onChange={handleSlugChange}
             placeholder="unesa"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
 
           <p className="mt-1 text-xs text-neutral-500">
@@ -224,7 +224,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             value={form.address ?? ""}
             onChange={handleChange}
             placeholder="Jl. Ketintang No. 156, Surabaya"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
@@ -238,7 +238,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             value={form.deptUrl ?? ""}
             onChange={handleChange}
             placeholder="https://.../departemen"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
@@ -252,7 +252,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             value={form.websiteUrl ?? ""}
             onChange={handleChange}
             placeholder="https://unesa.ac.id"
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
 
@@ -342,7 +342,7 @@ export function UniversityForm({ mode, initialData }: Props) {
             onChange={handleChange}
             rows={3}
             placeholder="Deskripsi singkat tentang kampus..."
-            className="w-full rounded-md border border-neutral-300 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="min-h-24 w-full resize-y rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
         </div>
       </div>
@@ -351,7 +351,7 @@ export function UniversityForm({ mode, initialData }: Props) {
         <button
           type="submit"
           disabled={isSubmitting || uploading}
-          className="rounded-md bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
@@ -364,7 +364,7 @@ export function UniversityForm({ mode, initialData }: Props) {
           type="button"
           onClick={() => router.back()}
           disabled={isSubmitting || uploading}
-          className="rounded-md border border-neutral-300 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 rounded-md border border-neutral-300 bg-white px-5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Batal
         </button>

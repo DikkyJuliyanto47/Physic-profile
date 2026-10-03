@@ -80,7 +80,7 @@ export function ManagementPositionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="border-l-2 border-red-500 bg-red-50 px-3.5 py-3 text-sm text-red-700">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -159,7 +159,7 @@ export function ManagementPositionForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-9 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
@@ -171,7 +171,7 @@ export function ManagementPositionForm({
         <button
           type="button"
           onClick={() => router.push(`/admin/managements/${periodId}/edit`)}
-          className="h-9 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+          className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
         >
           Batal
         </button>

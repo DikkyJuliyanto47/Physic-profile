@@ -38,7 +38,7 @@ type Props =
     };
 
 const inputClass =
-  "w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
+  "h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
@@ -303,7 +303,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
           type="button"
           onClick={() => router.back()}
           disabled={isSubmitting}
-          className="rounded-md border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+          className="h-10 rounded-md border border-neutral-200 bg-white px-5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
         >
           Batal
         </button>
@@ -311,7 +311,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
         <button
           type="submit"
           disabled={isSubmitting || uploading}
-          className="rounded-md bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
