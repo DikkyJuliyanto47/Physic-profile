@@ -1,11 +1,13 @@
 import Image from "next/image";
-import { Search } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowUpRight } from "lucide-react";
 import type { Member } from "./data";
 import { UniversitiesSection } from "@/components/features/universities/UniversitiesSection";
 
 interface MembersSectionProps {
   members: Member[];
   query?: string;
+  universityDirectory?: ReactNode;
 }
 
 function getInstitutionId(institution: string) {
@@ -25,7 +27,11 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function MembersSection({ members, query = "" }: MembersSectionProps) {
+export function MembersSection({
+  members,
+  query = "",
+  universityDirectory,
+}: MembersSectionProps) {
   const keyword = query.trim().toLowerCase();
 
   const filteredMembers = keyword
@@ -49,72 +55,70 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
 
   if (!Object.keys(groupedMembers).length) {
     return (
-      <div className="border-y border-neutral-200 py-10 text-center">
-        <p className="text-sm text-foreground-muted">
-          Anggota tidak ditemukan.
-        </p>
-      </div>
+      <>
+        <div className="border-y border-neutral-200 py-10 text-center">
+          <p className="text-sm text-foreground-muted">
+            Anggota tidak ditemukan.
+          </p>
+        </div>
+        {universityDirectory}
+      </>
     );
   }
 
   return (
     <div>
-      <form action="/members" className="relative mb-10">
-        <Search
-          className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-          aria-hidden="true"
-        />
-        <input
-          type="search"
-          name="q"
-          defaultValue={query}
-          placeholder="Cari nama, universitas, atau bidang..."
-          className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
-        />
-      </form>
-
       <div>
         {Object.entries(groupedMembers).map(
           ([institution, institutionMembers]) => (
             <section
               id={getInstitutionId(institution)}
               key={institution}
-              className="scroll-mt-28 border-t border-neutral-200 py-10 first:border-t-0 first:pt-0 lg:py-12"
+              aria-labelledby={`${getInstitutionId(institution)}-heading`}
+              className="scroll-mt-28 border-t border-neutral-200 py-7 first:border-t-0 first:pt-0"
             >
-              <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2">
+              <header className="mb-4">
+                <h2 id={`${getInstitutionId(institution)}-heading`} className="wrap-anywhere text-lg font-semibold leading-6 text-primary-900">
+                  {institution}
+                </h2>
+                <p className="mt-1 text-sm leading-5 text-foreground-muted">
+                  Direktori anggota · {institutionMembers.length} anggota
+                </p>
+              </header>
+              <div className="grid gap-x-6 sm:grid-cols-2">
                 {institutionMembers.map((member) => (
                   <article
                     key={member.id}
-                    className="flex min-w-0 items-center gap-5"
+                    className="flex min-w-0 items-start gap-4 py-4"
                   >
                     {member.photo ? (
                       <Image
                         src={member.photo}
-                        alt={member.name}
-                        width={72}
-                        height={72}
+                        alt=""
+                        width={64}
+                        height={64}
                         unoptimized
-                        className="h-18 w-18 shrink-0 rounded-full object-cover"
+                        className="h-16 w-16 shrink-0 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
+                      <div aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
                         {getInitials(member.name)}
                       </div>
                     )}
 
                     <div className="min-w-0">
-                      <h2 className="truncate text-base font-semibold leading-snug text-foreground">
+                      <h3 className="wrap-anywhere text-base font-semibold leading-snug text-primary-900">
                         {member.name}
-                      </h2>
+                      </h3>
 
-                      <p className="mt-1 truncate text-sm font-medium text-primary-700">
+                      <p className="mt-1 wrap-anywhere text-sm leading-5 text-foreground-muted">
                         {member.field}
                       </p>
 
                       {member.email && (
                         <a
                           href={`mailto:${member.email}`}
-                          className="mt-1 block truncate text-sm text-foreground-muted transition-colors hover:text-primary-700"
+                          className="mt-1 block wrap-anywhere rounded-sm text-sm text-foreground-muted transition-colors hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
                         >
                           {member.email}
                         </a>
@@ -123,9 +127,11 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
                       {member.detailUrl && (
                         <a
                           href={member.detailUrl}
-                          className="mt-3 inline-flex items-center rounded-sm border border-primary-200 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                          className="mt-1 inline-flex min-h-10 items-center gap-1.5 rounded-sm text-sm font-medium text-primary-700 transition-colors hover:text-primary-900 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
                         >
-                          Detail
+                          Lihat Profil
+                          <span className="sr-only"> {member.name}</span>
+                          <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
                         </a>
                       )}
                     </div>
@@ -137,7 +143,7 @@ export function MembersSection({ members, query = "" }: MembersSectionProps) {
         )}
       </div>
 
-      <UniversitiesSection />
+      {universityDirectory ?? <UniversitiesSection />}
     </div>
   );
 }

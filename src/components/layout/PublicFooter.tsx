@@ -19,7 +19,7 @@ function FooterColumn({ title, items }: { title: string; items: NavItem[] }) {
   return (
     <div className="flex flex-col gap-4">
       <span className={columnHeadingClass}>{title}</span>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-2">
          {items.map((item) => (
           <li key={`${item.href}-${item.label}`}>
             <Link
@@ -40,7 +40,7 @@ export function PublicFooter() {
 
   return (
     <footer className="bg-primary-950 text-white">
-      <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-8 lg:py-20">
+      <Container className="grid gap-x-10 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-8 lg:py-12">
         <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
           <BrandMark variant="light" />
           <p className="max-w-sm text-sm text-white/65">
@@ -53,7 +53,7 @@ export function PublicFooter() {
 
         <div className="flex flex-col gap-4">
           <span className={columnHeadingClass}>Kontak</span>
-          <ul className="flex flex-col gap-3 text-sm text-white/65">
+          <ul className="flex flex-col gap-2 text-sm text-white/65">
             {affiliationLines.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -62,7 +62,7 @@ export function PublicFooter() {
       </Container>
 
       <div className="border-t border-white/15">
-        <Container className="flex flex-col-reverse items-center gap-6 py-7 text-sm text-white/65 sm:flex-row sm:justify-between">
+        <Container className="flex flex-col-reverse items-center gap-4 py-5 text-sm text-white/65 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-4">
             <span>
               &copy; {year} {siteConfig.name}

@@ -151,8 +151,10 @@ export function EventForm({ mode, initialData }: Props) {
     }
 
     const dotIndex = file.name.lastIndexOf(".");
-    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const extension =
+      dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
     const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
+
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setError("Format file tidak didukung.");
       e.target.value = "";
@@ -192,21 +194,28 @@ export function EventForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setError("");
     setIsSubmitting(true);
 
     let result: ActionResponse;
 
-    if (mode === "create") {
-      result = await createEvent(form);
-    } else {
-      result = await updateEvent(initialData!.id, form);
+    try {
+      if (mode === "create") {
+        result = await createEvent(form);
+      } else {
+        result = await updateEvent(initialData!.id, form);
+      }
+    } catch (err) {
+      console.error("[EventForm] Gagal submit:", err);
+      setIsSubmitting(false);
+      setError("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
+      return;
     }
 
     setIsSubmitting(false);
 
     if (result.success) {
-      router.push("/admin/events?success=true");
       router.refresh();
     } else {
       setError(result.error ?? "Terjadi kesalahan.");

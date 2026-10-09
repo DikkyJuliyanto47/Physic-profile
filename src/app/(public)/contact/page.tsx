@@ -1,14 +1,10 @@
 import { Container, Section, PageBreadcrumb } from "@/components/ui";
-import {
-  ConnectSection,
-  CollaborationCta,
-  LocationSection,
-} from "@/components/features/contact";
+import { ConnectSection } from "@/components/features/contact";
 
 export default function KontakPage() {
   return (
     <>
-      <Section padding="compact" className="pb-12 sm:pb-16 lg:pb-20">
+      <Section padding="none" className="pb-7 pt-8 sm:pb-8 sm:pt-10">
         <Container>
           <PageBreadcrumb
             items={[
@@ -16,26 +12,18 @@ export default function KontakPage() {
               { label: "Kontak" },
             ]}
           />
-
-          <div className="mx-auto mt-10 max-w-3xl text-center sm:mt-12 lg:mt-14">
-
-            <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] lg:leading-[1.08]">
-              Terhubung dengan PSI Surabaya
+          <header className="mt-6 max-w-3xl">
+            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-primary-900 sm:text-4xl">
+              Hubungi Kami
             </h1>
-
-            <div className="mx-auto mt-5 h-px w-12 bg-primary-400" />
-
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">
-              Hubungi PSI Cabang Surabaya untuk informasi, kegiatan, dan
-              kolaborasi.
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground-muted sm:text-base sm:leading-7">
+              Untuk informasi organisasi, keanggotaan, kegiatan ilmiah, dan
+              peluang kolaborasi dengan PSI Cabang Surabaya.
             </p>
-          </div>
+          </header>
         </Container>
       </Section>
-
       <ConnectSection />
-      <CollaborationCta />
-      <LocationSection />
     </>
   );
 }

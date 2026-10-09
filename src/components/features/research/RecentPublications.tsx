@@ -1,272 +1,227 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, FileText, Search } from "lucide-react";
 import type { Publication, PublicationStatus } from "./types";
 
-const CATEGORY_ORDER: PublicationStatus[] = [
-  "JURNAL",
-  "BUKU",
-  "HKI",
-  "PROSIDING",
+const CATEGORIES: { category: PublicationStatus; label: string }[] = [
+  { category: "JURNAL", label: "Jurnal" },
+  { category: "PROSIDING", label: "Prosiding" },
+  { category: "BUKU", label: "Buku" },
+  { category: "HKI", label: "HKI" },
 ];
 
-const CATEGORY_LABEL: Record<PublicationStatus, string> = {
-  BUKU: "Buku",
-  HKI: "HKI",
-  JURNAL: "Jurnal",
-  PROSIDING: "Prosiding",
-};
-
-function getCategoryId(category: PublicationStatus) {
-  return category.toLowerCase();
-}
-
-function getCategoryCount(
-  publications: Publication[],
-  category: PublicationStatus,
-) {
-  return publications.filter(
-    (publication) => publication.category === category,
-  ).length;
+function categoryFromHash(hash: string) {
+  return CATEGORIES.find(({ category }) => `#${category.toLowerCase()}` === hash)?.category ?? null;
 }
 
 function PublicationItem({
   publication,
-  index,
+  label,
 }: {
   publication: Publication;
-  index: number;
+  label: string;
 }) {
-  const year = publication.meta.at(-1);
-  const source =
-    publication.meta.length > 1
-      ? publication.meta.slice(0, -1)
-      : publication.meta;
+  const lastMetadata = publication.meta.at(-1);
+  const year = lastMetadata && /^\d{4}$/.test(lastMetadata.trim())
+    ? lastMetadata
+    : undefined;
+  const metadata = (year ? publication.meta.slice(0, -1) : publication.meta)
+    .filter((value) => value.trim());
 
-  return (
-    <article className="group border-b border-neutral-200 bg-white px-5 py-5 last:border-b-0 lg:px-6">
-      <div className="grid items-center gap-4 lg:grid-cols-[52px_minmax(0,1fr)_100px_130px] lg:gap-6">
-        <span className="text-sm tabular-nums text-neutral-400">
-          {String(index + 1).padStart(2, "0")}
+  const content = (
+    <>
+      <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary-700">
+        <FileText className="h-4 w-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <h3 className="wrap-anywhere text-base font-semibold leading-6 text-primary-900 group-hover:text-primary-700">
+          {publication.title}
+        </h3>
+        <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs leading-5 text-foreground-muted">
+          <span className="font-medium text-primary-700">{label}</span>
+          {year && <span>Tahun {year}</span>}
+        </p>
+        {metadata.length > 0 && (
+          <p className="mt-1.5 wrap-anywhere text-sm leading-6 text-foreground-muted">
+            {metadata.join(" · ")}
+          </p>
+        )}
+      </div>
+      {publication.href && (
+        <span className="inline-flex shrink-0 items-center gap-1.5 self-start pt-1 text-xs font-medium text-primary-700">
+          <span className="hidden sm:inline">Lihat publikasi</span>
+          <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          <span className="sr-only"> (dibuka di tab baru)</span>
         </span>
-
-        <div className="min-w-0">
-          <h3 className="text-[15px] font-semibold leading-6 text-neutral-900 transition-colors group-hover:text-primary-700 lg:text-base">
-            {publication.title}
-          </h3>
-
-          {source.length > 0 && (
-            <p className="mt-1 text-sm leading-5 text-neutral-500">
-              {source.join(" · ")}
-            </p>
-          )}
-        </div>
-
-        <div className="text-sm tabular-nums text-neutral-600">
-          <span className="lg:hidden">Tahun {year ?? "—"}</span>
-          <span className="hidden lg:inline">{year ?? "—"}</span>
-        </div>
-
-        <div className="lg:text-right">
-          {publication.href ? (
-            <a
-              href={publication.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-10 items-center gap-2 rounded-md px-2 text-sm font-semibold text-primary-700 transition-colors hover:bg-primary-50 hover:text-primary-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
-            >
-              Lihat
-              <i
-                className="fa-solid fa-arrow-up-right-from-square text-[10px]"
-                aria-hidden="true"
-              />
-            </a>
-          ) : (
-            <span className="text-sm text-neutral-400">Belum tersedia</span>
-          )}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function PublicationGroup({
-  category,
-  publications,
-}: {
-  category: PublicationStatus;
-  publications: Publication[];
-}) {
-  if (publications.length === 0) return null;
-
-  return (
-    <section
-      id={getCategoryId(category)}
-      className="scroll-mt-28 pt-10 lg:pt-12"
-    >
-      <div className="mb-4 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
-            {CATEGORY_LABEL[category]}
-          </h2>
-
-          <span className="inline-flex min-w-6 items-center justify-center rounded-md bg-neutral-100 px-1.5 py-0.5 text-xs font-medium tabular-nums text-neutral-500">
-            {publications.length}
-          </span>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
-        <div className="hidden border-b border-neutral-200 bg-neutral-50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 lg:grid lg:grid-cols-[52px_minmax(0,1fr)_100px_120px] lg:gap-6 lg:px-6">
-          <span>No.</span>
-          <span>Nama Publikasi</span>
-          <span>Tahun</span>
-          <span className="text-right">Detail</span>
-        </div>
-
-        {publications.map((publication, index) => (
-          <PublicationItem
-            key={publication.id}
-            publication={publication}
-            index={index}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PublicationOverview({
-  publications,
-}: {
-  publications: Publication[];
-}) {
-  const categories = CATEGORY_ORDER.filter((category) =>
-    publications.some((publication) => publication.category === category),
-  );
-
-  return (
-    <nav
-      aria-label="Ringkasan publikasi"
-      className="mb-8 overflow-hidden rounded-lg border border-neutral-200 bg-white"
-    >
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4">
-        {categories.map((category, index) => (
-          <a
-            key={category}
-            href={`#${getCategoryId(category)}`}
-            className={`group flex min-h-24 items-center justify-between px-5 py-5 transition-colors hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-inset lg:px-6 ${
-              index > 0
-                ? "border-t border-neutral-200 sm:border-l sm:border-t-0"
-                : ""
-            } ${index === 2 ? "sm:border-l-0 lg:border-l" : ""}`}
-          >
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 transition-colors group-hover:text-primary-700">
-                {CATEGORY_LABEL[category]}
-              </span>
-
-              <p className="mt-1.5 text-sm text-neutral-400">
-                Koleksi publikasi
-              </p>
-            </div>
-
-            <span className="text-2xl font-semibold tabular-nums tracking-tight text-neutral-900">
-              {getCategoryCount(publications, category)}
-            </span>
-          </a>
-        ))}
-      </div>
-    </nav>
-  );
-}
-
-export function RecentPublications({
-  publications,
-}: {
-  publications: Publication[];
-}) {
-  const [query, setQuery] = useState("");
-
-  const filteredPublications = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) return publications;
-
-    return publications.filter((publication) =>
-      [publication.title, publication.category, ...publication.meta].some(
-        (value) => value.toLowerCase().includes(normalizedQuery),
-      ),
-    );
-  }, [publications, query]);
-
-  const groupedPublications = CATEGORY_ORDER.map((category) => ({
-    category,
-    publications: filteredPublications.filter(
-      (publication) => publication.category === category,
-    ),
-  })).filter((group) => group.publications.length > 0);
-
-  return (
-    <div id="semua-publikasi">
-      {publications.length === 0 ? (
-        <div className="rounded-lg border border-neutral-200 bg-white px-6 py-10">
-          <p className="text-sm font-semibold text-neutral-900">
-            Belum ada publikasi yang diterbitkan.
-          </p>
-
-          <p className="mt-2 max-w-xl text-sm leading-6 text-neutral-500">
-            Publikasi anggota PSI Cabang Surabaya akan ditampilkan di halaman
-            ini setelah diterbitkan.
-          </p>
-        </div>
-      ) : (
-        <>
-          <PublicationOverview publications={publications} />
-
-          <div className="relative mb-8">
-            <i
-              className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted"
-              aria-hidden="true"
-            />
-
-            <label htmlFor="publication-search" className="sr-only">
-              Cari publikasi
-            </label>
-
-            <input
-              id="publication-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cari publikasi..."
-              className="h-11 w-full rounded-md border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
-            />
-          </div>
-
-          {groupedPublications.length > 0 ? (
-            <div>
-              {groupedPublications.map((group) => (
-                <PublicationGroup
-                  key={group.category}
-                  category={group.category}
-                  publications={group.publications}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-md border-y border-neutral-200 py-10">
-              <p className="text-sm font-semibold text-neutral-900">
-                Publikasi tidak ditemukan.
-              </p>
-
-              <p className="mt-1 text-sm text-foreground-muted">
-                Tidak ada publikasi yang sesuai dengan pencarian.
-              </p>
-            </div>
-          )}
-        </>
       )}
+    </>
+  );
+
+  const rowClassName = "flex min-w-0 items-start gap-3 px-2 py-4 sm:gap-4 sm:px-3";
+
+  return (
+    <li className="min-w-0 border-b border-neutral-200 last:border-b-0">
+      <article>
+        {publication.href ? (
+          <a
+            href={publication.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`group ${rowClassName} rounded-sm transition-colors duration-150 hover:bg-primary-50/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-700 motion-reduce:transition-none`}
+          >
+            {content}
+          </a>
+        ) : (
+          <div className={rowClassName}>{content}</div>
+        )}
+      </article>
+    </li>
+  );
+}
+
+export function RecentPublications({ publications }: { publications: Publication[] }) {
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<PublicationStatus | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const syncHash = () => setActiveCategory(categoryFromHash(window.location.hash));
+    // SectionNav uses replaceState, which does not emit a hashchange event.
+    const handleCategoryClick = (event: MouseEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const anchor = event.target.closest<HTMLAnchorElement>("aside nav a[href]");
+      const layout = rootRef.current?.closest("main")?.parentElement;
+      if (!anchor || !layout?.contains(anchor)) return;
+      const href = anchor.getAttribute("href") ?? "";
+      if (href === "#semua-publikasi" || categoryFromHash(href)) {
+        setActiveCategory(categoryFromHash(href));
+        // Align the existing anchor after the filtered content has rendered.
+        window.requestAnimationFrame(() => {
+          if (rootRef.current?.isConnected) {
+            document.getElementById(href.slice(1))?.scrollIntoView({ block: "start" });
+          }
+        });
+      }
+    };
+
+    syncHash();
+    document.addEventListener("click", handleCategoryClick);
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+    return () => {
+      document.removeEventListener("click", handleCategoryClick);
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
+  }, []);
+
+  const keyword = query.trim().toLowerCase();
+  const categoryPublications = activeCategory
+    ? publications.filter((publication) => publication.category === activeCategory)
+    : publications;
+  const filteredPublications = categoryPublications.filter((publication) =>
+    publication.title.toLowerCase().includes(keyword),
+  );
+  const activeLabel = CATEGORIES.find(({ category }) => category === activeCategory)?.label;
+  const groups = CATEGORIES
+    .filter(({ category }) => !activeCategory || category === activeCategory)
+    .map(({ category, label }) => ({
+      category,
+      label,
+      items: filteredPublications.filter((publication) => publication.category === category),
+    }))
+    .filter(({ items }) => items.length > 0);
+
+  return (
+    <div ref={rootRef}>
+      <section id="semua-publikasi" aria-labelledby="publication-introduction" className="scroll-mt-28 border-b border-neutral-200 pb-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="min-w-0 max-w-xl">
+            <h2 id="publication-introduction" className="text-xl font-semibold leading-7 tracking-tight text-primary-900">
+              Eksplorasi Publikasi
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-foreground-muted">
+              Telusuri karya ilmiah PSI Cabang Surabaya melalui koleksi jurnal,
+              prosiding, buku, dan hak kekayaan intelektual.
+            </p>
+          </div>
+          <p className="flex shrink-0 items-baseline gap-2 border-l-2 border-primary-200 pl-3 sm:block">
+            <span className="text-2xl font-semibold tabular-nums tracking-tight text-primary-900">{categoryPublications.length}</span>
+            <span className="text-xs leading-5 text-foreground-muted sm:block">
+              {activeLabel ? `publikasi ${activeLabel}` : "publikasi dalam koleksi"}
+            </span>
+          </p>
+        </div>
+        {publications.length > 0 && (
+          <div className="mt-4 max-w-xl">
+            <label htmlFor="publication-search" className="mb-1.5 block text-xs font-medium text-primary-900">
+              Cari judul publikasi
+            </label>
+            <div className="relative">
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted" />
+              <input
+                id="publication-search"
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Masukkan judul atau kata kunci..."
+                aria-describedby="publication-search-status"
+                className="h-11 w-full rounded-md border border-neutral-300 bg-background pl-10 pr-3 text-sm text-foreground transition-colors duration-150 hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 motion-reduce:transition-none"
+              />
+            </div>
+          </div>
+        )}
+        <p id="publication-search-status" role="status" className="mt-2 text-xs leading-5 text-foreground-muted">
+          {keyword
+            ? `${filteredPublications.length} hasil pencarian untuk “${query.trim()}”${activeLabel ? ` dalam kategori ${activeLabel}` : ""}.`
+            : "Pencarian berdasarkan judul pada koleksi yang dimuat di halaman ini."}
+        </p>
+      </section>
+
+      <div className="pt-5">
+        {CATEGORIES.map(({ category, label }) => {
+          const group = groups.find((item) => item.category === category);
+          // Keep anchor nodes mounted for the existing sidebar observer.
+          return (
+            <section
+              key={category}
+              id={category.toLowerCase()}
+              aria-hidden={!group || undefined}
+              aria-labelledby={group ? `${category.toLowerCase()}-heading` : undefined}
+              className={group ? "scroll-mt-28 pb-5 last:pb-0" : "scroll-mt-28"}
+            >
+              {group && (
+                <>
+                  <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 id={`${category.toLowerCase()}-heading`} className="text-base font-semibold text-primary-900">{label}</h2>
+                    {!activeCategory && <span className="text-xs tabular-nums text-foreground-muted">{group.items.length} publikasi</span>}
+                  </div>
+                  <ul className="border-y border-neutral-200">
+                    {group.items.map((publication) => (
+                      <PublicationItem key={publication.id} publication={publication} label={label} />
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          );
+        })}
+        {groups.length === 0 && (
+          <div className="py-5">
+            <h2 className="text-base font-semibold text-primary-900">
+              {keyword ? "Publikasi tidak ditemukan" : activeLabel ?? "Koleksi publikasi"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-foreground-muted">
+              {keyword
+                ? "Tidak ada judul yang cocok. Coba kata kunci lain atau kosongkan pencarian."
+                : activeLabel
+                  ? `Belum ada publikasi dalam kategori ${activeLabel}.`
+                  : "Belum ada publikasi yang tersedia dalam koleksi ini."}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
