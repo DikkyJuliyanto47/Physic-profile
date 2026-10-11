@@ -21,10 +21,9 @@ type Props = {
 function toDatetimeLocal(date: Date | string | null): string {
   if (!date) return "";
 
+  // Format WIB independently of the browser/server timezone, preserving precision.
   const d = new Date(date);
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return new Date(d.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, -1);
 }
 
 const inputClass =
@@ -146,6 +145,25 @@ export function PublicationForm({ mode, initialData }: Props) {
         />
         <p className="mt-1.5 text-xs text-neutral-400">
           Gunakan deskripsi singkat yang membantu pengunjung memahami publikasi.
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="publishedAt" className={labelClass}>
+          Tanggal dan waktu publikasi (WIB)
+        </label>
+        <input
+          id="publishedAt"
+          name="publishedAt"
+          type="datetime-local"
+          step="0.001"
+          value={form.publishedAt ?? ""}
+          onChange={handleChange}
+          className={inputClass}
+        />
+        <p className="mt-1.5 text-xs text-neutral-400">
+          Publikasi tampil di halaman publik setelah waktu ini (WIB, UTC+07:00).
+          Kosongkan agar publikasi tidak ditampilkan.
         </p>
       </div>
 
