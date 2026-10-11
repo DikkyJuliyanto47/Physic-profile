@@ -76,6 +76,7 @@ export function EventForm({ mode, initialData }: Props) {
   const searchParams = useSearchParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -194,11 +195,14 @@ export function EventForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submittingRef.current || uploading) return;
 
+    submittingRef.current = true;
     setError("");
     setIsSubmitting(true);
 
     let result: ActionResponse;
+    let navigating = false;
 
     try {
       if (mode === "create") {
@@ -206,19 +210,22 @@ export function EventForm({ mode, initialData }: Props) {
       } else {
         result = await updateEvent(initialData!.id, form);
       }
+
+      if (result.success) {
+        router.push("/admin/events");
+        router.refresh();
+        navigating = true;
+      } else {
+        setError(result.error ?? "Terjadi kesalahan.");
+      }
     } catch (err) {
       console.error("[EventForm] Gagal submit:", err);
-      setIsSubmitting(false);
       setError("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
-      return;
-    }
-
-    setIsSubmitting(false);
-
-    if (result.success) {
-      router.refresh();
-    } else {
-      setError(result.error ?? "Terjadi kesalahan.");
+    } finally {
+      if (!navigating) {
+        submittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 
