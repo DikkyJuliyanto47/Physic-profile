@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { hash } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -20,9 +20,23 @@ async function main() {
 
   const passwordHash = await hash(password, 10);
 
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email },
+    select: { passwordHash: true },
+  });
+
+  const passwordChanged =
+    existingAdmin !== null &&
+    !(await compare(password, existingAdmin.passwordHash));
+
   const superAdmin = await prisma.user.upsert({
     where: { email },
-    update: { passwordHash },
+    update: passwordChanged
+      ? {
+          passwordHash,
+          sessionVersion: { increment: 1 },
+        }
+      : {},
     create: {
       name: "Super Admin PSI",
       email,
