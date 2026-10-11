@@ -15,6 +15,8 @@ export const PUBLICATION_FILTERS: PublicationFilter[] = [
 
 function formatPublishedAt(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
     year: "numeric",
     timeZone: "Asia/Jakarta",
   }).format(date);

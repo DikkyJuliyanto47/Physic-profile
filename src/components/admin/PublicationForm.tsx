@@ -18,12 +18,12 @@ type Props = {
   };
 };
 
-function toDatetimeLocal(date: Date | string | null): string {
+function toDateInput(date: Date | string | null): string {
   if (!date) return "";
 
-  // Format WIB independently of the browser/server timezone, preserving precision.
+  // Extract the WIB calendar date independently of the browser/server timezone.
   const d = new Date(date);
-  return new Date(d.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, -1);
+  return new Date(d.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 const inputClass =
@@ -45,7 +45,7 @@ export function PublicationForm({ mode, initialData }: Props) {
     description: initialData?.description ?? "",
     externalUrl: initialData?.externalUrl ?? "",
     publishedAt: initialData?.publishedAt
-      ? toDatetimeLocal(initialData.publishedAt)
+      ? toDateInput(initialData.publishedAt)
       : "",
   });
 
@@ -150,19 +150,18 @@ export function PublicationForm({ mode, initialData }: Props) {
 
       <div>
         <label htmlFor="publishedAt" className={labelClass}>
-          Tanggal dan waktu publikasi (WIB)
+          Tanggal Publikasi
         </label>
         <input
           id="publishedAt"
           name="publishedAt"
-          type="datetime-local"
-          step="0.001"
+          type="date"
           value={form.publishedAt ?? ""}
           onChange={handleChange}
           className={inputClass}
         />
         <p className="mt-1.5 text-xs text-neutral-400">
-          Publikasi tampil di halaman publik setelah waktu ini (WIB, UTC+07:00).
+          Publikasi ditampilkan di halaman publik mulai tanggal yang dipilih.
           Kosongkan agar publikasi tidak ditampilkan.
         </p>
       </div>

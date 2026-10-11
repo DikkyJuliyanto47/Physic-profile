@@ -25,8 +25,9 @@ function parsePublishedAt(value: string | undefined): Date | null | "invalid" {
   if (value === undefined || value === "") return null;
   if (typeof value !== "string") return "invalid";
 
-  // datetime-local values from the publication form always represent WIB.
-  const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(value);
+  // Date-only input starts at midnight WIB; retain support for legacy WIB datetimes.
+  const input = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00` : value;
+  const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(input);
   if (!match) return "invalid";
 
   const normalized = `${match[1]}:${match[2] ?? "00"}.${(match[3] ?? "").padEnd(3, "0")}`;

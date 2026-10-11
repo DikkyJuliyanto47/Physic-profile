@@ -23,10 +23,10 @@ function PublicationItem({
   label: string;
 }) {
   const lastMetadata = publication.meta.at(-1);
-  const year = lastMetadata && /^\d{4}$/.test(lastMetadata.trim())
+  const publicationDate = lastMetadata && /^\d{1,2} [A-Za-z]+ \d{4}$/.test(lastMetadata.trim())
     ? lastMetadata
     : undefined;
-  const metadata = (year ? publication.meta.slice(0, -1) : publication.meta)
+  const metadata = (publicationDate ? publication.meta.slice(0, -1) : publication.meta)
     .filter((value) => value.trim());
 
   const content = (
@@ -40,7 +40,7 @@ function PublicationItem({
         </h3>
         <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs leading-5 text-foreground-muted">
           <span className="font-medium text-primary-700">{label}</span>
-          {year && <span>Tahun {year}</span>}
+          {publicationDate && <span>{publicationDate}</span>}
         </p>
         {metadata.length > 0 && (
           <p className="mt-1.5 wrap-anywhere text-sm leading-6 text-foreground-muted">
