@@ -84,11 +84,18 @@ export async function POST(req: Request) {
     }
 
     const uploadDir = path.join(process.cwd(), "public/uploads/news");
-    await mkdir(uploadDir, { recursive: true });
-
     const fileName = `${randomUUID()}.${extension}`;
 
-    await writeFile(path.join(uploadDir, fileName), buffer);
+    try {
+      await mkdir(uploadDir, { recursive: true });
+      await writeFile(path.join(uploadDir, fileName), buffer);
+    } catch (error) {
+      console.error("[upload] Failed to store media file:", error);
+      return NextResponse.json(
+        { error: "Upload gagal." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       url: `/uploads/news/${fileName}`,

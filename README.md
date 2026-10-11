@@ -144,6 +144,12 @@ Admin mutations are implemented as server actions in `src/actions`, protected by
 - The home `GallerySection` uses the three local images defined in `src/components/features/home/data.ts`.
 - The upload route creates `public/uploads/news` when needed and returns a root-relative URL. It does not upload to a separate storage service.
 
+### Uploaded media storage
+
+`POST /api/upload` stores media at `process.cwd()/public/uploads/news`, including uploads from forms other than news. Names use a generated UUID and the validated extension; existing `/uploads/news/<filename>` URLs remain unchanged. Uploads accept non-empty PNG, JPEG, or WebP images up to 1 MB, with matching MIME type, extension, and image signature. Directory creation or file-write failures return HTTP 500 without a success URL and are logged on the server.
+
+The application runtime user must be able to create and write this directory, and the serving process must be able to read it. Replacing a media URL or deleting a content record does not delete the old file. Failed writes can also leave partial files. There is no automatic media cleanup; do not remove files without checking whether stored content still references them.
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and replace the placeholders. Do not commit real credentials.
@@ -244,6 +250,27 @@ npm run start
 ```
 
 `docker-compose.yml` is a local PostgreSQL setup, not an application deployment configuration.
+
+### Production media requirements
+
+Production media persistence is **not guaranteed by this repository**. Compose runs only PostgreSQL; its `postgres_data` volume does not store uploaded media. No application volume or production media-serving configuration is supplied.
+
+- Provide writable, durable storage at the application's resolved `public/uploads/news` path, retained across restarts, redeploys, and release-directory changes. An ephemeral container/serverless filesystem or a read-only release directory does not satisfy this requirement.
+- For multiple application instances, all upload writers and media readers must see the same files through shared durable storage. Object storage is an alternative requiring a separate deployment and integration decision; the current implementation uses only the local filesystem.
+- Bundled `public/assets` files and media created after startup have different deployment requirements. Returning `/uploads/news/<filename>` confirms a completed file write, not HTTP availability. Do not assume Next.js static asset serving will discover runtime uploads in every production deployment. The chosen hosting setup must serve these URLs from the same durable directory after upload, for example through a configured reverse proxy/static file service, without changing existing URLs. No custom serving route is currently provided. Check both direct media requests and `next/image` rendering in the actual hosting environment.
+- Back up the media directory separately from PostgreSQL, with coordinated recovery points so restored database URLs have corresponding files. Define backup frequency, retention, and a restore procedure for the chosen infrastructure. Restore files with their original filenames and directory layout, restore read/write permissions, and verify existing URLs. A database-only backup cannot recover media.
+
+### Manual staging verification
+
+Perform these checks in the intended production-like hosting environment before declaring media storage reliable:
+
+1. Confirm the runtime working directory, storage mount, permissions, and serving mapping for `/uploads/news/*` on every instance.
+2. Upload an allowed image through the admin form after the application has started. Confirm the response URL returns the correct image immediately and renders through `next/image`; check an existing media URL too.
+3. Repeat access after an application restart and redeploy. If multiple instances are used, confirm a file uploaded on one instance can be read through the others.
+4. In an isolated staging setup, simulate unwritable storage and confirm upload returns HTTP 500 without a success URL and a storage error appears in server logs. Restore permissions afterward.
+5. Restore a coordinated database/media backup into an isolated environment and verify existing URLs, image rendering, and a subsequent upload.
+
+These checks require hosting access and have not been performed as part of the static storage audit.
 
 ## Maintenance Notes
 
