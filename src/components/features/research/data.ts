@@ -14,7 +14,12 @@ export const PUBLICATION_FILTERS: PublicationFilter[] = [
 ];
 
 function formatPublishedAt(date: Date): string {
-  return new Intl.DateTimeFormat("id-ID", { year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  }).format(date);
 }
 
 export async function getPublishedPublications(): Promise<Publication[]> {
@@ -35,6 +40,6 @@ export async function getPublishedPublications(): Promise<Publication[]> {
       publication.description,
       publication.publishedAt ? formatPublishedAt(publication.publishedAt) : null,
     ].filter((item): item is string => Boolean(item)),
-    href: publication.externalUrl ?? publication.fileUrl,
+    href: publication.externalUrl?.trim() || publication.fileUrl?.trim() || null,
   }));
 }

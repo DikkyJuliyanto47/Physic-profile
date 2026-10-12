@@ -10,7 +10,7 @@ type FilterValue = "all" | DocumentationType;
 
 export function DocumentationGrid({ items }: { items: DocumentationItem[] }) {
   const [filter, setFilter] = useState<FilterValue>("all");
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -47,23 +47,6 @@ export function DocumentationGrid({ items }: { items: DocumentationItem[] }) {
   return (
     <div>
       <div id="semua" className="scroll-mt-28">
-        <div className="relative mb-8">
-          <i
-            className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted"
-            aria-hidden="true"
-          />
-          <label htmlFor="gallery-search" className="sr-only">
-            Cari dokumentasi
-          </label>
-          <input
-            id="gallery-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Cari dokumentasi..."
-            className="h-11 w-full rounded-lg border border-neutral-300 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-400 focus:border-primary-600 focus:shadow-sm"
-          />
-        </div>
 
         <div className="hidden">
           <button type="button" onClick={() => setFilter("all")}>

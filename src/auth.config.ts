@@ -23,7 +23,6 @@ export const authConfig = {
         isMockAuthEnabled() && mockCookieValue === "true";
       const isLoggedIn = !!auth?.user || isMockAuthenticated;
       const isOnAdmin = nextUrl.pathname.startsWith("/admin");
-      const isOnLogin = nextUrl.pathname.startsWith("/login");
 
       if (isOnAdmin) {
         if (!isLoggedIn) return false;
@@ -36,10 +35,8 @@ export const authConfig = {
         return true;
       }
 
-      if (isLoggedIn && isOnLogin) {
-        return Response.redirect(new URL("/admin", nextUrl));
-      }
-
+      // A JWT may still exist after requireAdmin() revokes access.
+      // Keep login reachable so the user can obtain a fresh session.
       return true;
     },
   },

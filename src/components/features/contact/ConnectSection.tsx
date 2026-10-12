@@ -1,74 +1,72 @@
+import { Mail, MapPin, Phone } from "lucide-react";
 import { Container, Section } from "@/components/ui";
 import { contactChannels } from "./data";
+import { CollaborationCta } from "./CollaborationCta";
+import { LocationSection } from "./LocationSection";
+
+const contactLinkClassName =
+  "inline-block rounded-sm wrap-anywhere text-base font-medium leading-6 text-primary-700 transition-colors duration-150 hover:text-primary-900 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-700 motion-reduce:transition-none";
 
 export function ConnectSection() {
+  const email = contactChannels.find((channel) => channel.id === "email");
+  const phone = contactChannels.find((channel) => channel.id === "phone");
+  const location = contactChannels.find((channel) => channel.id === "location");
+  const emailHref = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)
+    ? `mailto:${email.value}`
+    : undefined;
+  const phoneNumber = phone?.value.replace(/[\s().-]/g, "") ?? "";
+  const phoneHref = /^\+?\d{7,15}$/.test(phoneNumber)
+    ? `tel:${phoneNumber}`
+    : undefined;
+
   return (
-    <Section padding="compact">
+    <Section padding="none" className="pb-12 sm:pb-16">
       <Container>
-        <div className="mb-9 max-w-2xl sm:mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary-700 sm:text-sm">
-            Hubungi Kami
-          </p>
-          <h2 className="mt-2.5 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Kanal Komunikasi
-          </h2>
-          <div className="mt-4 h-px w-12 bg-primary-400" />
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-3 lg:gap-6">
-          {contactChannels.map((channel, index) => (
-            <div
-              key={channel.id}
-              className="group relative overflow-hidden rounded-2xl border border-border/70 bg-white px-6 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-[0_14px_32px_rgba(15,23,42,0.1)] sm:px-7 sm:py-8"
-            >
-              <div
-                aria-hidden="true"
-                className={`pointer-events-none absolute ${
-                  index === 0
-                    ? "-right-8 -top-8 h-24 w-24"
-                    : index === 1
-                      ? "-bottom-10 -left-10 h-28 w-28"
-                      : "-right-6 bottom-4 h-16 w-16"
-                } rounded-full bg-primary-50 transition-transform duration-500 group-hover:scale-110`}
-              />
-
-              <div className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary-100 bg-primary-50 text-primary-700 shadow-sm">
-                  <i
-                    className={`${channel.icon} text-base`}
-                    aria-hidden="true"
-                  />
-                </div>
-
-                <span className="mt-6 block text-base font-semibold text-foreground">
-                  {channel.label}
-                </span>
-
-                <span className="mt-1.5 block text-sm leading-6 text-foreground-muted">
-                  {channel.value}
-                </span>
-
-                {channel.href ? (
-                  <a
-                    href={channel.href}
-                    className="mt-5 inline-flex items-center text-sm font-semibold text-primary-700 transition-colors hover:text-primary-800"
-                  >
-                    {channel.actionLabel}
-                    <span
-                      className="ml-2 transition-transform duration-200 group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    >
-                      →
-                    </span>
-                  </a>
-                ) : (
-                  <span className="mt-5 block text-sm text-foreground-muted/70">
-                    Segera tersedia
-                  </span>
-                )}
+        <div className="grid items-start gap-8 border-t border-neutral-200 pt-7 sm:pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-12">
+          <section aria-labelledby="official-contact-heading" className="min-w-0">
+            <h2 id="official-contact-heading" className="text-lg font-semibold text-primary-900">
+              Kontak Resmi
+            </h2>
+            <dl className="mt-4 divide-y divide-neutral-200">
+              <div className="pb-5">
+                  <dt className="flex items-center gap-3 text-xs font-medium text-foreground-muted">
+                    <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-primary-700" />
+                    Email organisasi
+                  </dt>
+                  <dd className="ml-8 mt-1 min-w-0">
+                    {emailHref ? (
+                      <a href={emailHref} className={contactLinkClassName}>{email?.value}</a>
+                    ) : (
+                      <span className="text-sm text-foreground-muted">Email belum tersedia.</span>
+                    )}
+                  </dd>
               </div>
-            </div>
-          ))}
+              <div className="py-5">
+                  <dt className="flex items-center gap-3 text-xs font-medium text-foreground-muted">
+                    <Phone aria-hidden="true" className="h-5 w-5 shrink-0 text-primary-700" />
+                    Telepon
+                  </dt>
+                  <dd className="ml-8 mt-1 min-w-0">
+                    {phoneHref ? (
+                      <a href={phoneHref} className={contactLinkClassName}>{phone?.value}</a>
+                    ) : (
+                      <span className="text-sm leading-6 text-foreground-muted">Nomor telepon belum tersedia.</span>
+                    )}
+                  </dd>
+              </div>
+              {location?.value && (
+                <div className="py-5">
+                    <dt className="flex items-center gap-3 text-xs font-medium text-foreground-muted">
+                      <MapPin aria-hidden="true" className="h-5 w-5 shrink-0 text-primary-700" />
+                      Wilayah organisasi
+                    </dt>
+                    <dd className="ml-8 mt-1 wrap-anywhere text-base font-medium leading-6 text-primary-900">{location.value}</dd>
+                </div>
+              )}
+            </dl>
+            <LocationSection />
+          </section>
+          <CollaborationCta emailHref={emailHref} />
         </div>
       </Container>
     </Section>

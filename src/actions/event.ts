@@ -46,8 +46,7 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
     const session = await requireAdmin();
     if (!session) {
       return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
+    } 
     const slug = slugify(data.title);
     if (!slug) {
       return { success: false, error: "Judul event harus mengandung huruf atau angka." };
@@ -87,7 +86,8 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error("[createEvent] Gagal membuat event:", error);
     return { success: false, error: "Gagal membuat event. Silakan coba lagi." };
   }
 }
@@ -141,7 +141,8 @@ export async function updateEvent(
     revalidatePath(`/admin/events/${id}/edit`);
     revalidatePath("/events");
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error("[updateEvent] Gagal memperbarui event:", error);
     return { success: false, error: "Gagal memperbarui event." };
   }
 }
@@ -165,7 +166,8 @@ export async function deleteEvent(id: string): Promise<ActionResponse> {
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error("[deleteEvent] Gagal menghapus event:", error);
     return { success: false, error: "Gagal menghapus event." };
   }
 }
@@ -196,7 +198,8 @@ export async function toggleEventStatus(id: string): Promise<ActionResponse> {
     revalidatePath("/admin/events");
     revalidatePath("/events");
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error("[toggleEventStatus] Gagal mengubah status event:", error);
     return { success: false, error: "Gagal mengubah status event." };
   }
 }

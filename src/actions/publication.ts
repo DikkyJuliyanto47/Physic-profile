@@ -22,10 +22,22 @@ function isPublicationType(value: string): value is PublicationType {
 }
 
 function parsePublishedAt(value: string | undefined): Date | null | "invalid" {
-  if (!value) return null;
+  if (value === undefined || value === "") return null;
+  if (typeof value !== "string") return "invalid";
 
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "invalid" : date;
+  // Date-only input starts at midnight WIB; retain support for legacy WIB datetimes.
+  const input = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00` : value;
+  const match = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(input);
+  if (!match) return "invalid";
+
+  const normalized = `${match[1]}:${match[2] ?? "00"}.${(match[3] ?? "").padEnd(3, "0")}`;
+  const date = new Date(`${normalized}+07:00`);
+  if (Number.isNaN(date.getTime())) return "invalid";
+
+  // Reject normalized overflow dates (for example, February 30).
+  const roundTrip = new Date(date.getTime() + 7 * 60 * 60 * 1000)
+    .toISOString().slice(0, -1);
+  return roundTrip === normalized ? date : "invalid";
 }
 
 function validateInput(data: PublicationInput): string | null {

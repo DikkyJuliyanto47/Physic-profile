@@ -13,7 +13,10 @@ import {
 const nextAuth = NextAuth({
   ...authConfig,
   secret: process.env.AUTH_SECRET,
-  session: { strategy: "jwt" },
+  session: { 
+    strategy: "jwt",
+    maxAge: 60 * 60 * 8,
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -26,8 +29,10 @@ const nextAuth = NextAuth({
           return null;
         }
 
-        const email = credentials.email as string;
-        const password = credentials.password as string;
+        const { email, password } = credentials;
+        if (typeof email !== "string" || typeof password !== "string") {
+          return null;
+        }
 
         const user = await prisma.user.findUnique({
           where: { email },
@@ -48,6 +53,7 @@ const nextAuth = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
+          sessionVersion: user.sessionVersion,
         };
       },
     }),
@@ -55,15 +61,25 @@ const nextAuth = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        if (user.id) {
+          token.id = user.id;
+        }
+        token.role = user.role ?? "";
+        token.sessionVersion = user.sessionVersion ?? 0;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        if (typeof token.id === "string") {
+          session.user.id = token.id;
+        }
+        if (typeof token.role === "string") {
+          session.user.role = token.role;
+        }
+        if (typeof token.sessionVersion === "number") {
+          session.user.sessionVersion = token.sessionVersion;
+        }
       }
       return session;
     },

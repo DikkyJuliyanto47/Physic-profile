@@ -22,8 +22,9 @@ function formatDate(date: Date | null): string {
 
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
-    month: "short",
+    month: "long",
     year: "numeric",
+    timeZone: "Asia/Jakarta",
   }).format(new Date(date));
 }
 

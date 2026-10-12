@@ -24,6 +24,15 @@ export default async function GaleriPage() {
         ]}
         defaultActiveHref="#semua"
       >
+        <header className="mb-6 max-w-2xl sm:mb-7">
+          <h2 className="text-xl font-semibold leading-7 tracking-tight text-primary-900">
+            Galeri Kegiatan
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-foreground-muted">
+            Dokumentasi berbagai kegiatan, pertemuan ilmiah, dan aktivitas
+            organisasi Physical Society of Indonesia Cabang Surabaya.
+          </p>
+        </header>
         <DocumentationGrid items={documentationItems} />
       </PublicPageShell>
 

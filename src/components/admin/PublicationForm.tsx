@@ -18,13 +18,12 @@ type Props = {
   };
 };
 
-function toDatetimeLocal(date: Date | string | null): string {
+function toDateInput(date: Date | string | null): string {
   if (!date) return "";
 
+  // Extract the WIB calendar date independently of the browser/server timezone.
   const d = new Date(date);
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return new Date(d.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 const inputClass =
@@ -46,7 +45,7 @@ export function PublicationForm({ mode, initialData }: Props) {
     description: initialData?.description ?? "",
     externalUrl: initialData?.externalUrl ?? "",
     publishedAt: initialData?.publishedAt
-      ? toDatetimeLocal(initialData.publishedAt)
+      ? toDateInput(initialData.publishedAt)
       : "",
   });
 
@@ -146,6 +145,24 @@ export function PublicationForm({ mode, initialData }: Props) {
         />
         <p className="mt-1.5 text-xs text-neutral-400">
           Gunakan deskripsi singkat yang membantu pengunjung memahami publikasi.
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="publishedAt" className={labelClass}>
+          Tanggal Publikasi
+        </label>
+        <input
+          id="publishedAt"
+          name="publishedAt"
+          type="date"
+          value={form.publishedAt ?? ""}
+          onChange={handleChange}
+          className={inputClass}
+        />
+        <p className="mt-1.5 text-xs text-neutral-400">
+          Publikasi ditampilkan di halaman publik mulai tanggal yang dipilih.
+          Kosongkan agar publikasi tidak ditampilkan.
         </p>
       </div>
 

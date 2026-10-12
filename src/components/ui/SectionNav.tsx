@@ -33,7 +33,10 @@ export function SectionNav({
       (entries) => {
         const visibleSections = entries
           .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          .sort(
+            (a, b) =>
+              a.boundingClientRect.top - b.boundingClientRect.top
+          );
 
         const activeSection = visibleSections[0];
 
@@ -60,7 +63,6 @@ export function SectionNav({
     if (!target) return;
 
     target.scrollIntoView({
-      behavior: "smooth",
       block: "start",
     });
 

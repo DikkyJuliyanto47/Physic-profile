@@ -1,41 +1,35 @@
-import { Button, Container, Section } from "@/components/ui";
+import { ArrowUpRight, Mail } from "lucide-react";
 
-import { contactChannels } from "./data";
-
-export function CollaborationCta() {
-  const email = contactChannels.find((channel) => channel.id === "email");
-
+export function CollaborationCta({ emailHref }: { emailHref?: string }) {
   return (
-    <Section padding="compact">
-      <Container>
-        <div className="border-y border-border py-12 text-center sm:py-14 lg:py-16">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-primary-700">
-            Kolaborasi
+    <section aria-labelledby="contact-collaboration-heading" className="min-w-0 rounded-md border border-neutral-200 bg-background-muted p-6 sm:p-7">
+      <h2 id="contact-collaboration-heading" className="text-xl font-semibold leading-7 tracking-tight text-primary-900">
+        Komunikasi &amp; Kolaborasi
+      </h2>
+      <p className="mt-3 text-sm leading-6 text-foreground-muted">
+        PSI Cabang Surabaya terbuka untuk komunikasi mengenai keanggotaan,
+        kegiatan ilmiah, serta kolaborasi dalam pendidikan dan penelitian fisika.
+      </p>
+      {emailHref ? (
+        <>
+          <p className="mt-4 text-sm leading-6 text-foreground-muted">
+            Gunakan email organisasi sebagai kanal komunikasi utama. Sertakan
+            topik dan tujuan komunikasi agar informasi dapat disampaikan dengan jelas.
           </p>
-
-          <h3 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Ingin berkolaborasi dengan kami?
-          </h3>
-
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground-muted sm:text-lg sm:leading-8">
-            PSI Surabaya terbuka untuk kolaborasi di bidang pendidikan,
-            penelitian, dan kegiatan fisika di Surabaya dan sekitarnya.
-          </p>
-
-          {email?.href ? (
-            <div className="mt-7">
-              <Button
-                href={email.href}
-                size="large"
-                icon={<i className="fa-regular fa-envelope" aria-hidden="true" />}
-                iconPosition="right"
-              >
-                Kirim Email
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      </Container>
-    </Section>
+          <a
+            href={emailHref}
+            className="mt-5 inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-md bg-primary-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-700 motion-reduce:transition-none"
+          >
+            <Mail aria-hidden="true" className="h-4 w-4 shrink-0" />
+            Kirim Email
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0" />
+          </a>
+        </>
+      ) : (
+        <p className="mt-4 text-sm leading-6 text-foreground-muted">
+          Kanal email organisasi belum tersedia.
+        </p>
+      )}
+    </section>
   );
 }

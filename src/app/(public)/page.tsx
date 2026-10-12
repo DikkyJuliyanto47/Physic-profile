@@ -7,7 +7,7 @@ import {
   StatisticsSection,
   UniversitiesSection,
 } from "@/components/features/home";
-import ScrollReveal from "@/components/ui/ScrollReveal";
+
 import { prisma } from "@/lib/prisma";
 
 export default async function Page() {
@@ -45,24 +45,12 @@ export default async function Page() {
     <>
       <GallerySection />
       <AboutSection />
+      <StatisticsSection />
 
-      <ScrollReveal delayMs={80}>
-        <StatisticsSection />
-      </ScrollReveal>
+      <LatestNewsPanel />
+      <EventsSection events={events} />
 
-      <div className="-mt-8">
-        <ScrollReveal delayMs={80}>
-          <LatestNewsPanel />
-        </ScrollReveal>
-      </div>
-
-      <ScrollReveal delayMs={80}>
-        <EventsSection events={events} />
-      </ScrollReveal>
-
-      <ScrollReveal delayMs={80}>
-        <UniversitiesSection universities={universities} />
-      </ScrollReveal>
+      <UniversitiesSection universities={universities} />
 
       <JoinCtaSection />
     </>
