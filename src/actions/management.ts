@@ -3,6 +3,27 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
+import { Prisma } from "@/generated/prisma/client";
+
+class ActivePeriodIntegrityError extends Error {}
+
+async function assertSingleActivePeriod(tx: Prisma.TransactionClient): Promise<void> {
+  if (await tx.managementPeriod.count({ where: { isActive: true } }) > 1) {
+    throw new ActivePeriodIntegrityError("Terdapat lebih dari satu periode aktif. Data perlu ditinjau sebelum perubahan periode.");
+  }
+}
+
+function periodTransactionError(error: unknown, fallback: string): ActionResponse {
+  if (error instanceof ActivePeriodIntegrityError) return { success: false, error: error.message };
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2034") {
+      return { success: false, error: "Perubahan periode bertabrakan dengan operasi lain. Muat ulang data sebelum mencoba kembali." };
+    }
+    if (error.code === "P2002") return { success: false, error: "Periode sudah terdaftar." };
+  }
+  console.error("[management] Period transaction failed:", error);
+  return { success: false, error: fallback };
+}
 
 export type ActionResponse = {
   success: boolean;
@@ -79,6 +100,7 @@ export async function createManagementPeriod(
     }
 
     await prisma.$transaction(async (tx) => {
+      await assertSingleActivePeriod(tx);
       if (data.isActive) {
         await tx.managementPeriod.updateMany({
           where: { isActive: true },
@@ -92,14 +114,14 @@ export async function createManagementPeriod(
           isActive: Boolean(data.isActive),
         },
       });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     updateTag("managements");
     revalidatePath("/managements");
     revalidatePath("/admin/managements");
     return { success: true };
-  } catch {
-    return { success: false, error: "Gagal membuat periode kepengurusan." };
+  } catch (error) {
+    return periodTransactionError(error, "Gagal membuat periode kepengurusan.");
   }
 }
 
@@ -129,6 +151,7 @@ export async function updateManagementPeriod(
     }
 
     await prisma.$transaction(async (tx) => {
+      await assertSingleActivePeriod(tx);
       if (data.isActive) {
         await tx.managementPeriod.updateMany({
           where: { id: { not: id }, isActive: true },
@@ -143,15 +166,15 @@ export async function updateManagementPeriod(
           isActive: Boolean(data.isActive),
         },
       });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     updateTag("managements");
     revalidatePath("/managements");
     revalidatePath("/admin/managements");
     revalidatePath(`/admin/managements/${id}/edit`);
     return { success: true };
-  } catch {
-    return { success: false, error: "Gagal memperbarui periode kepengurusan." };
+  } catch (error) {
+    return periodTransactionError(error, "Gagal memperbarui periode kepengurusan.");
   }
 }
 
@@ -192,6 +215,7 @@ export async function setActiveManagementPeriod(
     }
 
     await prisma.$transaction(async (tx) => {
+      await assertSingleActivePeriod(tx);
       await tx.managementPeriod.updateMany({
         where: { isActive: true },
         data: { isActive: false },
@@ -201,14 +225,14 @@ export async function setActiveManagementPeriod(
         where: { id },
         data: { isActive: true },
       });
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     updateTag("managements");
     revalidatePath("/managements");
     revalidatePath("/admin/managements");
     return { success: true };
-  } catch {
-    return { success: false, error: "Gagal mengaktifkan periode." };
+  } catch (error) {
+    return periodTransactionError(error, "Gagal mengaktifkan periode.");
   }
 }
 

@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
+import { Prisma } from "@/generated/prisma/client";
+
+class UniversityDeletionError extends Error {}
 
 function slugify(text: string): string {
   return text
@@ -142,23 +145,23 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const university = await prisma.university.findUnique({
-      where: { id },
-      include: { _count: { select: { members: true } } },
+    await mutateWithMedia(null, async (tx) => {
+      
+      const universities = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "University" WHERE "id" = ${id} FOR UPDATE
+      `;
+      if (!universities.length) throw new UniversityDeletionError("Kampus tidak ditemukan.");
+
+      const memberCount = await tx.memberProfile.count({ where: { institutionId: id } });
+      if (memberCount > 0) {
+        throw new UniversityDeletionError(
+          `Tidak dapat menghapus kampus yang memiliki ${memberCount} anggota terdaftar. Hapus atau pindahkan anggota terlebih dahulu.`,
+        );
+      }
+      return tx.university.delete({ where: { id } });
+    }, (tx) => tx.university.findUnique({ where: { id } }), {
+      isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
     });
-
-    if (!university) {
-      return { success: false, error: "Kampus tidak ditemukan." };
-    }
-
-    if (university._count.members > 0) {
-      return {
-        success: false,
-        error: `Tidak dapat menghapus kampus yang memiliki ${university._count.members} anggota terdaftar. Hapus atau pindahkan anggota terlebih dahulu.`,
-      };
-    }
-
-    await mutateWithMedia(null, (tx) => tx.university.delete({ where: { id } }), (tx) => tx.university.findUnique({ where: { id } }));
 
     updateTag("universities");
     updateTag("members");
@@ -166,7 +169,12 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
     revalidatePath("/admin");
     revalidatePath("/admin/universities");
     return { success: true };
-  } catch {
+  } catch (error) {
+    if (error instanceof UniversityDeletionError) return { success: false, error: error.message };
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034") {
+      return { success: false, error: "Penghapusan kampus bertabrakan dengan operasi lain. Muat ulang data sebelum mencoba kembali." };
+    }
+    console.error("[deleteUniversity] Transaction failed:", error);
     return { success: false, error: "Gagal menghapus kampus. Silakan coba lagi." };
   }
 }

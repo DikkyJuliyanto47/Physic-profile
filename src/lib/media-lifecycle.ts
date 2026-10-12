@@ -345,6 +345,7 @@ export async function mutateWithMedia<T>(
   incoming: unknown,
   mutation: (tx: Prisma.TransactionClient) => Promise<T>,
   previous?: (tx: Prisma.TransactionClient) => Promise<unknown>,
+  transactionOptions: { isolationLevel?: Prisma.TransactionIsolationLevel } = {},
 ): Promise<T> {
   return withStorageLock(async () => {
     const committed = await prisma.$transaction(async (tx) => {
@@ -355,7 +356,7 @@ export async function mutateWithMedia<T>(
       const value = await mutation(tx);
 
       return { value, candidates };
-    });
+    }, transactionOptions);
 
     // Database success is final. Cleanup errors are logged separately and must
     // never turn a committed mutation into a retryable database failure.
