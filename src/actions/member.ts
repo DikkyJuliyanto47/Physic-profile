@@ -2,6 +2,7 @@
 
 import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { revalidatePath, updateTag } from "next/cache";
 
 export type MemberInput = {
@@ -45,7 +46,7 @@ export async function createMember(
       return { success: false, error: "Email sudah terdaftar." };
     }
 
-    await prisma.memberProfile.create({
+    await mutateWithMedia(data, (tx) => tx.memberProfile.create({
       data: {
         name: data.name.trim(),
         email: data.email.trim(),
@@ -54,7 +55,7 @@ export async function createMember(
         fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
         photoUrl: data.photoUrl?.trim() || null,
       },
-    });
+    }));
 
     updateTag("members");
     updateTag("managements");
@@ -101,7 +102,7 @@ export async function updateMember(
       };
     }
 
-    await prisma.memberProfile.update({
+    await mutateWithMedia(data, (tx) => tx.memberProfile.update({
       where: { id },
       data: {
         name: data.name.trim(),
@@ -111,7 +112,7 @@ export async function updateMember(
         fieldOfExpertise: data.fieldOfExpertise?.trim() || null,
         photoUrl: data.photoUrl?.trim() || null,
       },
-    });
+    }), (tx) => tx.memberProfile.findUnique({ where: { id } }));
 
     updateTag("members");
     updateTag("managements");
@@ -140,7 +141,7 @@ export async function deleteMember(id: string): Promise<ActionResponse> {
       return { success: false, error: "Anggota tidak ditemukan." };
     }
 
-    await prisma.memberProfile.delete({ where: { id } });
+    await mutateWithMedia(null, (tx) => tx.memberProfile.delete({ where: { id } }), (tx) => tx.memberProfile.findUnique({ where: { id } }));
 
     updateTag("members");
     updateTag("managements");

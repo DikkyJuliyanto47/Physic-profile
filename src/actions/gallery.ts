@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 import { MediaType } from "@/generated/prisma/client";
@@ -36,7 +37,7 @@ export async function createGallery(
       return { success: false, error: "URL media wajib diisi." };
     }
 
-    await prisma.gallery.create({
+    await mutateWithMedia(data, (tx) => tx.gallery.create({
       data: {
         title: data.title.trim(),
         mediaType: data.mediaType,
@@ -46,7 +47,7 @@ export async function createGallery(
         isFeatured: data.isFeatured,
         sortOrder: data.sortOrder,
       },
-    });
+    }));
 
     updateTag("gallery");
     revalidatePath("/admin/gallery");
@@ -81,7 +82,7 @@ export async function updateGallery(
       return { success: false, error: "Item galeri tidak ditemukan." };
     }
 
-    await prisma.gallery.update({
+    await mutateWithMedia(data, (tx) => tx.gallery.update({
       where: { id },
       data: {
         title: data.title.trim(),
@@ -92,7 +93,7 @@ export async function updateGallery(
         isFeatured: data.isFeatured,
         sortOrder: data.sortOrder,
       },
-    });
+    }), (tx) => tx.gallery.findUnique({ where: { id } }));
 
     updateTag("gallery");
     revalidatePath("/admin/gallery");
@@ -117,7 +118,7 @@ export async function deleteGallery(
       return { success: false, error: "Item galeri tidak ditemukan." };
     }
 
-    await prisma.gallery.delete({ where: { id } });
+    await mutateWithMedia(null, (tx) => tx.gallery.delete({ where: { id } }), (tx) => tx.gallery.findUnique({ where: { id } }));
     updateTag("gallery");
     revalidatePath("/admin/gallery");
     return { success: true };

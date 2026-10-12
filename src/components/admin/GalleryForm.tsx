@@ -1,5 +1,7 @@
 "use client";
 
+import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
+
 import {
   MAX_FILE_SIZE,
   ALLOWED_UPLOAD_TYPES,
@@ -67,6 +69,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
 
 export function GalleryForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const trackUpload = useUploadLifecycle();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -161,6 +164,7 @@ export function GalleryForm({ mode, initialData }: Props) {
         return;
       }
 
+      trackUpload(data.url);
       setPreviewUrl(data.url);
 
       setForm((prev) => ({

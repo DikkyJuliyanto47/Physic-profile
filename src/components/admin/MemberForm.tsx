@@ -1,5 +1,7 @@
 "use client";
 
+import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
+
 import {
   MAX_FILE_SIZE,
   ALLOWED_UPLOAD_TYPES,
@@ -50,6 +52,7 @@ const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
 export function MemberForm({ mode, universities, initialData }: Props) {
   const router = useRouter();
+  const trackUpload = useUploadLifecycle();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(initialData?.photoUrl ?? "");
   const [error, setError] = useState("");
@@ -124,6 +127,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
         return;
       }
 
+      trackUpload(data.url);
       setPreviewUrl(data.url);
       setForm((prev) => ({
         ...prev,

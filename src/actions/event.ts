@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 import { EventCategory, ContentStatus } from "@/generated/prisma/client";
@@ -64,7 +65,7 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
     }
 
-    await prisma.event.create({
+    await mutateWithMedia(data, (tx) => tx.event.create({
       data: {
         title: data.title.trim(),
         slug,
@@ -78,7 +79,7 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
         status: data.status,
         authorId: session.user.id,
       },
-    });
+    }));
 
     updateTag("events");
     revalidatePath("/");
@@ -119,7 +120,7 @@ export async function updateEvent(
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
     }
 
-    await prisma.event.update({
+    await mutateWithMedia(data, (tx) => tx.event.update({
       where: { id },
       data: {
         title: data.title.trim(),
@@ -132,7 +133,7 @@ export async function updateEvent(
         imageUrl: data.imageUrl?.trim() || null,
         status: data.status,
       },
-    });
+    }), (tx) => tx.event.findUnique({ where: { id } }));
 
     updateTag("events");
     revalidatePath("/");
@@ -159,7 +160,7 @@ export async function deleteEvent(id: string): Promise<ActionResponse> {
       return { success: false, error: "Event tidak ditemukan." };
     }
 
-    await prisma.event.delete({ where: { id } });
+    await mutateWithMedia(null, (tx) => tx.event.delete({ where: { id } }), (tx) => tx.event.findUnique({ where: { id } }));
     updateTag("events");
     revalidatePath("/");
     revalidatePath("/admin");

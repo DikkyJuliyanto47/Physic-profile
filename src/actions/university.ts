@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 
@@ -57,7 +58,7 @@ export async function createUniversity(
       };
     }
 
-    await prisma.university.create({
+    await mutateWithMedia(data, (tx) => tx.university.create({
       data: {
         name: data.name.trim(),
         slug,
@@ -68,7 +69,7 @@ export async function createUniversity(
         logoUrl: data.logoUrl?.trim() || null,
         description: data.description?.trim() || null,
       },
-    });
+    }));
 
     updateTag("universities");
     updateTag("members");
@@ -109,7 +110,7 @@ export async function updateUniversity(
       };
     }
 
-    await prisma.university.update({
+    await mutateWithMedia(data, (tx) => tx.university.update({
       where: { id },
       data: {
         name: data.name.trim(),
@@ -120,7 +121,7 @@ export async function updateUniversity(
         logoUrl: data.logoUrl?.trim() || null,
         description: data.description?.trim() || null,
       },
-    });
+    }), (tx) => tx.university.findUnique({ where: { id } }));
 
     updateTag("universities");
     updateTag("members");
@@ -157,7 +158,7 @@ export async function deleteUniversity(id: string): Promise<ActionResponse> {
       };
     }
 
-    await prisma.university.delete({ where: { id } });
+    await mutateWithMedia(null, (tx) => tx.university.delete({ where: { id } }), (tx) => tx.university.findUnique({ where: { id } }));
 
     updateTag("universities");
     updateTag("members");

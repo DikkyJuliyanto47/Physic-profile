@@ -51,33 +51,6 @@ export function ManagementPositionForm({
     setError("");
     setIsSubmitting(true);
 
-    // const orderNumber = Number(form.order);
-    // const payload = {
-    //   periodId,
-    //   memberProfileId: form.memberProfileId || null,
-    //   title: form.title,
-    //   department: form.department,
-    //   order: orderNumber,
-    // };
-
-    // let result: ActionResponse;
-
-    // if (mode === "create") {
-    //   result = await createManagementPosition(payload);
-    // } else {
-    //   result = await updateManagementPosition(initialData!.id, payload);
-    // }
-
-    // setIsSubmitting(false);
-
-    // if (result.success) {
-    //   router.push(`/admin/managements/${periodId}/edit`);
-    //   router.refresh();
-    //   return;
-    // }
-
-    // setError(result.error ?? "Terjadi kesalahan.");
-
     try {
       const orderNumber = Number(form.order);
       

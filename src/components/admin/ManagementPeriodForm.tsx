@@ -34,23 +34,6 @@ export function ManagementPeriodForm({ mode, initialData }: Props) {
     setError("");
     setIsSubmitting(true);
 
-    // let result: ActionResponse;
-
-    // if (mode === "create") {
-    //   result = await createManagementPeriod(form);
-    // } else {
-    //   result = await updateManagementPeriod(initialData!.id, form);
-    // }
-
-    // setIsSubmitting(false);
-
-    // if (result.success) {
-    //   router.push("/admin/managements");
-    //   router.refresh();
-    //   return;
-    // }
-
-    // setError(result.error ?? "Terjadi kesalahan.");
     try {
       const result: ActionResponse =
         mode === "create"

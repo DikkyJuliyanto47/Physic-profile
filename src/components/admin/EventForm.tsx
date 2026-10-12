@@ -1,5 +1,7 @@
 "use client";
 
+import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
+
 import {
   MAX_FILE_SIZE,
   ALLOWED_UPLOAD_TYPES,
@@ -73,6 +75,7 @@ function toDatetimeLocal(date: Date | string): string {
 
 export function EventForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -179,6 +182,7 @@ export function EventForm({ mode, initialData }: Props) {
         return;
       }
 
+      trackUpload(data.url);
       setPreviewUrl(data.url);
 
       setForm((prev) => ({
@@ -221,33 +225,6 @@ export function EventForm({ mode, initialData }: Props) {
       setIsSubmitting(false);
     }
   }
-
-  // let result: ActionResponse;
-  // let navigating = false;
-
-  // try {
-  //   if (mode === "create") {
-  //     result = await createEvent(form);
-  //   } else {
-  //     result = await updateEvent(initialData!.id, form);
-  //   }
-
-  //   if (result.success) {
-  //     router.push("/admin/events");
-  //     router.refresh();
-  //     navigating = true;
-  //   } else {
-  //     setError(result.error ?? "Terjadi kesalahan.");
-  //   }
-  // } catch (err) {
-  //   console.error("[EventForm] Gagal submit:", err);
-  //   setError("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
-  // } finally {
-  //   if (!navigating) {
-  //     submittingRef.current = false;
-  //     setIsSubmitting(false);
-  //   }
-  // }
 
   const isSuccess = searchParams.get("success") === "true";
 

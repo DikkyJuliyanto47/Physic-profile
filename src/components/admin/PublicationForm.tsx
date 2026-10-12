@@ -84,25 +84,10 @@ export function PublicationForm({ mode, initialData }: Props) {
       router.refresh();
     } catch (error) {
       console.error("[PublicationForm] Submit gagal:", error);
-      setError
+      setError (
+        "Koneksi atau layanan bermasalah. Periksa daftar publikasi sebelum mencoba menyimpan kembali."
+      );
     }
-
-    // let result: ActionResponse;
-
-    // if (mode === "create") {
-    //   result = await createPublication(form);
-    // } else {
-    //   result = await updatePublication(initialData!.id, form);
-    // }
-
-    // setIsSubmitting(false);
-
-    // if (result.success) {
-    //   router.push("/admin/publication");
-    //   router.refresh();
-    // } else {
-    //   setError(result.error ?? "Terjadi kesalahan.");
-    // }
   }
 
   return (

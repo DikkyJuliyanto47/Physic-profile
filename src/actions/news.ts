@@ -2,6 +2,7 @@
 
 import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 import { revalidatePath, updateTag } from "next/cache";
 
@@ -98,7 +99,7 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       };
     }
 
-    await prisma.news.create({
+    await mutateWithMedia(data, (tx) => tx.news.create({
       data: {
         title: data.title.trim(),
         slug,
@@ -111,7 +112,7 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
           data.status === ContentStatus.PUBLISHED ? new Date() : null,
         authorId: session.user.id,
       },
-    });
+    }));
 
     revalidateNews();
 
@@ -168,7 +169,7 @@ export async function updateNews(
           : new Date()
         : null;
 
-    await prisma.news.update({
+    await mutateWithMedia(data, (tx) => tx.news.update({
       where: { id },
       data: {
         title: data.title.trim(),
@@ -179,7 +180,7 @@ export async function updateNews(
         status: data.status,
         publishedAt,
       },
-    });
+    }), (tx) => tx.news.findUnique({ where: { id } }));
 
     revalidateNews();
     revalidatePath(`/news/${current.slug}`);
@@ -217,9 +218,9 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
       return { success: false, error: "Berita tidak ditemukan." };
     }
 
-    await prisma.news.delete({
+    await mutateWithMedia(null, (tx) => tx.news.delete({
       where: { id },
-    });
+    }), (tx) => tx.news.findUnique({ where: { id } }));
 
     revalidateNews();
     revalidatePath(`/news/${news.slug}`);

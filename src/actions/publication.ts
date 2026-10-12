@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 import type { PublicationInput, PublicationType } from "@/types/publication";
@@ -73,7 +74,7 @@ export async function createPublication(
       return { success: false, error: "Tanggal publikasi tidak valid." };
     }
 
-    await prisma.publication.create({
+    await mutateWithMedia(data, (tx) => tx.publication.create({
       data: {
         title: data.title.trim(),
         type: data.type,
@@ -81,7 +82,7 @@ export async function createPublication(
         externalUrl: data.externalUrl?.trim() || null,
         publishedAt,
       },
-    });
+    }));
 
     updateTag("publications");
     revalidatePath("/research");
@@ -120,7 +121,7 @@ export async function updatePublication(
       return { success: false, error: "Tanggal publikasi tidak valid." };
     }
 
-    await prisma.publication.update({
+    await mutateWithMedia(data, (tx) => tx.publication.update({
       where: { id },
       data: {
         title: data.title.trim(),
@@ -129,7 +130,7 @@ export async function updatePublication(
         externalUrl: data.externalUrl?.trim() || null,
         publishedAt,
       },
-    });
+    }), (tx) => tx.publication.findUnique({ where: { id } }));
 
     updateTag("publications");
     revalidatePath("/research");
@@ -155,7 +156,7 @@ export async function deletePublication(id: string): Promise<ActionResponse> {
       return { success: false, error: "Publikasi tidak ditemukan." };
     }
 
-    await prisma.publication.delete({ where: { id } });
+    await mutateWithMedia(null, (tx) => tx.publication.delete({ where: { id } }), (tx) => tx.publication.findUnique({ where: { id } }));
     updateTag("publications");
     revalidatePath("/research");
     revalidatePath("/admin/publication");

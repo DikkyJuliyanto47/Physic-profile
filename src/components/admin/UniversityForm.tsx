@@ -1,5 +1,7 @@
 "use client";
 
+import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
+
 import {
   MAX_FILE_SIZE,
   ALLOWED_UPLOAD_TYPES,
@@ -33,6 +35,7 @@ type Props = {
 
 export function UniversityForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const trackUpload = useUploadLifecycle();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -115,6 +118,7 @@ export function UniversityForm({ mode, initialData }: Props) {
         return;
       }
 
+      trackUpload(data.url);
       setForm((prev) => ({
         ...prev,
         logoUrl: data.url,

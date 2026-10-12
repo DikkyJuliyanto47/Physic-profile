@@ -1,5 +1,7 @@
 "use client";
 
+import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
+
 import {
   MAX_FILE_SIZE,
   ALLOWED_UPLOAD_TYPES,
@@ -64,6 +66,7 @@ function FieldLabel({
 
 export function NewsForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -143,6 +146,7 @@ export function NewsForm({ mode, initialData }: Props) {
         return;
       }
 
+      trackUpload(data.url);
       setPreviewUrl(data.url);
       setForm((prev) => ({
         ...prev,
@@ -185,26 +189,6 @@ export function NewsForm({ mode, initialData }: Props) {
     } finally {
       setIsSubmitting(false);
     }
-
-    // const payload: NewsInput = form;
-
-    // let result: ActionResponse;
-
-    // if (mode === "create") {
-    //   result = await createNews(payload);
-    // } else {
-    //   result = await updateNews(initialData!.id, payload);
-    // }
-
-  //   setIsSubmitting(false);
-
-  //   if (result.success) {
-  //     router.push("/admin/news?success=true");
-  //     router.refresh();
-  //   } else {
-  //     console.error("createNews/updateNews failed:", result);
-  //     setError(result.error ?? "Terjadi kesalahan.");
-  //   }
   }
 
   const isSuccess = searchParams.get("success") === "true";

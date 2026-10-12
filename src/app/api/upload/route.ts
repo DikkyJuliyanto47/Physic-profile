@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import { mkdir } from "fs/promises";
-import { randomUUID } from "node:crypto";
 import path from "path";
 import { requireAdmin } from "@/lib/auth-utils";
+import { cleanupReleasedUploads, releaseManagedUploads, storeManagedUpload } from "@/lib/media-lifecycle";
 
 import { MAX_FILE_SIZE, ALLOWED_UPLOAD_TYPES } from "@/lib/upload-constraints";
 
@@ -83,12 +81,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const uploadDir = path.join(process.cwd(), "public/uploads/news");
-    const fileName = `${randomUUID()}.${extension}`;
-
+    let url: string;
     try {
-      await mkdir(uploadDir, { recursive: true });
-      await writeFile(path.join(uploadDir, fileName), buffer);
+      url = await storeManagedUpload(buffer, extension, session.user.id);
     } catch (error) {
       console.error("[upload] Failed to store media file:", error);
       return NextResponse.json(
@@ -97,13 +92,35 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({
-      url: `/uploads/news/${fileName}`,
-    });
-  } catch {
+    // Opportunistic cleanup; its failure does not invalidate a completed upload.
+    try { await cleanupReleasedUploads(); } catch (error) {
+      console.error("[upload] Released upload cleanup deferred:", error);
+    }
+    return NextResponse.json({ url });
+  } catch (error) {
+    console.error("[upload] Upload failed:", error);
     return NextResponse.json(
       { error: "Upload gagal." },
       { status: 500 }
     );
+  }
+}
+
+// Release is a delayed cleanup signal, never a direct file deletion request.
+export async function DELETE(req: Request) {
+  try {
+    const session = await requireAdmin();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    const body: unknown = await req.json();
+    if (!body || typeof body !== "object" || !("urls" in body) ||
+      !Array.isArray(body.urls) || body.urls.length > 50 ||
+      !body.urls.every((url: unknown) => typeof url === "string" && url.length <= 200)) {
+      return NextResponse.json({ error: "Permintaan cleanup tidak valid." }, { status: 400 });
+    }
+    await releaseManagedUploads(body.urls, session.user.id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[upload] Failed to release uploads:", error);
+    return NextResponse.json({ error: "Cleanup gagal." }, { status: 500 });
   }
 }

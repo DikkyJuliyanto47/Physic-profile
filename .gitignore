@@ -42,3 +42,6 @@ next-env.d.ts
 
 /src/generated/prisma
 project_overview.md
+
+# Private ownership metadata and cross-process media lifecycle lock
+/.media-lifecycle/
