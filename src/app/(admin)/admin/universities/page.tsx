@@ -38,7 +38,6 @@ export default async function UniversitiesPage({
             Kelola daftar kampus anggota Physical Society of Indonesia Cabang Surabaya.
           </p>
         </div>
-
         <Link
           href="/admin/universities/new"
           className="inline-flex h-10 items-center gap-2 rounded-md bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700"

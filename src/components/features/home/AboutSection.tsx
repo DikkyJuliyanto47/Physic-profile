@@ -12,27 +12,27 @@ export function AboutSection() {
       padding="none"
       className="bg-white pt-10 text-primary-950 sm:pt-12 lg:pt-16"
     >
-      <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-        
-        <div className="relative min-h-80 overflow-hidden bg-neutral-100 sm:min-h-100 lg:min-h-125">
+      <div className="grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-0">
+        <div className="relative lg:-mt-6">
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt="Kegiatan Physical Society of Indonesia Cabang Surabaya"
-              fill
+              width={1200}
+              height={900}
               priority
               sizes="(min-width: 1024px) 45vw, 100vw"
-              className="object-cover object-center"
+              className="block h-auto w-full object-cover object-top"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-foreground-muted">
+            <div className="flex min-h-80 items-center justify-center text-sm text-foreground-muted">
               Foto kegiatan PSI
             </div>
           )}
         </div>
 
         <div className="flex items-center">
-          <Container className="w-full py-10 sm:py-12 lg:py-14 lg:pl-10 xl:pl-14 2xl:pl-16">
+          <Container className="w-full py-6 sm:py-8 lg:py-10 lg:pl-10 xl:pl-14 2xl:pl-16">
             <div className="max-w-2xl">
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary-700 sm:text-sm">
                 Tentang Kami
