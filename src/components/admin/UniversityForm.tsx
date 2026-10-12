@@ -129,32 +129,33 @@ export function UniversityForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting || uploading) return; 
 
     setError("");
-
-    if (uploading) {
-      return;
-    }
-
     setIsSubmitting(true);
 
-    let result: ActionResponse;
+    try {
+      const result: ActionResponse = 
+        mode === "create"
+          ? await createUniversity(form)
+          : await updateUniversity(initialData!.id, form);
 
-    if (mode === "create") {
-      result = await createUniversity(form);
-    } else {
-      result = await updateUniversity(initialData!.id, form);
-    }
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
 
-    setIsSubmitting(false);
-
-    if (result.success) {
       router.push("/admin/universities");
       router.refresh();
-    } else {
-      setError(result.error ?? "Terjadi kesalahan.");
-    }
+    } catch (error) {
+      console.error("[UniversityForm] Submit gagal:", error);
+        setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar perguruan tinggi sebelum mencoba menyimpan kembali."
+      );
+    } finally {
+      setIsSubmitting(false);
   }
+}
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

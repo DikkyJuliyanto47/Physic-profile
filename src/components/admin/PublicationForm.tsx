@@ -64,25 +64,45 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setError("");
     setIsSubmitting(true);
 
-    let result: ActionResponse;
+    try {
+      const result: ActionResponse = 
+       mode === "create"
+        ? await createPublication(form)
+        : await updatePublication(initialData!.id, form);
 
-    if (mode === "create") {
-      result = await createPublication(form);
-    } else {
-      result = await updatePublication(initialData!.id, form);
-    }
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
 
-    setIsSubmitting(false);
-
-    if (result.success) {
       router.push("/admin/publication");
       router.refresh();
-    } else {
-      setError(result.error ?? "Terjadi kesalahan.");
+    } catch (error) {
+      console.error("[PublicationForm] Submit gagal:", error);
+      setError
     }
+
+    // let result: ActionResponse;
+
+    // if (mode === "create") {
+    //   result = await createPublication(form);
+    // } else {
+    //   result = await updatePublication(initialData!.id, form);
+    // }
+
+    // setIsSubmitting(false);
+
+    // if (result.success) {
+    //   router.push("/admin/publication");
+    //   router.refresh();
+    // } else {
+    //   setError(result.error ?? "Terjadi kesalahan.");
+    // }
   }
 
   return (

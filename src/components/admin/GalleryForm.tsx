@@ -178,33 +178,30 @@ export function GalleryForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting || uploading) return;
 
     setError("");
     setIsSubmitting(true);
 
-    let result: ActionResponse;
-
     try {
-      if (mode === "create") {
-        result = await createGalleryItem(form);
-      } else {
-        result = await updateGalleryItem(initialData!.id, form);
+      const result: ActionResponse = 
+        mode === "create"
+          ? await createGalleryItem(form)
+          : await updateGalleryItem(initialData!.id, form);
+
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
       }
-    } catch {
-      setIsSubmitting(false);
-      setError("Terjadi kesalahan saat menyimpan media.");
-      return;
-    }
 
-    setIsSubmitting(false);
-
-    if (result.success) {
       router.push("/admin/gallery");
       router.refresh();
-      return;
+    } catch (error) {
+      console.error("[GalleryForm] Submit gagal:", error);
+      setError("Terjadi kesalahan saat menyimpan media.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError(result.error ?? "Terjadi kesalahan.");
   }
 
   const isVideo = form.mediaType === "VIDEO";

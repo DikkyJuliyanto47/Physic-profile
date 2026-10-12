@@ -136,26 +136,33 @@ export function MemberForm({ mode, universities, initialData }: Props) {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting || uploading) return;
+    
     setError("");
     setIsSubmitting(true);
 
-    let result: ActionResponse;
+    try {
+      const result: ActionResponse = 
+       mode === "create"
+        ? await createMember(form)
+        : await updateMember(initialData.id, form);
 
-    if (mode === "create") {
-      result = await createMember(form);
-    } else {
-      result = await updateMember(initialData.id, form);
-    }
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
 
-    setIsSubmitting(false);
-
-    if (result.success) {
       router.push("/admin/members");
       router.refresh();
-    } else {
-      setError(result.error ?? "Terjadi kesalahan.");
+    } catch (error) {
+      console.error("[MemberForm] Submit gagal:", error);
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar anggota sebelum mencoba menyimpan kembali."
+    );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 

@@ -157,28 +157,54 @@ export function NewsForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setError("");
     setIsSubmitting(true);
 
-    const payload: NewsInput = form;
+    try {
+      const payload: NewsInput = form;
 
-    let result: ActionResponse;
+      const result: ActionResponse =
+        mode === "create"
+          ? await createNews(payload)
+          : await updateNews(initialData!.id, payload);
+      
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
 
-    if (mode === "create") {
-      result = await createNews(payload);
-    } else {
-      result = await updateNews(initialData!.id, payload);
-    }
-
-    setIsSubmitting(false);
-
-    if (result.success) {
       router.push("/admin/news?success=true");
       router.refresh();
-    } else {
-      console.error("createNews/updateNews failed:", result);
-      setError(result.error ?? "Terjadi kesalahan.");
+    } catch (error) {
+      console.error(" [NewsForm] Submit gagal:", error);
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa koneksi internet Anda atau coba lagi nanti."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
+
+    // const payload: NewsInput = form;
+
+    // let result: ActionResponse;
+
+    // if (mode === "create") {
+    //   result = await createNews(payload);
+    // } else {
+    //   result = await updateNews(initialData!.id, payload);
+    // }
+
+  //   setIsSubmitting(false);
+
+  //   if (result.success) {
+  //     router.push("/admin/news?success=true");
+  //     router.refresh();
+  //   } else {
+  //     console.error("createNews/updateNews failed:", result);
+  //     setError(result.error ?? "Terjadi kesalahan.");
+  //   }
   }
 
   const isSuccess = searchParams.get("success") === "true";

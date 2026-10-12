@@ -29,26 +29,49 @@ export function ManagementPeriodForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setError("");
     setIsSubmitting(true);
 
-    let result: ActionResponse;
+    // let result: ActionResponse;
 
-    if (mode === "create") {
-      result = await createManagementPeriod(form);
-    } else {
-      result = await updateManagementPeriod(initialData!.id, form);
-    }
+    // if (mode === "create") {
+    //   result = await createManagementPeriod(form);
+    // } else {
+    //   result = await updateManagementPeriod(initialData!.id, form);
+    // }
 
-    setIsSubmitting(false);
+    // setIsSubmitting(false);
 
-    if (result.success) {
+    // if (result.success) {
+    //   router.push("/admin/managements");
+    //   router.refresh();
+    //   return;
+    // }
+
+    // setError(result.error ?? "Terjadi kesalahan.");
+    try {
+      const result: ActionResponse =
+        mode === "create"
+          ? await createManagementPeriod(form)
+          : await updateManagementPeriod(initialData!.id, form);
+      
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
+
       router.push("/admin/managements");
       router.refresh();
-      return;
+    } catch (error) {
+      console.error("[ManagementPeriodForm] Submit gagal:", error);
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar periode sebelum mencoba menyimpan kembali."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError(result.error ?? "Terjadi kesalahan.");
   }
 
   return (

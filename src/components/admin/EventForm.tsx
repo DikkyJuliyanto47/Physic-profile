@@ -76,7 +76,6 @@ export function EventForm({ mode, initialData }: Props) {
   const searchParams = useSearchParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const submittingRef = useRef(false);
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -195,39 +194,60 @@ export function EventForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (submittingRef.current || uploading) return;
+    if (isSubmitting || uploading) return;
 
-    submittingRef.current = true;
     setError("");
     setIsSubmitting(true);
 
-    let result: ActionResponse;
-    let navigating = false;
-
     try {
-      if (mode === "create") {
-        result = await createEvent(form);
-      } else {
-        result = await updateEvent(initialData!.id, form);
+      const result: ActionResponse =
+        mode === "create"
+          ? await createEvent(form)
+          : await updateEvent(initialData!.id, form);
+
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
       }
 
-      if (result.success) {
-        router.push("/admin/events");
-        router.refresh();
-        navigating = true;
-      } else {
-        setError(result.error ?? "Terjadi kesalahan.");
-      }
-    } catch (err) {
-      console.error("[EventForm] Gagal submit:", err);
-      setError("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
+      router.push("/admin/events?success=true");
+      router.refresh();
+    } catch (error) {
+      console.error("[EventForm] Submit gagal:", error);
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar anggota sebelum mencoba menyimpan kembali."
+      );
     } finally {
-      if (!navigating) {
-        submittingRef.current = false;
-        setIsSubmitting(false);
-      }
+      setIsSubmitting(false);
     }
   }
+
+  // let result: ActionResponse;
+  // let navigating = false;
+
+  // try {
+  //   if (mode === "create") {
+  //     result = await createEvent(form);
+  //   } else {
+  //     result = await updateEvent(initialData!.id, form);
+  //   }
+
+  //   if (result.success) {
+  //     router.push("/admin/events");
+  //     router.refresh();
+  //     navigating = true;
+  //   } else {
+  //     setError(result.error ?? "Terjadi kesalahan.");
+  //   }
+  // } catch (err) {
+  //   console.error("[EventForm] Gagal submit:", err);
+  //   setError("Terjadi kesalahan saat menyimpan data. Silakan coba lagi.");
+  // } finally {
+  //   if (!navigating) {
+  //     submittingRef.current = false;
+  //     setIsSubmitting(false);
+  //   }
+  // }
 
   const isSuccess = searchParams.get("success") === "true";
 

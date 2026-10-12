@@ -46,35 +46,70 @@ export function ManagementPositionForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setError("");
     setIsSubmitting(true);
 
-    const orderNumber = Number(form.order);
-    const payload = {
-      periodId,
-      memberProfileId: form.memberProfileId || null,
-      title: form.title,
-      department: form.department,
-      order: orderNumber,
-    };
+    // const orderNumber = Number(form.order);
+    // const payload = {
+    //   periodId,
+    //   memberProfileId: form.memberProfileId || null,
+    //   title: form.title,
+    //   department: form.department,
+    //   order: orderNumber,
+    // };
 
-    let result: ActionResponse;
+    // let result: ActionResponse;
 
-    if (mode === "create") {
-      result = await createManagementPosition(payload);
-    } else {
-      result = await updateManagementPosition(initialData!.id, payload);
-    }
+    // if (mode === "create") {
+    //   result = await createManagementPosition(payload);
+    // } else {
+    //   result = await updateManagementPosition(initialData!.id, payload);
+    // }
 
-    setIsSubmitting(false);
+    // setIsSubmitting(false);
 
-    if (result.success) {
+    // if (result.success) {
+    //   router.push(`/admin/managements/${periodId}/edit`);
+    //   router.refresh();
+    //   return;
+    // }
+
+    // setError(result.error ?? "Terjadi kesalahan.");
+
+    try {
+      const orderNumber = Number(form.order);
+      
+      const payload = {
+        periodId,
+        memberProfileId: form.memberProfileId || null,
+        title: form.title,
+        department: form.department,
+        order: orderNumber,
+      };
+
+      const result: ActionResponse =
+        mode === "create"
+          ? await createManagementPosition(payload)
+          : await updateManagementPosition(initialData!.id, payload);
+
+      if (!result.success) {
+        setError(result.error ?? "Terjadi kesalahan.");
+        return;
+      }
+
       router.push(`/admin/managements/${periodId}/edit`);
       router.refresh();
-      return;
-    }
+    } catch (error) {
+      console.error("[ManagementPositionForm] Submit gagal:", error);
+      setError(
+      "Koneksi atau layanan bermasalah. Periksa daftar jabatan sebelum mencoba menyimpan kembali."
+    );
 
-    setError(result.error ?? "Terjadi kesalahan.");
+      } finally {
+        setIsSubmitting(false);
+    }
   }
 
   return (
