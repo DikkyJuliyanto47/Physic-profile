@@ -22,6 +22,41 @@ export type ManagementPositionInput = {
   order?: number | string;
 };
 
+function validatePositionInput(data: ManagementPositionInput): string | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return "Data posisi tidak valid.";
+  if (typeof data.periodId !== "string" || !data.periodId.trim()) return "Periode harus dipilih.";
+  if (typeof data.title !== "string" || !data.title.trim()) return "Jabatan wajib diisi.";
+  if ([data.memberProfileId, data.department].some((value) => value != null && typeof value !== "string")) {
+    return "Anggota dan departemen harus berupa teks.";
+  }
+  
+  if (data.order !== undefined && (
+    (typeof data.order !== "number" && typeof data.order !== "string") ||
+    (typeof data.order === "string" && !data.order.trim())
+  )) return "Urutan harus angka.";
+  const order = Number(data.order ?? 0);
+  if (!Number.isInteger(order) || order < -2147483648 || order > 2147483647) {
+    return "Urutan harus bilangan bulat dalam rentang -2147483648 sampai 2147483647.";
+  }
+  if (typeof data.order === "string") {
+    
+    const decimal = /^[+-]?(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/i.exec(data.order.trim());
+    if (decimal) {
+      const digits = decimal[1] + (decimal[2] ?? "");
+      const fractionalDigits = Math.max(0, (decimal[2]?.length ?? 0) - Number(decimal[3] ?? 0));
+      if (fractionalDigits > 0 && /[1-9]/.test(digits.slice(-fractionalDigits))) return "Urutan harus bilangan bulat.";
+    }
+  }
+  return null;
+}
+
+function validatePeriodInput(data: ManagementPeriodInput): string | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return "Data periode tidak valid.";
+  if (typeof data.period !== "string" || !data.period.trim()) return "Periode wajib diisi.";
+  if (data.isActive !== undefined && typeof data.isActive !== "boolean") return "Status aktif harus berupa boolean.";
+  return null;
+}
+
 export async function createManagementPeriod(
   data: ManagementPeriodInput
 ): Promise<ActionResponse> {
@@ -31,10 +66,9 @@ export async function createManagementPeriod(
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const period = data.period?.trim();
-    if (!period) {
-      return { success: false, error: "Periode wajib diisi." };
-    }
+    const validationError = validatePeriodInput(data);
+    if (validationError) return { success: false, error: validationError };
+    const period = data.period.trim();
 
     const existing = await prisma.managementPeriod.findUnique({
       where: { period },
@@ -79,10 +113,9 @@ export async function updateManagementPeriod(
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const period = data.period?.trim();
-    if (!period) {
-      return { success: false, error: "Periode wajib diisi." };
-    }
+    const validationError = validatePeriodInput(data);
+    if (validationError) return { success: false, error: validationError };
+    const period = data.period.trim();
 
     const existing = await prisma.managementPeriod.findFirst({
       where: {
@@ -188,16 +221,11 @@ export async function createManagementPosition(
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const periodId = data.periodId?.trim();
-    const title = data.title?.trim();
+    const validationError = validatePositionInput(data);
+    if (validationError) return { success: false, error: validationError };
 
-    if (!periodId) {
-      return { success: false, error: "Periode harus dipilih." };
-    }
-
-    if (!title) {
-      return { success: false, error: "Jabatan wajib diisi." };
-    }
+    const periodId = data.periodId.trim();
+    const title = data.title.trim();
 
     const period = await prisma.managementPeriod.findUnique({
       where: { id: periodId },
@@ -218,9 +246,6 @@ export async function createManagementPosition(
     }
 
     const orderValue = Number(data.order ?? 0);
-    if (!Number.isFinite(orderValue)) {
-      return { success: false, error: "Urutan harus angka." };
-    }
 
     await prisma.managementPosition.create({
       data: {
@@ -252,16 +277,11 @@ export async function updateManagementPosition(
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    const periodId = data.periodId?.trim();
-    const title = data.title?.trim();
+    const validationError = validatePositionInput(data);
+    if (validationError) return { success: false, error: validationError };
 
-    if (!periodId) {
-      return { success: false, error: "Periode harus dipilih." };
-    }
-
-    if (!title) {
-      return { success: false, error: "Jabatan wajib diisi." };
-    }
+    const periodId = data.periodId.trim();
+    const title = data.title.trim();
 
     const period = await prisma.managementPeriod.findUnique({
       where: { id: periodId },
@@ -282,9 +302,6 @@ export async function updateManagementPosition(
     }
 
     const orderValue = Number(data.order ?? 0);
-    if (!Number.isFinite(orderValue)) {
-      return { success: false, error: "Urutan harus angka." };
-    }
 
     const previous = await prisma.managementPosition.findUnique({
       where: { id },

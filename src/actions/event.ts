@@ -32,17 +32,26 @@ export type ActionResponse = {
   error?: string;
 };
 
+function validateEventInput(data: EventInput): string | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return "Data event tidak valid.";
+  if (typeof data.title !== "string" || !data.title.trim()) return "Judul event wajib diisi.";
+  if (typeof data.description !== "string" || !data.description.trim()) return "Deskripsi event wajib diisi.";
+  if (typeof data.startDate !== "string" || !data.startDate.trim()) return "Tanggal mulai wajib diisi.";
+  if (Number.isNaN(new Date(data.startDate).getTime())) return "Tanggal mulai tidak valid.";
+  if (data.endDate !== undefined && (typeof data.endDate !== "string" ||
+    (data.endDate !== "" && Number.isNaN(new Date(data.endDate).getTime())))) return "Tanggal selesai tidak valid.";
+  if (!Object.values(EventCategory).some((value) => value === data.category)) return "Kategori event tidak valid.";
+  if (!Object.values(ContentStatus).some((value) => value === data.status)) return "Status event tidak valid.";
+  if ([data.location, data.linkUrl, data.imageUrl].some(
+    (value) => value != null && typeof value !== "string",
+  )) return "Field event harus berupa teks.";
+  return null;
+}
+
 export async function createEvent(data: EventInput): Promise<ActionResponse> {
   try {
-    if (!data.title || data.title.trim().length === 0) {
-      return { success: false, error: "Judul event wajib diisi." };
-    }
-    if (!data.description || data.description.trim().length === 0) {
-      return { success: false, error: "Deskripsi event wajib diisi." };
-    }
-    if (!data.startDate) {
-      return { success: false, error: "Tanggal mulai wajib diisi." };
-    }
+    const validationError = validateEventInput(data);
+    if (validationError) return { success: false, error: validationError };
 
     const session = await requireAdmin();
     if (!session) {
@@ -103,15 +112,8 @@ export async function updateEvent(
       return { success: false, error: "Unauthorized. Silakan login." };
     }
 
-    if (!data.title || data.title.trim().length === 0) {
-      return { success: false, error: "Judul event wajib diisi." };
-    }
-    if (!data.description || data.description.trim().length === 0) {
-      return { success: false, error: "Deskripsi event wajib diisi." };
-    }
-    if (!data.startDate) {
-      return { success: false, error: "Tanggal mulai wajib diisi." };
-    }
+    const validationError = validateEventInput(data);
+    if (validationError) return { success: false, error: validationError };
 
     const startDate = new Date(data.startDate);
     const endDate = data.endDate ? new Date(data.endDate) : null;

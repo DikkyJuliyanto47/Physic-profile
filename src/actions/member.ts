@@ -20,6 +20,17 @@ export type ActionResponse = {
   error?: string;
 };
 
+function validateMemberInput(data: MemberInput): string | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return "Data anggota tidak valid.";
+  if (typeof data.name !== "string" || !data.name.trim()) return "Nama wajib diisi.";
+  if (typeof data.email !== "string" || !data.email.trim()) return "Email wajib diisi.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(data.email.trim())) return "Format email tidak valid.";
+  if ([data.institutionId, data.detailUrl, data.fieldOfExpertise, data.photoUrl].some(
+    (value) => value != null && typeof value !== "string",
+  )) return "Field anggota harus berupa teks.";
+  return null;
+}
+
 export async function createMember(
   data: MemberInput
 ): Promise<ActionResponse> {
@@ -30,13 +41,8 @@ export async function createMember(
   }
 
   try {
-    if (!data.name?.trim()) {
-      return { success: false, error: "Nama wajib diisi." };
-    }
-
-    if (!data.email?.trim()) {
-      return { success: false, error: "Email wajib diisi." };
-    }
+    const validationError = validateMemberInput(data);
+    if (validationError) return { success: false, error: validationError };
 
     const existing = await prisma.memberProfile.findUnique({
       where: { email: data.email.trim() },
@@ -85,12 +91,8 @@ export async function updateMember(
   }
 
   try {
-    if (!data.name?.trim()) {
-      return { success: false, error: "Nama wajib diisi." };
-    }
-    if (!data.email?.trim()) {
-      return { success: false, error: "Email wajib diisi." };
-    }
+    const validationError = validateMemberInput(data);
+    if (validationError) return { success: false, error: validationError };
 
     const existing = await prisma.memberProfile.findFirst({
       where: { email: data.email.trim(), NOT: { id } },
