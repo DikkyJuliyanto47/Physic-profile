@@ -107,6 +107,7 @@ export default async function EditManagementPage({
 
         <div className="p-5">
           <ManagementPositionForm
+            key={selectedPosition ? `edit:${period.id}:${selectedPosition.id}` : `create:${period.id}`}
             mode={selectedPosition ? "edit" : "create"}
             periodId={period.id}
             memberProfiles={memberProfiles.map((profile) => ({
