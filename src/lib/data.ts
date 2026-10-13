@@ -161,7 +161,9 @@ export async function getUpcomingEvents(limit = 4): Promise<EventItem[]> {
   }));
 }
 
-export async function getPublishedEvents(): Promise<EventItem[]> {
+export async function getPublishedEvents(): Promise<
+  (EventItem & { startDate: Date; endDate: Date | null })[]
+> {
   "use cache";
   cacheLife("hours");
   cacheTag("events");
@@ -176,6 +178,7 @@ export async function getPublishedEvents(): Promise<EventItem[]> {
       location: true,
       imageUrl: true,
       startDate: true,
+      endDate: true,
     },
     orderBy: { startDate: "desc" },
   });
@@ -186,6 +189,8 @@ export async function getPublishedEvents(): Promise<EventItem[]> {
     title: event.title,
     date: formatEventDate(event.startDate),
     time: `${formatEventTime(event.startDate)} WIB`,
+    startDate: event.startDate,
+    endDate: event.endDate,
     description: event.description,
     location: event.location,
     image: event.imageUrl ?? undefined,

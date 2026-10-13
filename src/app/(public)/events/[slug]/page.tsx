@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { EVENT_STATUS_LABELS, getEventTimeStatus } from "@/lib/event-status";
 
 import { getEventBySlug } from "@/lib/data";
 import { Container, Section } from "@/components/ui";
@@ -73,7 +76,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function EventDetailPage({
+export default function EventDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  return <Suspense fallback={null}><EventDetailContent params={params} /></Suspense>;
+}
+
+async function EventDetailContent({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -84,7 +95,8 @@ export default async function EventDetailPage({
   if (!event) notFound();
 
   const categoryLabel = CATEGORY_LABELS[event.category] ?? event.category;
-  const isPast = new Date(event.startDate) < new Date();
+  await connection();
+  const status = getEventTimeStatus(event.startDate, event.endDate, Date.now());
 
   return (
     <main>
@@ -104,11 +116,9 @@ export default async function EventDetailPage({
                 {categoryLabel}
               </span>
 
-              {isPast && (
-                <span className="text-xs font-medium text-foreground-muted">
-                  Agenda telah selesai
-                </span>
-              )}
+              <span className="text-xs font-medium text-foreground-muted">
+                {EVENT_STATUS_LABELS[status]}
+              </span>
             </div>
 
             <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-primary-950 sm:text-4xl lg:text-5xl">

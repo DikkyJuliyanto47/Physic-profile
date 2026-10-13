@@ -4,12 +4,14 @@ import Link from "next/link";
 import type { EventItem } from "./data";
 import { EventDate } from "./EventDate";
 import { EventMeta } from "./EventMeta";
+import { EVENT_STATUS_LABELS, type EventTimeStatus } from "@/lib/event-status";
 
 interface FeaturedEventProps {
   item: EventItem;
+  status: EventTimeStatus;
 }
 
-export function FeaturedEvent({ item }: FeaturedEventProps) {
+export function FeaturedEvent({ item, status }: FeaturedEventProps) {
   return (
     <Link
       href={item.href}
@@ -35,7 +37,7 @@ export function FeaturedEvent({ item }: FeaturedEventProps) {
             <EventDate date={item.date} />
 
             <span className="pt-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary-600">
-              Agenda Mendatang
+              Agenda {EVENT_STATUS_LABELS[status]}
             </span>
           </div>
 

@@ -1,4 +1,7 @@
 import { getPublishedEvents } from "@/lib/data";
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { getEventTimeStatus } from "@/lib/event-status";
 import {
   Container,
   PageBreadcrumb,
@@ -9,9 +12,26 @@ import {
   FeaturedEvent,
 } from "@/components/features/events";
 
-export default async function EventsPage() {
+export default function EventsPage() {
+  return <Suspense fallback={null}><EventsContent /></Suspense>;
+}
+
+async function EventsContent() {
   const events = await getPublishedEvents();
-  const [featuredEvent, ...archiveEvents] = events;
+  await connection();
+  const now = Date.now();
+  const ongoingEvent = events.find((event) =>
+    getEventTimeStatus(event.startDate, event.endDate, now) === "ongoing",
+  );
+  const upcomingEvent = events.reduce<(typeof events)[number] | undefined>(
+    (nearest, event) => {
+      if (getEventTimeStatus(event.startDate, event.endDate, now) !== "upcoming") return nearest;
+      return !nearest || event.startDate < nearest.startDate ? event : nearest;
+    },
+    undefined,
+  );
+  const featuredEvent = ongoingEvent ?? upcomingEvent ?? events[0];
+  const archiveEvents = events.filter((event) => event.id !== featuredEvent?.id);
 
   return (
     <Section className="pt-10 lg:pt-12">
@@ -24,7 +44,12 @@ export default async function EventsPage() {
             ]}
           />
 
-          {featuredEvent && <FeaturedEvent item={featuredEvent} />}
+          {featuredEvent && (
+            <FeaturedEvent
+              item={featuredEvent}
+              status={getEventTimeStatus(featuredEvent.startDate, featuredEvent.endDate, now)}
+            />
+          )}
 
           <section className="flex flex-col gap-5 pt-4">
             <div>
