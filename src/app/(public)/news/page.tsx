@@ -1,4 +1,4 @@
-import { getPublishedNews } from "@/lib/data";
+import { getPublishedNews, normalizeNewsCategory } from "@/lib/data";
 import {
   Container,
   PageBreadcrumb,
@@ -13,14 +13,14 @@ import {
 
 interface BeritaPageProps {
   searchParams: Promise<{
-    kategori?: string;
+    kategori?: string | string[];
   }>;
 }
 
 export default async function BeritaPage({
   searchParams,
 }: BeritaPageProps) {
-  const { kategori } = await searchParams;
+  const kategori = normalizeNewsCategory((await searchParams).kategori);
   const newsItems = await getPublishedNews(kategori);
 
   const isFiltered = Boolean(kategori);

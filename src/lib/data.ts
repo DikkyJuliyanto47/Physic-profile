@@ -3,6 +3,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "@/lib/prisma";
+import { NewsCategory } from "@/generated/prisma/enums";
 import type { NewsItem } from "@/components/features/news";
 import type { EventItem } from "@/components/features/events";
 import type { Member } from "@/components/features/members";
@@ -47,17 +48,26 @@ function formatGalleryDate(date: Date): string {
 // NEWS
 // ──────────────────────────────────────────────
 
+export function normalizeNewsCategory(
+  value: string | string[] | undefined,
+): NewsCategory | undefined {
+  // Repeated parameters use the first value, even if it is empty or invalid.
+  const category = Array.isArray(value) ? value[0] : value;
+  return Object.values(NewsCategory).find((value) => value === category);
+}
+
 export async function getPublishedNews(
-  kategori?: string,
+  kategori?: string | string[],
 ): Promise<NewsItem[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("news");
 
+  const category = normalizeNewsCategory(kategori);
   const items = await prisma.news.findMany({
     where: {
       status: "PUBLISHED",
-      ...(kategori && { category: kategori as never }),
+      ...(category && { category }),
     },
     select: {
       id: true,
