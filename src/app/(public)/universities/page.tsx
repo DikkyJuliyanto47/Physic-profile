@@ -42,7 +42,7 @@ export default async function Page() {
           institutions[0] ? `#${getInstitutionId(institutions[0])}` : "#perguruan-tinggi"
         }
       >
-        <MembersSection members={members} />
+        <MembersSection members={members} universityDirectory={false} />
         <UniversitiesSection />
       </PublicPageShell>
 
