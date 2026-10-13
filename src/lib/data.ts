@@ -307,6 +307,28 @@ export async function getActiveManagement(): Promise<ManagementGroup[]> {
 // GALLERY
 // ──────────────────────────────────────────────
 
+function getYouTubeThumbnail(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+
+    let videoId: string | null = null;
+    if (url.hostname === "youtu.be") {
+      videoId = url.pathname.match(/^\/([a-zA-Z0-9_-]{11})\/?$/)?.[1] ?? null;
+    } else if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname)) {
+      videoId = url.pathname === "/watch"
+        ? url.searchParams.get("v")
+        : url.pathname.match(/^\/(?:shorts|embed)\/([a-zA-Z0-9_-]{11})\/?$/)?.[1] ?? null;
+    }
+
+    return videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)
+      ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getGallery(): Promise<DocumentationItem[]> {
   "use cache";
   cacheLife("hours");
@@ -333,7 +355,9 @@ export async function getGallery(): Promise<DocumentationItem[]> {
   return items.map((item) => ({
     id: item.id,
     type: item.mediaType === "PHOTO" ? "photo" : "video",
-    image: item.mediaUrl,
+    image: item.mediaType === "PHOTO"
+      ? item.mediaUrl
+      : getYouTubeThumbnail(item.mediaUrl) ?? "",
     countLabel: item.mediaType === "PHOTO" ? "Foto" : "Video",
     date: formatGalleryDate(item.createdAt),
     title: item.title,

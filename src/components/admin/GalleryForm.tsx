@@ -287,7 +287,7 @@ export function GalleryForm({ mode, initialData }: Props) {
               />
 
               <p className="mt-1.5 text-xs text-neutral-400">
-                Gunakan URL video YouTube. Video akan di-embed otomatis.
+                Gunakan URL video YouTube.
               </p>
             </div>
           ) : (
