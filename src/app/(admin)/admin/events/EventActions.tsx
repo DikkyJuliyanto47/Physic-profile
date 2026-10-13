@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { deleteEvent, toggleEventStatus } from "@/actions/event";
 
@@ -21,11 +21,26 @@ export function EventActions({
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [toggleError, setToggleError] = useState("");
+  const toggleInFlight = useRef(false);
 
   function handleToggle() {
+    if (isPending || toggleInFlight.current) return;
+    toggleInFlight.current = true;
+    setToggleError("");
     startTransition(async () => {
-      await toggleEventStatus(eventId);
-      router.refresh();
+      try {
+        const result = await toggleEventStatus(eventId);
+        if (result.success === true) {
+          router.refresh();
+        } else {
+          setToggleError(result.error || "Gagal mengubah status agenda. Silakan coba lagi.");
+        }
+      } catch {
+        setToggleError("Gagal mengubah status agenda. Silakan coba lagi.");
+      } finally {
+        toggleInFlight.current = false;
+      }
     });
   }
 
@@ -104,6 +119,12 @@ export function EventActions({
           Hapus
         </button>
       </div>
+
+      {toggleError && (
+        <div role="alert" className="mt-4 border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {toggleError}
+        </div>
+      )}
 
       {showConfirm && (
         <div

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { deleteNews, toggleNewsStatus } from "@/actions/news";
 
@@ -20,11 +20,26 @@ export function NewsActions({
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [toggleError, setToggleError] = useState("");
+  const toggleInFlight = useRef(false);
 
   function handleToggle() {
+    if (isPending || toggleInFlight.current || currentStatus === "ARCHIVED") return;
+    toggleInFlight.current = true;
+    setToggleError("");
     startTransition(async () => {
-      await toggleNewsStatus(newsId);
-      router.refresh();
+      try {
+        const result = await toggleNewsStatus(newsId);
+        if (result.success === true) {
+          router.refresh();
+        } else {
+          setToggleError(result.error || "Gagal mengubah status berita. Silakan coba lagi.");
+        }
+      } catch {
+        setToggleError("Gagal mengubah status berita. Silakan coba lagi.");
+      } finally {
+        toggleInFlight.current = false;
+      }
     });
   }
 
@@ -48,6 +63,7 @@ export function NewsActions({
   return (
     <>
       <div className="inline-flex items-center gap-1">
+        {currentStatus !== "ARCHIVED" && (
         <button
           type="button"
           onClick={handleToggle}
@@ -86,6 +102,7 @@ export function NewsActions({
             </svg>
           )}
         </button>
+        )}
 
         <a
           href={`/admin/news/${newsId}/edit`}
@@ -102,6 +119,12 @@ export function NewsActions({
           Hapus
         </button>
       </div>
+
+      {toggleError && (
+        <div role="alert" className="mt-4 rounded-md border border-red-100 bg-red-50 px-3.5 py-3 text-sm text-red-700">
+          {toggleError}
+        </div>
+      )}
 
       {showConfirm && (
         <div
