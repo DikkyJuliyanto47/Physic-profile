@@ -1,10 +1,10 @@
+import { seoConfig } from "@/config/seo";
 import type { MetadataRoute } from "next";
 import { getSitemapNews, getSitemapEvents, getSitemapUniversities } from "@/lib/data";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://psi-surabaya.or.id";
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const BASE_URL = seoConfig.siteUrl;
+  if (!BASE_URL) return [];
   const now = new Date();
 
   // Static public routes

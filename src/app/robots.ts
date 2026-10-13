@@ -1,17 +1,9 @@
 import type { MetadataRoute } from "next";
-
+import { publicUrl } from "@/config/seo";
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://psi-surabaya.or.id";
-
+  const sitemap = publicUrl("/sitemap.xml");
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/api"],
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/login", "/api"] }],
+    ...(sitemap ? { sitemap } : {}),
   };
 }

@@ -1,3 +1,5 @@
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata, seoConfig } from "@/config/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -12,32 +14,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const uni = await getUniversityBySlug(slug);
 
-  if (!uni) return { title: "Perguruan Tidak Ditemukan" };
+  if (!uni) return { title: "Perguruan Tinggi Tidak Ditemukan", robots: { index: false, follow: false } };
 
   const displayName = uni.shortName ?? uni.name;
   const description =
     uni.description?.slice(0, 160) ??
     `Profil ${uni.name} — anggota Perhimpunan Fisikawan Indonesia Cabang Surabaya.`;
 
-  return {
-    title: displayName,
-    description,
-    openGraph: {
-      title: displayName,
-      description,
-      type: "profile",
-      locale: "id_ID",
-      siteName: "PSI Cabang Surabaya",
-      ...(uni.logoUrl && {
-        images: [{ url: uni.logoUrl, width: 200, height: 200, alt: uni.name }],
-      }),
-    },
-    twitter: {
-      card: "summary",
-      title: displayName,
-      description,
-    },
-  };
+  return publicMetadata(displayName, description, `/universities/${uni.slug ?? uni.id}`, uni.logoUrl ?? seoConfig.image);
 }
 
 export default async function PerguruanTinggiDetailPage({
@@ -54,6 +38,7 @@ export default async function PerguruanTinggiDetailPage({
 
   return (
     <div className="bg-neutral-50">
+      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Perguruan Tinggi", path: "/universities" }, { name: uni.name, path: `/universities/${uni.slug ?? uni.id}` }]} />
       <section className="border-b border-primary-800 bg-primary-900 py-10 sm:py-12 lg:py-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <Link

@@ -114,6 +114,8 @@ export async function getNewsBySlug(slug: string) {
       publishedAt: true,
       eventDate: true,
       createdAt: true,
+      updatedAt: true,
+      slug: true,
       author: { select: { name: true } },
     },
   });

@@ -1,3 +1,5 @@
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/config/seo";
 import { getPublishedEvents } from "@/lib/data";
 import { Suspense } from "react";
 import { connection } from "next/server";
@@ -11,6 +13,8 @@ import {
   EventList,
   FeaturedEvent,
 } from "@/components/features/events";
+
+export const metadata = publicMetadata("Agenda PSI Surabaya", "Jadwal dan informasi seminar, workshop, webinar, serta kegiatan PSI Cabang Surabaya.", "/events");
 
 export default function EventsPage() {
   return <Suspense fallback={null}><EventsContent /></Suspense>;
@@ -35,6 +39,7 @@ async function EventsContent() {
 
   return (
     <Section className="pt-10 lg:pt-12">
+      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Agenda", path: "/events" }]} />
       <Container>
         <div className="flex flex-col gap-8">
           <PageBreadcrumb
@@ -53,9 +58,9 @@ async function EventsContent() {
 
           <section className="flex flex-col gap-5 pt-4">
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-primary-950 sm:text-3xl">
+              <h1 className="text-2xl font-semibold tracking-tight text-primary-950 sm:text-3xl">
                 Semua Agenda
-              </h2>
+              </h1>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-muted">
                 Informasi kegiatan dan aktivitas PSI Cabang Surabaya.

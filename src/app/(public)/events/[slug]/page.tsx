@@ -1,3 +1,4 @@
+import { publicMetadata, publicUrl, seoConfig } from "@/config/seo";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,6 +9,8 @@ import { EVENT_STATUS_LABELS, getEventTimeStatus } from "@/lib/event-status";
 
 import { getEventBySlug } from "@/lib/data";
 import { Container, Section } from "@/components/ui";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 
 const CATEGORY_LABELS: Record<string, string> = {
   SEMINAR_NASIONAL: "Seminar Nasional",
@@ -45,35 +48,12 @@ export async function generateMetadata({
   const event = await getEventBySlug(slug);
 
   if (!event) {
-    return { title: "Events Tidak Ditemukan" };
+    return { title: "Agenda Tidak Ditemukan", robots: { index: false, follow: false } };
   }
 
-  const categoryName = CATEGORY_LABELS[event.category] ?? event.category;
   const description = event.description.replace(/<[^>]*>/g, "").slice(0, 160);
 
-  return {
-    title: event.title,
-    description: event.location
-      ? `${categoryName} — ${event.location}. ${description}`
-      : `${categoryName} — ${description}`,
-    openGraph: {
-      title: event.title,
-      description,
-      type: "article",
-      locale: "id_ID",
-      siteName: "PSI Cabang Surabaya",
-      ...(event.imageUrl && {
-        images: [
-          {
-            url: event.imageUrl,
-            width: 1200,
-            height: 630,
-            alt: event.title,
-          },
-        ],
-      }),
-    },
-  };
+  return publicMetadata(event.title, description, `/events/${slug}`, event.imageUrl ?? seoConfig.image);
 }
 
 export default function EventDetailPage({
@@ -99,7 +79,21 @@ async function EventDetailContent({
   const status = getEventTimeStatus(event.startDate, event.endDate, Date.now());
 
   return (
-    <main>
+    <div>
+      <BreadcrumbJsonLd items={[
+        { name: "Beranda", path: "/" }, { name: "Agenda", path: "/events" },
+        { name: event.title, path: `/events/${slug}` },
+      ]} />
+      {publicUrl(`/events/${slug}`) && event.location &&
+        !/https?:\/\/|\bonline\b|\bzoom\b|\bvirtual\b/i.test(event.location) && <JsonLd data={{
+        "@context": "https://schema.org", "@type": "Event",
+        name: event.title, url: publicUrl(`/events/${slug}`),
+        startDate: event.startDate.toISOString(), endDate: event.endDate?.toISOString(),
+        description: event.description.replace(/<[^>]*>/g, ""),
+        location: { "@type": "Place", name: event.location },
+        organizer: { "@id": `${seoConfig.siteUrl}/#organization` },
+        image: publicMetadata(event.title, "", `/events/${slug}`, event.imageUrl ?? seoConfig.image).twitter?.images,
+      }} />}
       <Section padding="normal">
         <Container>
           <Link
@@ -225,6 +219,6 @@ async function EventDetailContent({
           </div>
         </Container>
       </Section>
-    </main>
+    </div>
   );
 }

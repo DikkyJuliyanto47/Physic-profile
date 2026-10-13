@@ -27,9 +27,9 @@ export function PublicPageShell({
 }: PublicPageShellProps) {
   const hasNavigation = navItems.length > 0;
   const heading = (
-    <h1 className="max-w-3xl text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">
+    <h2 className="max-w-3xl text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl lg:text-3xl">
       {title}
-    </h1>
+    </h2>
   );
 
   return (
@@ -80,9 +80,9 @@ export function PublicPageShell({
                     </aside>
                   )}
 
-                  <main className="min-w-0 px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+                  <div className="min-w-0 px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
                     {children}
-                  </main>
+                  </div>
                 </div>
               </div>
             </div>

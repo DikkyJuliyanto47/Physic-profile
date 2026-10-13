@@ -1,3 +1,5 @@
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/config/seo";
 import { getMembers } from "@/lib/data";
 import { PublicPageShell } from "@/components/ui/index";
 import { MembersSection } from "@/components/features/members";
@@ -10,6 +12,8 @@ function getInstitutionId(institution: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
+
+export const metadata = publicMetadata("Perguruan Tinggi", "Direktori perguruan tinggi dan anggota komunitas fisika PSI Cabang Surabaya.", "/universities");
 
 export default async function Page() {
   const members = await getMembers();
@@ -31,6 +35,7 @@ export default async function Page() {
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Perguruan Tinggi", path: "/universities" }]} />
       <PublicPageShell
         title="Anggota Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[

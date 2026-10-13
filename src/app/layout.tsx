@@ -1,3 +1,4 @@
+import { seoConfig } from "@/config/seo";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -13,57 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Physical Society of Indonesia Cabang Surabaya",
-    template: "%s | PSI Cabang Surabaya",
-  },
-  description:
-    "Perhimpunan Fisikawan Indonesia (PSI) Cabang Surabaya — wadah silaturahmi, kolaborasi riset, dan pengembangan pendidikan fisika di wilayah Jawa Timur.",
-  keywords: [
-    "Fisika",
-    "PSI Surabaya",
-    "Perhimpunan Fisikawan Indonesia",
-    "Riset Fisika",
-    "LAMSAMA",
-    "Fisika Indonesia",
-    "Surabaya",
-    "Jawa Timur",
-    "Seminar Fisika",
-    "Kuliah Tamu Fisika",
-    "Dosen Fisika",
-    "Penelitian Fisika",
-  ],
+  title: { default: seoConfig.siteName, template: "%s | PSI Cabang Surabaya" },
+  description: seoConfig.siteDescription,
   authors: [{ name: "PSI Cabang Surabaya" }],
   creator: "PSI Cabang Surabaya",
   publisher: "PSI Cabang Surabaya",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://psi-surabaya.or.id"
-  ),
-  openGraph: {
-    type: "website",
-    locale: "id_ID",
-    siteName: "PSI Cabang Surabaya",
-    title: "PSI Cabang Surabaya | Perhimpunan Fisikawan Indonesia",
-    description:
-      "Wadah silaturahmi, kolaborasi riset, dan pengembangan pendidikan fisika di wilayah Jawa Timur.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "PSI Cabang Surabaya",
-    description:
-      "Wadah silaturahmi, kolaborasi riset, dan pengembangan pendidikan fisika di wilayah Jawa Timur.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
+  ...(seoConfig.siteUrl ? { metadataBase: new URL(seoConfig.siteUrl) } : {}),
+  // Internal routes inherit noindex; public pages explicitly opt in.
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

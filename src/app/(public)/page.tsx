@@ -1,3 +1,4 @@
+import { publicMetadata } from "@/config/seo";
 import {
   AboutSection,
   EventsSection,
@@ -9,6 +10,10 @@ import {
 } from "@/components/features/home";
 
 import { prisma } from "@/lib/prisma";
+import { seoConfig } from "@/config/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+
+export const metadata = publicMetadata("Physical Society of Indonesia (PSI) Cabang Surabaya", "Website resmi Physical Society of Indonesia Cabang Surabaya yang menyediakan informasi organisasi, kegiatan ilmiah, berita, riset, publikasi, dan jejaring komunitas fisika.", "/");
 
 export default async function Page() {
   const [events, universities] = await Promise.all([
@@ -43,6 +48,13 @@ export default async function Page() {
 
   return (
     <>
+      <h1 className="sr-only">Physical Society of Indonesia (PSI) Cabang Surabaya</h1>
+      {seoConfig.siteUrl && <JsonLd data={{
+        "@context": "https://schema.org", "@type": "WebSite",
+        "@id": `${seoConfig.siteUrl}/#website`, url: seoConfig.siteUrl,
+        name: seoConfig.siteName, description: seoConfig.siteDescription,
+        publisher: { "@id": `${seoConfig.siteUrl}/#organization` },
+      }} />}
       <GallerySection />
       <AboutSection />
       <StatisticsSection />

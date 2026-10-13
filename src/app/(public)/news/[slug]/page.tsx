@@ -1,3 +1,4 @@
+import { publicMetadata, publicUrl, seoConfig } from "@/config/seo";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,6 +7,8 @@ import type { Metadata } from "next";
 import { getNewsBySlug } from "@/lib/data";
 import { Container, Section } from "@/components/ui";
 import { formatNewsEventDate } from "@/lib/news-event-date";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ORGANISASI: "Organisasi",
@@ -35,33 +38,21 @@ export async function generateMetadata({
   const news = await getNewsBySlug(slug);
 
   if (!news) {
-    return { title: "Berita Tidak Ditemukan" };
+    return { title: "Berita Tidak Ditemukan", robots: { index: false, follow: false } };
   }
 
   const categoryLabel = CATEGORY_LABELS[news.category] ?? news.category;
   const description =
     news.excerpt ?? `Berita ${categoryLabel} dari PSI Cabang Surabaya`;
 
+  const metadata = publicMetadata(news.title, description, `/news/${news.slug}`, news.imageUrl ?? seoConfig.image, "article");
   return {
-    title: news.title,
-    description,
+    ...metadata,
     openGraph: {
-      title: news.title,
-      description,
+      ...metadata.openGraph,
       type: "article",
-      locale: "id_ID",
-      siteName: "PSI Cabang Surabaya",
-      ...(news.imageUrl && {
-        images: [
-          { url: news.imageUrl, width: 1200, height: 630, alt: news.title },
-        ],
-      }),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: news.title,
-      description,
-      ...(news.imageUrl && { images: [news.imageUrl] }),
+      publishedTime: (news.publishedAt ?? news.createdAt).toISOString(),
+      modifiedTime: news.updatedAt.toISOString(),
     },
   };
 }
@@ -79,7 +70,21 @@ export default async function BeritaDetailPage({
   const categoryLabel = CATEGORY_LABELS[news.category] ?? news.category;
 
   return (
-    <main>
+    <div>
+      <BreadcrumbJsonLd items={[
+        { name: "Beranda", path: "/" }, { name: "Berita", path: "/news" },
+        { name: news.title, path: `/news/${news.slug}` },
+      ]} />
+      {publicUrl(`/news/${news.slug}`) && <JsonLd data={{
+        "@context": "https://schema.org", "@type": "Article",
+        headline: news.title, description: news.excerpt ?? undefined,
+        url: publicUrl(`/news/${news.slug}`), mainEntityOfPage: publicUrl(`/news/${news.slug}`),
+        datePublished: (news.publishedAt ?? news.createdAt).toISOString(),
+        dateModified: news.updatedAt.toISOString(),
+        author: { "@type": "Person", name: news.author.name },
+        publisher: { "@id": `${seoConfig.siteUrl}/#organization` },
+        image: publicMetadata(news.title, "", `/news/${news.slug}`, news.imageUrl ?? seoConfig.image).twitter?.images,
+      }} />}
       <Section padding="normal">
         <Container>
           <Link
@@ -161,6 +166,6 @@ export default async function BeritaDetailPage({
           </article>
         </Container>
       </Section>
-    </main>
+    </div>
   );
 }

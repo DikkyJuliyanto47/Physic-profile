@@ -1,3 +1,5 @@
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/config/seo";
 import { getGallery } from "@/lib/data";
 import { PublicPageShell } from "@/components/ui/index";
 import { JoinCtaSection } from "@/components/features/home/index";
@@ -6,11 +8,14 @@ import {
   GalleryContributionCta,
 } from "@/components/features/gallery";
 
+export const metadata = publicMetadata("Galeri PSI Surabaya", "Dokumentasi foto dan video kegiatan Physical Society of Indonesia Cabang Surabaya.", "/gallery");
+
 export default async function GaleriPage() {
   const documentationItems = await getGallery();
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Galeri", path: "/gallery" }]} />
       <PublicPageShell
         title="Dokumentasi Kegiatan Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[

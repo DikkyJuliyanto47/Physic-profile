@@ -1,3 +1,5 @@
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/config/seo";
 import { getActiveManagement } from "@/lib/data";
 import { PublicPageShell } from "@/components/ui/index";
 import { ManagementSection } from "@/components/features/management/ManagementSection";
@@ -6,6 +8,8 @@ import { JoinCtaSection } from "@/components/features/home";
 function normalizeSearch(value: string): string {
   return value.trim().replace(/\s+/g, " ");
 }
+
+export const metadata = publicMetadata("Kepengurusan PSI Surabaya", "Struktur kepengurusan dan jabatan pengurus Physical Society of Indonesia Cabang Surabaya pada periode aktif.", "/managements");
 
 export default async function Page({
   searchParams,
@@ -30,6 +34,7 @@ export default async function Page({
 
   return (
     <>
+      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Kepengurusan", path: "/managements" }]} />
       <PublicPageShell
         title="Kepengurusan Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[
