@@ -45,7 +45,7 @@ return ( <Section
 
               <div className="min-w-0">
                 <time className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-300 sm:text-xs">
-                  {item.date}
+                  {item.eventDate ?? item.date}
                 </time>
 
                 <h3 className="mt-2 text-base font-semibold leading-6 tracking-tight text-white sm:text-lg">

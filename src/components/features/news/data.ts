@@ -4,6 +4,7 @@ export interface NewsItem {
   id: string;
   title: string;
   date: string;
+  eventDate?: string;
   excerpt: string;
   image: string;
   href: string;

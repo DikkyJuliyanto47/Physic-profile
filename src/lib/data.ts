@@ -4,6 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "@/lib/prisma";
 import { NewsCategory } from "@/generated/prisma/enums";
+import { formatNewsEventDate } from "@/lib/news-event-date";
 import type { NewsItem } from "@/components/features/news";
 import type { EventItem } from "@/components/features/events";
 import type { Member } from "@/components/features/members";
@@ -12,6 +13,7 @@ import type { DocumentationItem } from "@/components/features/gallery/data";
 
 function formatNewsDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -77,6 +79,7 @@ export async function getPublishedNews(
       imageUrl: true,
       category: true,
       publishedAt: true,
+      eventDate: true,
       createdAt: true,
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
@@ -86,6 +89,7 @@ export async function getPublishedNews(
     id: item.id,
     title: item.title,
     date: formatNewsDate(item.publishedAt ?? item.createdAt),
+    eventDate: item.eventDate ? formatNewsEventDate(item.eventDate) : undefined,
     excerpt: item.excerpt ?? "Berita PSI Cabang Surabaya.",
     image: item.imageUrl ?? "/assets/hero/pertemuan-07-27-02.jpeg",
     href: `/news/${item.slug}`,
@@ -108,6 +112,7 @@ export async function getNewsBySlug(slug: string) {
       content: true,
       imageUrl: true,
       publishedAt: true,
+      eventDate: true,
       createdAt: true,
       author: { select: { name: true } },
     },

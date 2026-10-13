@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 
 import { getNewsBySlug } from "@/lib/data";
 import { Container, Section } from "@/components/ui";
+import { formatNewsEventDate } from "@/lib/news-event-date";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ORGANISASI: "Organisasi",
@@ -17,6 +18,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -97,6 +99,11 @@ export default async function BeritaDetailPage({
               <span className="text-xs text-foreground-muted">
                 {formatDate(news.publishedAt ?? news.createdAt)}
               </span>
+              {news.eventDate && (
+                <span className="text-xs text-foreground-muted">
+                  Tanggal kegiatan: {formatNewsEventDate(news.eventDate)}
+                </span>
+              )}
             </div>
 
             <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-primary-950 sm:text-4xl lg:text-5xl">

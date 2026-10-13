@@ -31,6 +31,7 @@ type Props = {
     content: string;
     imageUrl: string | null;
     status: ContentStatus;
+    eventDate?: Date | null;
   };
 };
 
@@ -81,6 +82,7 @@ export function NewsForm({ mode, initialData }: Props) {
     content: initialData?.content ?? "",
     imageUrl: initialData?.imageUrl ?? "",
     status: initialData?.status ?? ContentStatus.DRAFT,
+    eventDate: initialData?.eventDate?.toISOString().slice(0, 10) ?? "",
   });
 
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -281,6 +283,20 @@ export function NewsForm({ mode, initialData }: Props) {
             placeholder="Judul berita..."
             className={fieldClassName}
           />
+        </div>
+
+        <div>
+          <FieldLabel>Tanggal Kegiatan</FieldLabel>
+          <input
+            type="date"
+            name="eventDate"
+            value={form.eventDate ?? ""}
+            onChange={handleChange}
+            className={fieldClassName}
+          />
+          <p className="mt-1.5 text-xs text-neutral-400">
+            Isi tanggal pelaksanaan kegiatan, bukan tanggal publikasi berita.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">

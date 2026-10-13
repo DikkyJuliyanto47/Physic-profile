@@ -160,6 +160,7 @@ model News {
   imageUrl    String?
   status      ContentStatus @default(DRAFT)
   publishedAt DateTime?
+  eventDate   DateTime?
   
   authorId    String
   author      User          @relation("NewsAuthor", fields: [authorId], references: [id])

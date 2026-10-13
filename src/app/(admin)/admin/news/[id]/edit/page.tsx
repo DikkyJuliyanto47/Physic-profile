@@ -24,6 +24,7 @@ export default async function EditNewsPage({
       content: true,
       imageUrl: true,
       status: true,
+      eventDate: true,
     },
   });
 

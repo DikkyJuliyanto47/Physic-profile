@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 import { revalidatePath, updateTag } from "next/cache";
+import { parseNewsEventDate } from "@/lib/news-event-date";
 
 export type NewsInput = {
   title: string;
@@ -13,6 +14,7 @@ export type NewsInput = {
   content: string;
   imageUrl?: string;
   status: ContentStatus;
+  eventDate?: string;
 };
 
 export type ActionResponse = {
@@ -37,6 +39,11 @@ function validateInput(data: NewsInput): string | null {
   if (!data.content?.trim()) return "Konten berita wajib diisi.";
   if (!data.category) return "Kategori berita wajib dipilih.";
   if (!data.status) return "Status berita wajib dipilih.";
+  if (data.eventDate !== undefined &&
+    (typeof data.eventDate !== "string" ||
+      (data.eventDate !== "" && !parseNewsEventDate(data.eventDate)))) {
+    return "Tanggal kegiatan tidak valid.";
+  }
 
   if (data.excerpt && data.excerpt.trim().length > 1000) {
     return "Ringkasan maksimal 1000 karakter.";
@@ -111,6 +118,7 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
         publishedAt:
           data.status === ContentStatus.PUBLISHED ? new Date() : null,
         authorId: session.user.id,
+        eventDate: data.eventDate ? parseNewsEventDate(data.eventDate) : null,
       },
     }));
 
@@ -179,6 +187,9 @@ export async function updateNews(
         imageUrl: data.imageUrl?.trim() || null,
         status: data.status,
         publishedAt,
+        eventDate: data.eventDate === undefined
+          ? undefined
+          : data.eventDate ? parseNewsEventDate(data.eventDate) : null,
       },
     }), (tx) => tx.news.findUnique({ where: { id } }));
 
