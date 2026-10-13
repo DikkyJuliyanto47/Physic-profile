@@ -60,8 +60,7 @@ export function DocumentationGrid({ items }: { items: DocumentationItem[] }) {
           </button>
         </div>
 
-        {filteredItems.length > 0 ? (
-          <div className="space-y-12">
+          <div className={filteredItems.length > 0 ? "space-y-12" : undefined}>
             <section id="foto" className="scroll-mt-28">
               {photoItems.length > 0 && (
                 <>
@@ -90,7 +89,7 @@ export function DocumentationGrid({ items }: { items: DocumentationItem[] }) {
               )}
             </section>
           </div>
-        ) : (
+        {filteredItems.length === 0 && (
           <p className="py-8 text-sm text-foreground-muted">
             Tidak ada dokumentasi yang cocok dengan pencarian.
           </p>

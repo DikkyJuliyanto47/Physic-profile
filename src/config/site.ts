@@ -11,7 +11,7 @@ export const publicNav: NavItem[] = [
   {
     label: "Tentang Kami",
     children: [
-      { label: "Profil Singkat", href: "/about#profil" },
+      { label: "Profil Singkat", href: "/about#tentang" },
       { label: "Sejarah PSI", href: "/about#sejarah" },
       { label: "Visi & Misi", href: "/about#visi-misi" }
     ],
@@ -20,7 +20,7 @@ export const publicNav: NavItem[] = [
     label: "Kepengurusan",
     children: [
       { label: "Struktur Kepengurusan", href: "/managements" },
-      { label: "Periode Kepengurusan", href: "/managements#periode" },
+      { label: "Periode Kepengurusan", href: "/managements" },
     ],
   },
   {
@@ -33,16 +33,16 @@ export const publicNav: NavItem[] = [
   {
     label: "Riset & Publikasi",
     children: [
-      { label: "Riset", href: "/research#research" },
-      { label: "Publikasi", href: "/research#publication" },
-      { label: "Buku", href: "/research#book"},
+      { label: "Riset", href: "/research" },
+      { label: "Publikasi", href: "/research#semua-publikasi" },
+      { label: "Buku", href: "/research#buku"},
       { label: "HKI", href: "/research#hki"},
     ],
   },
   { label: "Galeri", href: "/gallery",
     children: [
-      { label: "Foto", href: "/gallery#photos"},
-      { label: "Vidio", href: "/gallery#videos"},
+      { label: "Foto", href: "/gallery#foto"},
+      { label: "Video", href: "/gallery#video"},
 
     ]
    },
