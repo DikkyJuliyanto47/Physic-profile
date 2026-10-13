@@ -19,6 +19,7 @@ function formatNewsDate(date: Date): string {
 
 function formatEventDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -27,6 +28,7 @@ function formatEventDate(date: Date): string {
 
 function formatEventTime(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,

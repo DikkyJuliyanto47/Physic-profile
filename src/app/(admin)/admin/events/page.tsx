@@ -23,6 +23,7 @@ const CATEGORY_COLORS: Record<EventCategory, string> = {
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -31,6 +32,7 @@ function formatDate(date: Date): string {
 
 function formatTime(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(date));

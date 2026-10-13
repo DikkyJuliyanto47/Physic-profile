@@ -16,6 +16,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function formatFullDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -25,6 +26,7 @@ function formatFullDate(date: Date): string {
 
 function formatTime(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -155,8 +157,9 @@ export default async function EventDetailPage({
                   <p className="mt-1 text-sm text-foreground-muted">
                     {formatTime(event.startDate)}
                     {event.endDate && (
-                      <> — {formatTime(event.endDate)} WIB</>
+                      <> — {formatTime(event.endDate)}</>
                     )}
+                    {" WIB"}
                   </p>
                 </div>
 

@@ -19,6 +19,7 @@ export type EventInput = {
   title: string;
   category: EventCategory;
   description: string;
+  // Offset-free datetime-local values are WIB; ISO values with an offset are instants.
   startDate: string;
   endDate?: string;
   location?: string;
@@ -32,14 +33,24 @@ export type ActionResponse = {
   error?: string;
 };
 
+function parseEventDate(value: string): Date {
+  const localDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/;
+  const absoluteDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/i;
+
+  // Jakarta uses UTC+07:00; never let the server infer a timezone.
+  if (localDateTime.test(value)) return new Date(`${value}+07:00`);
+  if (absoluteDateTime.test(value)) return new Date(value);
+  return new Date(NaN);
+}
+
 function validateEventInput(data: EventInput): string | null {
   if (!data || typeof data !== "object" || Array.isArray(data)) return "Data event tidak valid.";
   if (typeof data.title !== "string" || !data.title.trim()) return "Judul event wajib diisi.";
   if (typeof data.description !== "string" || !data.description.trim()) return "Deskripsi event wajib diisi.";
   if (typeof data.startDate !== "string" || !data.startDate.trim()) return "Tanggal mulai wajib diisi.";
-  if (Number.isNaN(new Date(data.startDate).getTime())) return "Tanggal mulai tidak valid.";
+  if (Number.isNaN(parseEventDate(data.startDate).getTime())) return "Tanggal mulai tidak valid.";
   if (data.endDate !== undefined && (typeof data.endDate !== "string" ||
-    (data.endDate !== "" && Number.isNaN(new Date(data.endDate).getTime())))) return "Tanggal selesai tidak valid.";
+    (data.endDate !== "" && Number.isNaN(parseEventDate(data.endDate).getTime())))) return "Tanggal selesai tidak valid.";
   if (!Object.values(EventCategory).some((value) => value === data.category)) return "Kategori event tidak valid.";
   if (!Object.values(ContentStatus).some((value) => value === data.status)) return "Status event tidak valid.";
   if ([data.location, data.linkUrl, data.imageUrl].some(
@@ -67,8 +78,8 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
       return { success: false, error: "Judul event menghasilkan alamat yang sudah digunakan. Gunakan judul lain." };
     }
 
-    const startDate = new Date(data.startDate);
-    const endDate = data.endDate ? new Date(data.endDate) : null;
+    const startDate = parseEventDate(data.startDate);
+    const endDate = data.endDate ? parseEventDate(data.endDate) : null;
 
     if (endDate && endDate < startDate) {
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
@@ -115,8 +126,8 @@ export async function updateEvent(
     const validationError = validateEventInput(data);
     if (validationError) return { success: false, error: validationError };
 
-    const startDate = new Date(data.startDate);
-    const endDate = data.endDate ? new Date(data.endDate) : null;
+    const startDate = parseEventDate(data.startDate);
+    const endDate = data.endDate ? parseEventDate(data.endDate) : null;
 
     if (endDate && endDate < startDate) {
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };

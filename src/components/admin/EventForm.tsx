@@ -67,10 +67,19 @@ function FieldLabel({
 }
 
 function toDatetimeLocal(date: Date | string): string {
-  const d = new Date(date);
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(date));
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((value) => value.type === type)!.value;
 
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}`;
 }
 
 export function EventForm({ mode, initialData }: Props) {
@@ -210,16 +219,16 @@ export function EventForm({ mode, initialData }: Props) {
           : await updateEvent(initialData!.id, form);
 
       if (!result.success) {
-        setError(result.error ?? "Terjadi kesalahan.");
+        setError(result.error ?? "Gagal menyimpan agenda.");
         return;
       }
 
-      router.push("/admin/events?success=true");
+      router.push(`/admin/events?success=${mode === "create" ? "created" : "updated"}`);
       router.refresh();
     } catch (error) {
       console.error("[EventForm] Submit gagal:", error);
       setError(
-        "Koneksi atau layanan bermasalah. Periksa daftar anggota sebelum mencoba menyimpan kembali."
+        "Terjadi kesalahan saat menyimpan agenda. Silakan coba lagi.",
       );
     } finally {
       setIsSubmitting(false);
