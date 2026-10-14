@@ -88,7 +88,7 @@ export default async function PerguruanTinggiDetailPage({
         </div>
       </section>
 
-      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12">
           <div>
             {uni.description && (
@@ -264,7 +264,7 @@ export default async function PerguruanTinggiDetailPage({
             </div>
           </aside>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
