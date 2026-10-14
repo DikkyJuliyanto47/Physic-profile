@@ -9,7 +9,7 @@ import {
 } from "@/lib/upload-constraints";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -51,14 +51,16 @@ const NEWS_CATEGORY_OPTIONS: Array<{ value: NewsCategory; label: string }> = [
 ];
 
 function FieldLabel({
+  htmlFor,
   children,
   required = false,
 }: {
+  htmlFor?: string;
   children: React.ReactNode;
   required?: boolean;
 }) {
   return (
-    <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-neutral-700">
       {children}
       {required && <span className="ml-1 text-red-500">*</span>}
     </label>
@@ -66,6 +68,7 @@ function FieldLabel({
 }
 
 export function NewsForm({ mode, initialData }: Props) {
+  const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
@@ -274,8 +277,9 @@ export function NewsForm({ mode, initialData }: Props) {
 
       <section className="space-y-5">
         <div>
-          <FieldLabel required>Judul</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-title`} required>Judul</FieldLabel>
           <input
+            id={`${formId}-title`}
             name="title"
             value={form.title}
             onChange={handleChange}
@@ -286,9 +290,10 @@ export function NewsForm({ mode, initialData }: Props) {
         </div>
 
         <div>
-          <FieldLabel>Tanggal Kegiatan</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-eventDate`}>Tanggal Kegiatan</FieldLabel>
           <input
             type="date"
+            id={`${formId}-eventDate`}
             name="eventDate"
             value={form.eventDate ?? ""}
             onChange={handleChange}
@@ -301,8 +306,9 @@ export function NewsForm({ mode, initialData }: Props) {
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>
-            <FieldLabel required>Kategori</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-category`} required>Kategori</FieldLabel>
             <select
+              id={`${formId}-category`}
               name="category"
               value={form.category}
               onChange={handleChange}
@@ -321,8 +327,9 @@ export function NewsForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel required>Status</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-status`} required>Status</FieldLabel>
             <select
+              id={`${formId}-status`}
               name="status"
               value={form.status}
               onChange={handleChange}
@@ -337,9 +344,10 @@ export function NewsForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel>Gambar</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-image`}>Gambar</FieldLabel>
 
             <label
+              htmlFor={`${formId}-image`}
               className={`flex min-h-10 cursor-pointer items-center rounded-md border border-dashed px-3.5 transition-colors ${
                 uploading
                   ? "cursor-not-allowed border-neutral-200 bg-neutral-50"
@@ -347,6 +355,7 @@ export function NewsForm({ mode, initialData }: Props) {
               }`}
             >
               <input
+                id={`${formId}-image`}
                 type="file"
                 accept={IMAGE_UPLOAD_ACCEPT}
                 onChange={handleImageUpload}
@@ -401,8 +410,9 @@ export function NewsForm({ mode, initialData }: Props) {
 
       <section className="border-t border-neutral-100 pt-7">
         <div>
-          <FieldLabel>Ringkasan</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-excerpt`}>Ringkasan</FieldLabel>
           <textarea
+            id={`${formId}-excerpt`}
             name="excerpt"
             value={form.excerpt ?? ""}
             onChange={handleChange}
@@ -418,8 +428,9 @@ export function NewsForm({ mode, initialData }: Props) {
 
       <section className="border-t border-neutral-100 pt-7">
         <div>
-          <FieldLabel required>Konten</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-content`} required>Konten</FieldLabel>
           <textarea
+            id={`${formId}-content`}
             name="content"
             value={form.content}
             onChange={handleChange}

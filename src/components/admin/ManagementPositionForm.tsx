@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createManagementPosition,
@@ -34,6 +34,7 @@ export function ManagementPositionForm({
   memberProfiles,
   initialData,
 }: Props) {
+  const formId = useId();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -95,11 +96,12 @@ export function ManagementPositionForm({
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-memberProfileId`} className="mb-1.5 block text-sm font-medium text-neutral-700">
             Anggota <span className="text-neutral-400">(opsional)</span>
           </label>
 
           <select
+            id={`${formId}-memberProfileId`}
             value={form.memberProfileId}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, memberProfileId: e.target.value }))
@@ -119,11 +121,12 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-title`} className="mb-1.5 block text-sm font-medium text-neutral-700">
             Jabatan <span className="text-red-500">*</span>
           </label>
 
           <input
+            id={`${formId}-title`}
             value={form.title}
             onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
             required
@@ -133,11 +136,12 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-department`} className="mb-1.5 block text-sm font-medium text-neutral-700">
             Departemen
           </label>
 
           <input
+            id={`${formId}-department`}
             value={form.department}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, department: e.target.value }))
@@ -148,11 +152,12 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-order`} className="mb-1.5 block text-sm font-medium text-neutral-700">
             Urutan <span className="text-red-500">*</span>
           </label>
 
           <input
+            id={`${formId}-order`}
             type="number"
             value={form.order}
             onChange={(e) => setForm((prev) => ({ ...prev, order: e.target.value }))}

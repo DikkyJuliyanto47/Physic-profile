@@ -9,7 +9,7 @@ import {
 } from "@/lib/upload-constraints";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useState, useEffect, useRef } from "react";
+import { useId, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -52,14 +52,16 @@ const textareaClassName =
   "w-full rounded-md border border-neutral-200 bg-white px-3.5 py-3 text-sm leading-6 text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500";
 
 function FieldLabel({
+  htmlFor,
   children,
   required = false,
 }: {
+  htmlFor?: string;
   children: React.ReactNode;
   required?: boolean;
 }) {
   return (
-    <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-neutral-700">
       {children}
       {required && <span className="ml-1 text-red-500">*</span>}
     </label>
@@ -83,6 +85,7 @@ function toDatetimeLocal(date: Date | string): string {
 }
 
 export function EventForm({ mode, initialData }: Props) {
+  const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
@@ -317,9 +320,10 @@ export function EventForm({ mode, initialData }: Props) {
 
       <section className="space-y-5">
         <div>
-          <FieldLabel required>Judul</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-title`} required>Judul</FieldLabel>
 
           <input
+            id={`${formId}-title`}
             name="title"
             value={form.title}
             onChange={handleChange}
@@ -331,9 +335,10 @@ export function EventForm({ mode, initialData }: Props) {
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>
-            <FieldLabel required>Kategori</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-category`} required>Kategori</FieldLabel>
 
             <select
+              id={`${formId}-category`}
               name="category"
               value={form.category}
               onChange={handleChange}
@@ -348,9 +353,10 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel required>Status</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-status`} required>Status</FieldLabel>
 
             <select
+              id={`${formId}-status`}
               name="status"
               value={form.status}
               onChange={handleChange}
@@ -362,9 +368,10 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel>Gambar</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-image`}>Gambar</FieldLabel>
 
             <label
+              htmlFor={`${formId}-image`}
               className={`flex min-h-10 cursor-pointer items-center rounded-md border border-dashed px-3.5 transition-colors ${
                 uploading
                   ? "cursor-not-allowed border-neutral-200 bg-neutral-50"
@@ -372,6 +379,7 @@ export function EventForm({ mode, initialData }: Props) {
               }`}
             >
               <input
+                id={`${formId}-image`}
                 type="file"
                 accept={IMAGE_UPLOAD_ACCEPT}
                 onChange={handleImageUpload}
@@ -427,10 +435,11 @@ export function EventForm({ mode, initialData }: Props) {
       <section className="border-t border-neutral-100 pt-7">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>
-            <FieldLabel required>Tanggal Mulai</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-startDate`} required>Tanggal Mulai</FieldLabel>
 
             <input
               type="datetime-local"
+              id={`${formId}-startDate`}
               name="startDate"
               value={form.startDate}
               onChange={handleChange}
@@ -440,10 +449,11 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel>Tanggal Selesai</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-endDate`}>Tanggal Selesai</FieldLabel>
 
             <input
               type="datetime-local"
+              id={`${formId}-endDate`}
               name="endDate"
               value={form.endDate ?? ""}
               onChange={handleChange}
@@ -452,9 +462,10 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel>Lokasi</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-location`}>Lokasi</FieldLabel>
 
             <input
+              id={`${formId}-location`}
               name="location"
               value={form.location ?? ""}
               onChange={handleChange}
@@ -479,9 +490,10 @@ export function EventForm({ mode, initialData }: Props) {
           </div>
 
           <div>
-            <FieldLabel>URL Pendaftaran</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-linkUrl`}>URL Pendaftaran</FieldLabel>
 
             <input
+              id={`${formId}-linkUrl`}
               name="linkUrl"
               value={form.linkUrl ?? ""}
               onChange={handleChange}
@@ -494,9 +506,15 @@ export function EventForm({ mode, initialData }: Props) {
 
       <section className="border-t border-neutral-100 pt-7">
         <div>
-          <FieldLabel required>Deskripsi</FieldLabel>
+          <FieldLabel 
+            htmlFor={`${formId}-description`} 
+            required
+          >
+              Deskripsi
+          </FieldLabel>
 
           <textarea
+            id={`${formId}-description`}
             name="description"
             value={form.description}
             onChange={handleChange}

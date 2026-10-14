@@ -8,7 +8,7 @@ import {
   IMAGE_UPLOAD_ACCEPT,
 } from "@/lib/upload-constraints";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -34,6 +34,7 @@ type Props = {
 };
 
 export function UniversityForm({ mode, initialData }: Props) {
+  const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
 
@@ -171,11 +172,12 @@ export function UniversityForm({ mode, initialData }: Props) {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-name`} className="mb-1 block text-sm font-medium text-neutral-700">
             Nama Kampus <span className="text-red-500">*</span>
           </label>
 
           <input
+            id={`${formId}-name`}
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -186,11 +188,12 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-shortName`} className="mb-1 block text-sm font-medium text-neutral-700">
             Singkatan
           </label>
 
           <input
+            id={`${formId}-shortName`}
             name="shortName"
             value={form.shortName ?? ""}
             onChange={handleChange}
@@ -200,11 +203,12 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-address`} className="mb-1 block text-sm font-medium text-neutral-700">
             Alamat
           </label>
 
           <input
+            id={`${formId}-address`}
             name="address"
             value={form.address ?? ""}
             onChange={handleChange}
@@ -214,11 +218,12 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-deptUrl`} className="mb-1 block text-sm font-medium text-neutral-700">
             Departemen URL
           </label>
 
           <input
+            id={`${formId}-deptUrl`}
             name="deptUrl"
             value={form.deptUrl ?? ""}
             onChange={handleChange}
@@ -228,11 +233,12 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-websiteUrl`} className="mb-1 block text-sm font-medium text-neutral-700">
             Website URL
           </label>
 
           <input
+            id={`${formId}-websiteUrl`}
             name="websiteUrl"
             value={form.websiteUrl ?? ""}
             onChange={handleChange}
@@ -242,7 +248,7 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-logo`} className="mb-1 block text-sm font-medium text-neutral-700">
             Logo Kampus
           </label>
 
@@ -266,6 +272,7 @@ export function UniversityForm({ mode, initialData }: Props) {
 
             <div className="flex-1">
               <label
+                htmlFor={`${formId}-logo`}
                 className={`flex min-h-32 cursor-pointer items-center justify-center rounded-md border border-dashed px-4 py-5 text-center transition-colors ${
                   uploading
                     ? "cursor-not-allowed border-neutral-200 bg-neutral-50"
@@ -301,6 +308,7 @@ export function UniversityForm({ mode, initialData }: Props) {
                 </div>
 
                 <input
+                  id={`${formId}-logo`}
                   type="file"
                   accept={IMAGE_UPLOAD_ACCEPT}
                   onChange={handleImageUpload}
@@ -317,11 +325,12 @@ export function UniversityForm({ mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-neutral-700">
+          <label htmlFor={`${formId}-description`} className="mb-1 block text-sm font-medium text-neutral-700">
             Deskripsi
           </label>
 
           <textarea
+            id={`${formId}-description`}
             name="description"
             value={form.description ?? ""}
             onChange={handleChange}
