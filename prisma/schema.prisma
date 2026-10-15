@@ -22,6 +22,13 @@ enum ContentStatus {
   ARCHIVED
 }
 
+enum ReviewStatus {
+  DRAFT
+  PENDING_REVIEW
+  REVISION_REQUIRED
+  APPROVED
+}
+
 enum NewsCategory {
   ORGANISASI
   SEMINAR
@@ -67,8 +74,12 @@ model User {
   updatedAt     DateTime       @updatedAt
 
   // Relations
-  newsCreated   News[]              @relation("NewsAuthor")
-  eventsCreated Event[]             @relation("EventAuthor")
+  newsCreated          News[]        @relation("NewsAuthor")
+  eventsCreated        Event[]       @relation("EventAuthor")
+  publicationsCreated  Publication[] @relation("PublicationAuthor")
+  newsReviewed         News[]        @relation("NewsReviewer")
+  eventsReviewed       Event[]       @relation("EventReviewer")
+  publicationsReviewed Publication[] @relation("PublicationReviewer")
 }
 
 // ==========================================
@@ -165,6 +176,14 @@ model News {
   authorId    String
   author      User          @relation("NewsAuthor", fields: [authorId], references: [id])
 
+  reviewStatus   ReviewStatus @default(DRAFT)
+  reviewerId     String?
+  reviewer       User?        @relation("NewsReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewedAt     DateTime?
+  reviewNote     String?      @db.Text
+  // Future mutations must increment and compare this atomically.
+  contentVersion Int          @default(1)
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -187,6 +206,14 @@ model Event {
   authorId    String
   author      User          @relation("EventAuthor", fields: [authorId], references: [id])
 
+  reviewStatus   ReviewStatus @default(DRAFT)
+  reviewerId     String?
+  reviewer       User?        @relation("EventReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewedAt     DateTime?
+  reviewNote     String?      @db.Text
+  // Future mutations must increment and compare this atomically.
+  contentVersion Int          @default(1)
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -205,6 +232,16 @@ model Publication {
   externalUrl String?
   fileUrl     String?
   publishedAt DateTime?
+  // Legacy ownership is unknown; future ADMIN writes must require ownership.
+  authorId       String?
+  author         User?        @relation("PublicationAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  reviewStatus   ReviewStatus @default(DRAFT)
+  reviewerId     String?
+  reviewer       User?        @relation("PublicationReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewedAt     DateTime?
+  reviewNote     String?      @db.Text
+  // Future mutations must increment and compare this atomically.
+  contentVersion Int          @default(1)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 }
