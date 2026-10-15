@@ -1,3 +1,6 @@
+import { contentListScope } from "@/lib/content-permissions";
+import { ReviewStatusBadge, ReviewFilter, REVIEW_LABELS } from "@/components/admin/ReviewStatusBadge";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -33,14 +36,15 @@ function formatDate(date: Date | null): string {
 export default async function PublicationListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; review?: string; result?: string }>;
 }) {
-  const { q, type } = await searchParams;
+  const { q, type, review, result } = await searchParams;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
-  const where: Record<string, unknown> = session.user.role === "SUPER_ADMIN"
-    ? {} : { authorId: session.user.id };
+  const where: Record<string, unknown> = contentListScope(session.user);
+
+  if (review && Object.hasOwn(REVIEW_LABELS, review)) where.reviewStatus = review;
 
   if (q) {
     where.OR = [
@@ -55,6 +59,7 @@ export default async function PublicationListPage({
 
   const publications = await prisma.publication.findMany({
     where,
+    include: { author: { select: { name: true, email: true } } },
     orderBy: { publishedAt: "desc" },
   });
 
@@ -91,7 +96,8 @@ export default async function PublicationListPage({
         </Link>
       </div>
 
-      <form method="GET" className="flex flex-col gap-3 sm:flex-row">
+      <ContentFeedback result={result} />
+      <form method="GET" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <div className="relative flex-1">
           <svg
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -127,6 +133,7 @@ export default async function PublicationListPage({
           <option value="PROSIDING">Prosiding</option>
         </select>
 
+        <ReviewFilter value={review} />
         <button
           type="submit"
           className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
@@ -178,6 +185,9 @@ export default async function PublicationListPage({
                         <p className="line-clamp-1 font-medium text-neutral-900">
                           {pub.title}
                         </p>
+                        <div className="mt-2"><ReviewStatusBadge status={pub.reviewStatus} /></div>
+                        <p className="mt-1 text-xs text-neutral-500">Pengaju: {pub.author?.name ?? "Belum diketahui"}</p>
+                        {pub.reviewNote && <p className="mt-1 max-w-xs break-words text-xs text-amber-700">Catatan: {pub.reviewNote}</p>}
 
                         {pub.description && (
                           <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500">
@@ -201,6 +211,7 @@ export default async function PublicationListPage({
 
                     <td className="px-5 py-3.5 text-right">
                       <PublicationActions
+                        state={pub}
                         publicationId={pub.id}
                         publicationTitle={pub.title}
                       />

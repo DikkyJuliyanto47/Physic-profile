@@ -1,9 +1,8 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useContentPermissions } from "./use-content-permissions";
 import { ContentReviewControls } from "./ContentReviewControls";
 import type { ContentState } from "@/lib/content-workflow";
-import { assertEditable } from "@/lib/content-workflow";
 
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
@@ -16,7 +15,7 @@ import {
 import type { ChangeEvent, FormEvent } from "react";
 import { useId, useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { EventCategory, ContentStatus } from "@/generated/prisma/client";
 import {
@@ -91,17 +90,15 @@ function toDatetimeLocal(date: Date | string): string {
 }
 
 export function EventForm({ mode, initialData }: Props) {
-  const { data: session } = useSession();
-  const superAdmin = session?.user.role === "SUPER_ADMIN";
-  let locked = false;
-  if (initialData && !superAdmin) {
-    try { assertEditable(session?.user ?? { id: "", role: "" }, initialData); }
-    catch { locked = true; }
-  }
   const formId = useId();
+  const permissions = useContentPermissions(initialData);
+  const { superAdmin } = permissions;
+  const locked = initialData ? !permissions.canEdit : !permissions.canCreate;
+  const submitInFlight = useRef(false);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
-  const searchParams = useSearchParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(initialData?.imageUrl ?? "");
@@ -224,11 +221,13 @@ export function EventForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isSubmitting || uploading) return;
+    if (submitInFlight.current || reviewBusy || locked || uploading) return;
 
     setError("");
+    submitInFlight.current = true;
     setIsSubmitting(true);
 
+    let navigating = false;
     try {
       const result: ActionResponse =
         mode === "create"
@@ -242,7 +241,8 @@ export function EventForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push(`/admin/events?success=${mode === "create" ? "created" : "updated"}`);
+      navigating = true;
+      router.push("/admin/events?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[EventForm] Submit gagal:", error);
@@ -250,74 +250,24 @@ export function EventForm({ mode, initialData }: Props) {
         "Terjadi kesalahan saat menyimpan agenda. Silakan coba lagi.",
       );
     } finally {
-      setIsSubmitting(false);
+      if (!navigating) {
+        submitInFlight.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 
-  const isSuccess = searchParams.get("success") === "true";
-
-  const successMessage = isSuccess
-    ? mode === "create"
-      ? "Agenda berhasil dibuat."
-      : "Perubahan berhasil disimpan."
-    : "";
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
+    <form onChange={(event) => {
+      if (!(event.target instanceof HTMLElement) ||
+          !event.target.closest("[data-review-controls]")) setDirty(true);
+    }} onSubmit={handleSubmit} className="space-y-7">
       {initialData && <ContentReviewControls kind="event" id={initialData.id}
-        state={initialData} superAdmin={superAdmin} />}
-      <fieldset disabled={locked || isSubmitting} className="space-y-6">
-      {locked && <p>Konten ini dikunci untuk perubahan akun Anda.</p>}
-
-      {isSuccess && (
-        <div className="flex items-start justify-between gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
-          <div className="flex items-start gap-2.5">
-            <svg
-              className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-
-            <p className="text-sm font-medium text-emerald-700">
-              {successMessage}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            aria-label="Tutup notifikasi"
-            onClick={() => {
-              const url = new URL(window.location.href);
-              url.searchParams.delete("success");
-              window.history.replaceState({}, "", url.toString());
-              router.refresh();
-            }}
-            className="shrink-0 text-emerald-600 transition-colors hover:text-emerald-800"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-      )}
+        state={initialData} disabled={dirty || isSubmitting || uploading}
+        onBusyChange={setReviewBusy} />}
+      <fieldset disabled={locked || isSubmitting || reviewBusy} className="space-y-6">
+      {locked && <p className="text-sm text-neutral-500">{permissions.loading
+        ? "Memuat kewenangan akun..." : "Konten ini hanya dapat dilihat oleh akun Anda."}</p>}
 
       {error && (
         <div className="flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 px-4 py-3">
@@ -557,17 +507,16 @@ export function EventForm({ mode, initialData }: Props) {
           Batal
         </button>
 
-        <button
+        {!locked && <button
           type="submit"
           disabled={isSubmitting || uploading}
           className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
-            : mode === "create"
-              ? "Buat Agenda"
-              : "Simpan Perubahan"}
-        </button>
+            : form.status === "PUBLISHED" ? "Terbitkan"
+              : form.status === "ARCHIVED" ? "Simpan Arsip" : "Simpan Draft"}
+        </button>}
       </div>
     </fieldset>
     </form>

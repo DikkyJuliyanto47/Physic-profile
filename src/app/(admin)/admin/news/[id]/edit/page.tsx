@@ -20,6 +20,7 @@ export default async function EditNewsPage({
   const news = await prisma.news.findUnique({
     where: { id, ...(session.user.role !== "SUPER_ADMIN" && { authorId: session.user.id }) },
     select: {
+      author: { select: { name: true, email: true } },
       authorId: true, reviewStatus: true, reviewNote: true, contentVersion: true,
       id: true,
       title: true,
@@ -62,6 +63,10 @@ export default async function EditNewsPage({
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
+            <p className="mb-4 break-words text-sm text-neutral-500">
+              Pengaju: {news.author?.name ?? "Belum diketahui"}
+              {news.author?.email ? ` (${news.author.email})` : ""}
+            </p>
             <NewsForm key={news.contentVersion} mode="edit" initialData={news} />
           </div>
         </div>

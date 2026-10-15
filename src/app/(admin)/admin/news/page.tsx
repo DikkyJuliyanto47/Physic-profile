@@ -1,3 +1,6 @@
+import { contentListScope } from "@/lib/content-permissions";
+import { ReviewStatusBadge, ReviewFilter, REVIEW_LABELS } from "@/components/admin/ReviewStatusBadge";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -60,14 +63,15 @@ function getStatusLabel(status: ContentStatus): string {
 export default async function NewsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; review?: string; result?: string }>;
 }) {
-  const { q, status } = await searchParams;
+  const { q, status, review, result } = await searchParams;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
-  const where: Record<string, unknown> = session.user.role === "SUPER_ADMIN"
-    ? {} : { authorId: session.user.id };
+  const where: Record<string, unknown> = contentListScope(session.user);
+
+  if (review && Object.hasOwn(REVIEW_LABELS, review)) where.reviewStatus = review;
 
   if (q) {
     where.OR = [
@@ -86,7 +90,7 @@ export default async function NewsListPage({
     include: { author: { select: { name: true } } },
   });
 
-  const hasFilter = Boolean(q || status);
+  const hasFilter = Boolean(q || status || review);
 
   return (
     <div className="w-full min-w-0 space-y-6 sm:space-y-8">
@@ -121,9 +125,10 @@ export default async function NewsListPage({
         </Link>
       </header>
 
+      <ContentFeedback result={result} />
       <form
         method="GET"
-        className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center"
+        className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center"
       >
         <div className="relative min-w-0 flex-1">
           <svg
@@ -159,6 +164,7 @@ export default async function NewsListPage({
           <option value="ARCHIVED">Arsip</option>
         </select>
 
+        <ReviewFilter value={review} />
         <button
           type="submit"
           className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
@@ -242,6 +248,8 @@ export default async function NewsListPage({
                         <p className="line-clamp-1 font-medium text-neutral-900">
                           {news.title}
                         </p>
+                        <div className="mt-2"><ReviewStatusBadge status={news.reviewStatus} /></div>
+                        {news.reviewNote && <p className="mt-1 max-w-xs break-words text-xs text-amber-700">Catatan: {news.reviewNote}</p>}
 
                         <span
                           className={`mt-1.5 inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${CATEGORY_COLORS[news.category]}`}
@@ -269,6 +277,7 @@ export default async function NewsListPage({
 
                     <td className="px-4 py-4 text-right sm:px-5">
                       <NewsActions
+                        state={news}
                         newsId={news.id}
                         newsTitle={news.title}
                         currentStatus={news.status}

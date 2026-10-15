@@ -1,11 +1,10 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useContentPermissions } from "./use-content-permissions";
 import { ContentReviewControls } from "./ContentReviewControls";
 import type { ContentState } from "@/lib/content-workflow";
-import { assertEditable } from "@/lib/content-workflow";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActionResponse } from "@/actions/publication";
 import { createPublication, updatePublication } from "@/actions/publication";
@@ -41,14 +40,13 @@ const textareaClass =
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
 export function PublicationForm({ mode, initialData }: Props) {
-  const { data: session } = useSession();
-  const superAdmin = session?.user.role === "SUPER_ADMIN";
-  let locked = false;
-  if (initialData && !superAdmin) {
-    try { assertEditable(session?.user ?? { id: "", role: "" }, initialData); }
-    catch { locked = true; }
-  }
   const router = useRouter();
+  const permissions = useContentPermissions(initialData);
+  const { superAdmin } = permissions;
+  const locked = initialData ? !permissions.canEdit : !permissions.canCreate;
+  const submitInFlight = useRef(false);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -79,11 +77,13 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (submitInFlight.current || reviewBusy || locked) return;
 
     setError("");
+    submitInFlight.current = true;
     setIsSubmitting(true);
 
+    let navigating = false;
     try {
       const result: ActionResponse = 
        mode === "create"
@@ -97,28 +97,39 @@ export function PublicationForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push("/admin/publication");
+      navigating = true;
+      router.push("/admin/publication?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[PublicationForm] Submit gagal:", error);
       setError (
         "Koneksi atau layanan bermasalah. Periksa daftar publikasi sebelum mencoba menyimpan kembali."
       );
+    } finally {
+      if (!navigating) {
+        submitInFlight.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onChange={(event) => {
+      if (!(event.target instanceof HTMLElement) ||
+          !event.target.closest("[data-review-controls]")) setDirty(true);
+    }} onSubmit={handleSubmit} className="space-y-6">
       {initialData && <ContentReviewControls kind="publication" id={initialData.id}
-        state={initialData} superAdmin={superAdmin} />}
-      <fieldset disabled={locked || isSubmitting} className="space-y-6">
-      {superAdmin && <label>Operasi
-        <select name="intent" value={form.intent} onChange={handleChange}>
+        state={initialData} disabled={dirty || isSubmitting}
+        onBusyChange={setReviewBusy} />}
+      <fieldset disabled={locked || isSubmitting || reviewBusy} className="space-y-6">
+      {superAdmin && <label className={labelClass}>Operasi
+        <select className={inputClass} name="intent" value={form.intent} onChange={handleChange}>
           <option value="draft">Simpan draft</option>
           <option value="publish">Terbitkan / jadwalkan</option>
         </select>
       </label>}
-      {locked && <p>Konten ini dikunci untuk perubahan akun Anda.</p>}
+      {locked && <p className="text-sm text-neutral-500">{permissions.loading
+        ? "Memuat kewenangan akun..." : "Konten ini hanya dapat dilihat oleh akun Anda."}</p>}
 
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -229,17 +240,15 @@ export function PublicationForm({ mode, initialData }: Props) {
       </div>
 
       <div className="flex items-center gap-2 border-t border-neutral-200 pt-5">
-        <button
+        {!locked && <button
           type="submit"
           disabled={isSubmitting}
           className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
-            : mode === "create"
-              ? "Buat Publikasi"
-              : "Simpan Perubahan"}
-        </button>
+            : form.intent === "publish" ? "Terbitkan / Jadwalkan" : "Simpan Draft"}
+        </button>}
 
         <button
           type="button"
