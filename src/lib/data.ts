@@ -1,3 +1,4 @@
+import { publishedContent, publishedPublications } from "@/lib/content-visibility";
 import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
@@ -68,7 +69,7 @@ export async function getPublishedNews(
   const category = normalizeNewsCategory(kategori);
   const items = await prisma.news.findMany({
     where: {
-      status: "PUBLISHED",
+      ...publishedContent,
       ...(category && { category }),
     },
     select: {
@@ -103,7 +104,7 @@ export async function getNewsBySlug(slug: string) {
   cacheTag("news");
 
   const news = await prisma.news.findUnique({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, ...publishedContent },
     select: {
       id: true,
       title: true,
@@ -139,7 +140,7 @@ export async function getUpcomingEvents(limit = 4): Promise<EventItem[]> {
 
   const events = await prisma.event.findMany({
     where: {
-      status: "PUBLISHED",
+      ...publishedContent,
       startDate: { gte: new Date() },
     },
     select: {
@@ -176,7 +177,7 @@ export async function getPublishedEvents(): Promise<
   cacheTag("events");
 
   const events = await prisma.event.findMany({
-    where: { status: "PUBLISHED" },
+    where: { ...publishedContent },
     select: {
       id: true,
       title: true,
@@ -211,7 +212,7 @@ export async function getEventBySlug(slug: string) {
   cacheTag("events");
 
   const event = await prisma.event.findUnique({
-    where: { slug, status: "PUBLISHED" },
+    where: { slug, ...publishedContent },
     select: {
       id: true,
       title: true,
@@ -465,7 +466,7 @@ export async function getAcademicStats() {
       _count: true,
       orderBy: { _count: { fieldOfExpertise: "desc" } },
     }),
-    prisma.publication.count(),
+    prisma.publication.count({ where: publishedPublications() }),
   ]);
 
   return { totalAnggota, expertiseGroups, totalPublikasi };
@@ -481,7 +482,7 @@ export async function getSitemapNews() {
   cacheTag("news");
 
   return prisma.news.findMany({
-    where: { status: "PUBLISHED" },
+    where: { ...publishedContent },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -493,7 +494,7 @@ export async function getSitemapEvents() {
   cacheTag("events");
 
   return prisma.event.findMany({
-    where: { status: "PUBLISHED" },
+    where: { ...publishedContent },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });

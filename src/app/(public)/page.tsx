@@ -1,3 +1,4 @@
+import { publishedContent } from "@/lib/content-visibility";
 import { publicMetadata } from "@/config/seo";
 import {
   AboutSection,
@@ -19,7 +20,7 @@ export default async function Page() {
   const [events, universities] = await Promise.all([
     prisma.event.findMany({
       where: {
-        status: "PUBLISHED",
+        ...publishedContent,
       },
       orderBy: {
         startDate: "desc",

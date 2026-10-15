@@ -1,5 +1,10 @@
 "use client";
 
+import { useSession } from "next-auth/react";
+import { ContentReviewControls } from "./ContentReviewControls";
+import type { ContentState } from "@/lib/content-workflow";
+import { assertEditable } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -23,7 +28,8 @@ import {
 
 type Props = {
   mode: "create" | "edit";
-  initialData?: {
+  initialData?: ContentState & {
+    reviewNote?: string | null;
     id: string;
     title: string;
     category: EventCategory;
@@ -85,6 +91,13 @@ function toDatetimeLocal(date: Date | string): string {
 }
 
 export function EventForm({ mode, initialData }: Props) {
+  const { data: session } = useSession();
+  const superAdmin = session?.user.role === "SUPER_ADMIN";
+  let locked = false;
+  if (initialData && !superAdmin) {
+    try { assertEditable(session?.user ?? { id: "", role: "" }, initialData); }
+    catch { locked = true; }
+  }
   const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
@@ -106,6 +119,7 @@ export function EventForm({ mode, initialData }: Props) {
   }, []);
 
   const [form, setForm] = useState<EventInput>({
+    contentVersion: initialData?.contentVersion,
     title: initialData?.title ?? "",
     category: initialData?.category ?? "SEMINAR_NASIONAL",
     description: initialData?.description ?? "",
@@ -219,7 +233,9 @@ export function EventForm({ mode, initialData }: Props) {
       const result: ActionResponse =
         mode === "create"
           ? await createEvent(form)
-          : await updateEvent(initialData!.id, form);
+          : await updateEvent(initialData!.id, {
+              ...form, contentVersion: initialData!.contentVersion,
+            });
 
       if (!result.success) {
         setError(result.error ?? "Gagal menyimpan agenda.");
@@ -248,6 +264,11 @@ export function EventForm({ mode, initialData }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
+      {initialData && <ContentReviewControls kind="event" id={initialData.id}
+        state={initialData} superAdmin={superAdmin} />}
+      <fieldset disabled={locked || isSubmitting} className="space-y-6">
+      {locked && <p>Konten ini dikunci untuk perubahan akun Anda.</p>}
+
       {isSuccess && (
         <div className="flex items-start justify-between gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
           <div className="flex items-start gap-2.5">
@@ -363,7 +384,7 @@ export function EventForm({ mode, initialData }: Props) {
               className={fieldClassName}
             >
               <option value="DRAFT">Draf</option>
-              <option value="PUBLISHED">Terbitkan</option>
+              {superAdmin && <option value="PUBLISHED">Terbitkan</option>}
             </select>
           </div>
 
@@ -548,6 +569,7 @@ export function EventForm({ mode, initialData }: Props) {
               : "Simpan Perubahan"}
         </button>
       </div>
+    </fieldset>
     </form>
   );
 }

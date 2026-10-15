@@ -1,3 +1,5 @@
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PublicationType } from "@/generated/prisma/client";
@@ -35,7 +37,10 @@ export default async function PublicationListPage({
 }) {
   const { q, type } = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = session.user.role === "SUPER_ADMIN"
+    ? {} : { authorId: session.user.id };
 
   if (q) {
     where.OR = [

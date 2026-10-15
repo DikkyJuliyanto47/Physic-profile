@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PublicationForm } from "@/components/admin/PublicationForm";
@@ -11,10 +12,12 @@ export default async function EditPublicationPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
 
   const publication = await prisma.publication.findUnique({
-    where: { id },
+    where: { id, ...(session.user.role !== "SUPER_ADMIN" && { authorId: session.user.id }) },
   });
 
   if (!publication) {
@@ -33,7 +36,7 @@ export default async function EditPublicationPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-6">
-        <PublicationForm mode="edit" initialData={publication} />
+        <PublicationForm key={publication.contentVersion} mode="edit" initialData={publication} />
       </div>
     </div>
   );

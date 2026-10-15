@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
@@ -12,11 +13,14 @@ export default async function EditEventPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
 
   const event = await prisma.event.findUnique({
-    where: { id },
+    where: { id, ...(session.user.role !== "SUPER_ADMIN" && { authorId: session.user.id }) },
     select: {
+      authorId: true, reviewStatus: true, reviewNote: true, contentVersion: true,
       id: true,
       title: true,
       category: true,
@@ -46,7 +50,7 @@ export default async function EditEventPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-5 sm:p-6">
-        <EventForm mode="edit" initialData={event} />
+        <EventForm key={event.contentVersion} mode="edit" initialData={event} />
       </div>
     </div>
   );

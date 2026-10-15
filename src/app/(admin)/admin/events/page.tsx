@@ -1,3 +1,5 @@
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
@@ -85,7 +87,10 @@ export default async function EventsListPage({
 }) {
   const { q, status } = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = session.user.role === "SUPER_ADMIN"
+    ? {} : { authorId: session.user.id };
 
   if (q) {
     where.OR = [
@@ -264,6 +269,7 @@ export default async function EventsListPage({
                         eventId={event.id}
                         eventTitle={event.title}
                         currentStatus={event.status}
+                        contentVersion={event.contentVersion}
                       />
                     </td>
                   </tr>

@@ -1,7 +1,9 @@
 "use server";
 
+import { reviewContent } from "./content-review";
 import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
+import { ContentWorkflowError, assertEditable, assertVersion, publicationReview } from "@/lib/content-workflow";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 import { EventCategory, ContentStatus } from "@/generated/prisma/client";
@@ -16,6 +18,7 @@ function slugify(text: string): string {
 }
 
 export type EventInput = {
+  contentVersion?: number;
   title: string;
   category: EventCategory;
   description: string;
@@ -30,6 +33,7 @@ export type EventInput = {
 
 export type ActionResponse = {
   success: boolean;
+  id?: string;
   error?: string;
 };
 
@@ -85,7 +89,8 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
     }
 
-    await mutateWithMedia(data, (tx) => tx.event.create({
+    const reviewStatus = publicationReview(session.user, data.status);
+    const created = await mutateWithMedia(data, (tx) => tx.event.create({
       data: {
         title: data.title.trim(),
         slug,
@@ -97,6 +102,9 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
         linkUrl: data.linkUrl?.trim() || null,
         imageUrl: data.imageUrl?.trim() || null,
         status: data.status,
+        reviewStatus,
+        reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
+        reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
         authorId: session.user.id,
       },
     }));
@@ -106,8 +114,9 @@ export async function createEvent(data: EventInput): Promise<ActionResponse> {
     revalidatePath("/admin");
     revalidatePath("/admin/events");
     revalidatePath("/events");
-    return { success: true };
+    return { success: true, id: created.id };
   } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     console.error("[createEvent] Gagal membuat event:", error);
     return { success: false, error: "Gagal membuat event. Silakan coba lagi." };
   }
@@ -133,20 +142,32 @@ export async function updateEvent(
       return { success: false, error: "Tanggal selesai tidak boleh sebelum tanggal mulai." };
     }
 
-    await mutateWithMedia(data, (tx) => tx.event.update({
-      where: { id },
-      data: {
-        title: data.title.trim(),
-        category: data.category,
-        description: data.description.trim(),
-        startDate,
-        endDate,
-        location: data.location?.trim() || null,
-        linkUrl: data.linkUrl?.trim() || null,
-        imageUrl: data.imageUrl?.trim() || null,
-        status: data.status,
-      },
-    }), (tx) => tx.event.findUnique({ where: { id } }));
+    await mutateWithMedia(data, async (tx) => {
+      const currentRecord = await tx.event.findUnique({ where: { id } });
+      if (!currentRecord) throw new Error("Konten tidak ditemukan.");
+      assertVersion(currentRecord, data.contentVersion);
+      assertEditable(session.user, currentRecord);
+      const reviewStatus = publicationReview(session.user, data.status);
+      return tx.event.update({
+        where: { id, contentVersion: currentRecord.contentVersion },
+        data: {
+          reviewStatus: session.user.role === "ADMIN" && currentRecord.reviewStatus === "REVISION_REQUIRED"
+            ? "REVISION_REQUIRED" : reviewStatus,
+          reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
+          reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
+          contentVersion: { increment: 1 },
+          title: data.title.trim(),
+          category: data.category,
+          description: data.description.trim(),
+          startDate,
+          endDate,
+          location: data.location?.trim() || null,
+          linkUrl: data.linkUrl?.trim() || null,
+          imageUrl: data.imageUrl?.trim() || null,
+          status: data.status,
+        },
+      });
+    }, (tx) => tx.event.findUnique({ where: { id } }));
 
     updateTag("events");
     revalidatePath("/");
@@ -156,6 +177,7 @@ export async function updateEvent(
     revalidatePath("/events");
     return { success: true };
   } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     console.error("[updateEvent] Gagal memperbarui event:", error);
     return { success: false, error: "Gagal memperbarui event." };
   }
@@ -173,7 +195,14 @@ export async function deleteEvent(id: string): Promise<ActionResponse> {
       return { success: false, error: "Event tidak ditemukan." };
     }
 
-    await mutateWithMedia(null, (tx) => tx.event.delete({ where: { id } }), (tx) => tx.event.findUnique({ where: { id } }));
+    assertEditable(session.user, event);
+    await mutateWithMedia(
+      null,
+      (tx) => tx.event.delete({
+        where: { id, contentVersion: event.contentVersion },
+      }),
+      (tx) => tx.event.findUnique({ where: { id } }),
+    );
     updateTag("events");
     revalidatePath("/");
     revalidatePath("/admin");
@@ -181,39 +210,19 @@ export async function deleteEvent(id: string): Promise<ActionResponse> {
     revalidatePath("/events");
     return { success: true };
   } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     console.error("[deleteEvent] Gagal menghapus event:", error);
     return { success: false, error: "Gagal menghapus event." };
   }
 }
 
-export async function toggleEventStatus(id: string): Promise<ActionResponse> {
-  try {
-    const session = await requireAdmin();
-    if (!session) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const event = await prisma.event.findUnique({ where: { id } });
-    if (!event) {
-      return { success: false, error: "Event tidak ditemukan." };
-    }
-
-    const newStatus =
-      event.status === "PUBLISHED" ? ContentStatus.DRAFT : ContentStatus.PUBLISHED;
-
-    await prisma.event.update({
-      where: { id },
-      data: { status: newStatus },
-    });
-
-    updateTag("events");
-    revalidatePath("/");
-    revalidatePath("/admin");
-    revalidatePath("/admin/events");
-    revalidatePath("/events");
-    return { success: true };
-  } catch (error) {
-    console.error("[toggleEventStatus] Gagal mengubah status event:", error);
-    return { success: false, error: "Gagal mengubah status event." };
+export async function toggleEventStatus(id: string, version?: number): Promise<ActionResponse> {
+  const session = await requireAdmin();
+  if (session?.user.role !== "SUPER_ADMIN") {
+    return { success: false, error: "Akses Super Admin diperlukan." };
   }
+  const current = await prisma.event.findUnique({ where: { id } });
+  if (!current || version === undefined) return { success: false, error: "Muat ulang konten." };
+  return reviewContent("event", id, version,
+    current.status === "PUBLISHED" ? "unpublish" : "publish");
 }

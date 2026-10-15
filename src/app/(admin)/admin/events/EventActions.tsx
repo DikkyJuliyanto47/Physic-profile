@@ -1,4 +1,5 @@
 "use client";
+import { useSession } from "next-auth/react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,14 +11,17 @@ type Props = {
   eventId: string;
   eventTitle: string;
   currentStatus: string;
+  contentVersion: number;
 };
 
 export function EventActions({
   eventId,
   eventTitle,
   currentStatus,
+  contentVersion,
 }: Props) {
   const router = useRouter();
+  const superAdmin = useSession().data?.user.role === "SUPER_ADMIN";
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -30,7 +34,7 @@ export function EventActions({
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleEventStatus(eventId);
+        const result = await toggleEventStatus(eventId, contentVersion);
         if (result.success === true) {
           router.refresh();
         } else {
@@ -64,6 +68,7 @@ export function EventActions({
       <div className="inline-flex items-center gap-1">
         <button
           type="button"
+          hidden={!superAdmin}
           onClick={handleToggle}
           disabled={isPending}
           title={

@@ -1,5 +1,10 @@
 "use client";
 
+import { useSession } from "next-auth/react";
+import { ContentReviewControls } from "./ContentReviewControls";
+import type { ContentState } from "@/lib/content-workflow";
+import { assertEditable } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -23,7 +28,8 @@ import {
 
 type Props = {
   mode: "create" | "edit";
-  initialData?: {
+  initialData?: ContentState & {
+    reviewNote?: string | null;
     id: string;
     title: string;
     category: NewsCategory;
@@ -68,6 +74,13 @@ function FieldLabel({
 }
 
 export function NewsForm({ mode, initialData }: Props) {
+  const { data: session } = useSession();
+  const superAdmin = session?.user.role === "SUPER_ADMIN";
+  let locked = false;
+  if (initialData && !superAdmin) {
+    try { assertEditable(session?.user ?? { id: "", role: "" }, initialData); }
+    catch { locked = true; }
+  }
   const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
@@ -79,6 +92,7 @@ export function NewsForm({ mode, initialData }: Props) {
   const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState<NewsInput>({
+    contentVersion: initialData?.contentVersion,
     title: initialData?.title ?? "",
     category: initialData?.category ?? NewsCategory.ORGANISASI,
     excerpt: initialData?.excerpt ?? "",
@@ -177,7 +191,9 @@ export function NewsForm({ mode, initialData }: Props) {
       const result: ActionResponse =
         mode === "create"
           ? await createNews(payload)
-          : await updateNews(initialData!.id, payload);
+          : await updateNews(initialData!.id, {
+              ...payload, contentVersion: initialData!.contentVersion,
+            });
       
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
@@ -205,6 +221,11 @@ export function NewsForm({ mode, initialData }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
+      {initialData && <ContentReviewControls kind="news" id={initialData.id}
+        state={initialData} superAdmin={superAdmin} />}
+      <fieldset disabled={locked || isSubmitting} className="space-y-6">
+      {locked && <p>Konten ini dikunci untuk perubahan akun Anda.</p>}
+
       {isSuccess && (
         <div className="flex items-start justify-between gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
           <div className="flex items-start gap-2.5">
@@ -336,8 +357,8 @@ export function NewsForm({ mode, initialData }: Props) {
               className={fieldClassName}
             >
               <option value={ContentStatus.DRAFT}>Draf</option>
-              <option value={ContentStatus.PUBLISHED}>Terbitkan</option>
-              {mode === "edit" && (
+              {superAdmin && <option value={ContentStatus.PUBLISHED}>Terbitkan</option>}
+              {superAdmin && mode === "edit" && (
                 <option value={ContentStatus.ARCHIVED}>Arsipkan</option>
               )}
             </select>
@@ -464,6 +485,7 @@ export function NewsForm({ mode, initialData }: Props) {
               : "Simpan Perubahan"}
         </button>
       </div>
+    </fieldset>
     </form>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { useSession } from "next-auth/react";
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -9,14 +10,17 @@ type Props = {
   newsId: string;
   newsTitle: string;
   currentStatus: string;
+  contentVersion: number;
 };
 
 export function NewsActions({
   newsId,
   newsTitle,
   currentStatus,
+  contentVersion,
 }: Props) {
   const router = useRouter();
+  const superAdmin = useSession().data?.user.role === "SUPER_ADMIN";
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +33,7 @@ export function NewsActions({
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleNewsStatus(newsId);
+        const result = await toggleNewsStatus(newsId, contentVersion);
         if (result.success === true) {
           router.refresh();
         } else {
@@ -63,7 +67,7 @@ export function NewsActions({
   return (
     <>
       <div className="inline-flex items-center gap-1">
-        {currentStatus !== "ARCHIVED" && (
+        {superAdmin && currentStatus !== "ARCHIVED" && (
         <button
           type="button"
           onClick={handleToggle}

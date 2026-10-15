@@ -1,6 +1,8 @@
 "use server";
 
+import { ContentWorkflowError, assertEditable, assertVersion, publicationReview } from "@/lib/content-workflow";
 import { requireAdmin } from "@/lib/auth-utils";
+import { reviewContent } from "./content-review";
 import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
 import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
@@ -8,6 +10,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { parseNewsEventDate } from "@/lib/news-event-date";
 
 export type NewsInput = {
+  contentVersion?: number;
   title: string;
   category: NewsCategory;
   excerpt?: string;
@@ -19,6 +22,7 @@ export type NewsInput = {
 
 export type ActionResponse = {
   success: boolean;
+  id?: string;
   error?: string;
 };
 
@@ -106,7 +110,8 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
       };
     }
 
-    await mutateWithMedia(data, (tx) => tx.news.create({
+    const reviewStatus = publicationReview(session.user, data.status);
+    const created = await mutateWithMedia(data, (tx) => tx.news.create({
       data: {
         title: data.title.trim(),
         slug,
@@ -115,6 +120,9 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
         content: data.content.trim(),
         imageUrl: data.imageUrl?.trim() || null,
         status: data.status,
+        reviewStatus,
+        reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
+        reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
         publishedAt:
           data.status === ContentStatus.PUBLISHED ? new Date() : null,
         authorId: session.user.id,
@@ -124,8 +132,9 @@ export async function createNews(data: NewsInput): Promise<ActionResponse> {
 
     revalidateNews();
 
-    return { success: true };
+    return { success: true, id: created.id };
   } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     if (isUniqueConstraintError(error)) {
       return {
         success: false,
@@ -163,6 +172,9 @@ export async function updateNews(
         slug: true,
         status: true,
         publishedAt: true,
+        authorId: true,
+        reviewStatus: true,
+        contentVersion: true,
       },
     });
 
@@ -177,27 +189,40 @@ export async function updateNews(
           : new Date()
         : null;
 
-    await mutateWithMedia(data, (tx) => tx.news.update({
-      where: { id },
-      data: {
-        title: data.title.trim(),
-        category: data.category,
-        excerpt: data.excerpt?.trim() || null,
-        content: data.content.trim(),
-        imageUrl: data.imageUrl?.trim() || null,
-        status: data.status,
-        publishedAt,
-        eventDate: data.eventDate === undefined
-          ? undefined
-          : data.eventDate ? parseNewsEventDate(data.eventDate) : null,
-      },
-    }), (tx) => tx.news.findUnique({ where: { id } }));
+    await mutateWithMedia(data, async (tx) => {
+      const currentRecord = await tx.news.findUnique({ where: { id } });
+      if (!currentRecord) throw new Error("Konten tidak ditemukan.");
+      assertVersion(currentRecord, data.contentVersion);
+      assertEditable(session.user, currentRecord);
+      const reviewStatus = publicationReview(session.user, data.status);
+      return tx.news.update({
+        where: { id, contentVersion: currentRecord.contentVersion },
+        data: {
+          reviewStatus: session.user.role === "ADMIN" && currentRecord.reviewStatus === "REVISION_REQUIRED"
+            ? "REVISION_REQUIRED" : reviewStatus,
+          reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
+          reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
+          contentVersion: { increment: 1 },
+          title: data.title.trim(),
+          category: data.category,
+          excerpt: data.excerpt?.trim() || null,
+          content: data.content.trim(),
+          imageUrl: data.imageUrl?.trim() || null,
+          status: data.status,
+          publishedAt,
+          eventDate: data.eventDate === undefined
+            ? undefined
+            : data.eventDate ? parseNewsEventDate(data.eventDate) : null,
+        },
+      });
+    }, (tx) => tx.news.findUnique({ where: { id } }));
 
     revalidateNews();
     revalidatePath(`/news/${current.slug}`);
 
     return { success: true };
   } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     if (isUniqueConstraintError(error)) {
       return {
         success: false,
@@ -222,22 +247,24 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
 
     const news = await prisma.news.findUnique({
       where: { id },
-      select: { id: true, slug: true },
+      select: { id: true, slug: true, authorId: true, status: true, reviewStatus: true, contentVersion: true },
     });
 
     if (!news) {
       return { success: false, error: "Berita tidak ditemukan." };
     }
 
+    assertEditable(session.user, news);
     await mutateWithMedia(null, (tx) => tx.news.delete({
-      where: { id },
+      where: { id, contentVersion: news.contentVersion },
     }), (tx) => tx.news.findUnique({ where: { id } }));
 
     revalidateNews();
     revalidatePath(`/news/${news.slug}`);
 
     return { success: true };
-  } catch {
+  } catch (error) {
+    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
     return {
       success: false,
       error: "Gagal menghapus berita. Silakan coba lagi.",
@@ -245,59 +272,13 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
   }
 }
 
-export async function toggleNewsStatus(
-  id: string,
-): Promise<ActionResponse> {
-  try {
-    const session = await requireAdmin();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const news = await prisma.news.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
-
-    if (!news) {
-      return { success: false, error: "Berita tidak ditemukan." };
-    }
-
-    if (
-      news.status !== ContentStatus.DRAFT &&
-      news.status !== ContentStatus.PUBLISHED
-    ) {
-      return {
-        success: false,
-        error: "Berita terarsip hanya dapat diubah melalui form edit.",
-      };
-    }
-
-    const newStatus =
-      news.status === ContentStatus.PUBLISHED
-        ? ContentStatus.DRAFT
-        : ContentStatus.PUBLISHED;
-
-    await prisma.news.update({
-      where: { id },
-      data: {
-        status: newStatus,
-        publishedAt:
-          newStatus === ContentStatus.PUBLISHED ? new Date() : null,
-      },
-    });
-
-    revalidateNews();
-
-    return { success: true };
-  } catch {
-    return {
-      success: false,
-      error: "Gagal mengubah status berita. Silakan coba lagi.",
-    };
+export async function toggleNewsStatus(id: string, version?: number): Promise<ActionResponse> {
+  const session = await requireAdmin();
+  if (session?.user.role !== "SUPER_ADMIN") {
+    return { success: false, error: "Akses Super Admin diperlukan." };
   }
+  const current = await prisma.news.findUnique({ where: { id } });
+  if (!current || version === undefined) return { success: false, error: "Muat ulang konten." };
+  return reviewContent("news", id, version,
+    current.status === "PUBLISHED" ? "unpublish" : "publish");
 }

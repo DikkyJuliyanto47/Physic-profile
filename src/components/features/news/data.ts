@@ -1,3 +1,4 @@
+import { publishedContent } from "@/lib/content-visibility";
 import { prisma } from "@/lib/prisma";
 
 export interface NewsItem {
@@ -41,7 +42,7 @@ export async function getNews({
 
   const items = await prisma.news.findMany({
     where: {
-      status: "PUBLISHED",
+      ...publishedContent,
       ...(normalizedCategory && {
         category: normalizedCategory as never,
       }),

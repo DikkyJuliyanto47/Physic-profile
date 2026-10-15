@@ -232,6 +232,7 @@ model Publication {
   externalUrl String?
   fileUrl     String?
   publishedAt DateTime?
+  status      ContentStatus   @default(DRAFT)
   // Legacy ownership is unknown; future ADMIN writes must require ownership.
   authorId       String?
   author         User?        @relation("PublicationAuthor", fields: [authorId], references: [id], onDelete: Restrict)

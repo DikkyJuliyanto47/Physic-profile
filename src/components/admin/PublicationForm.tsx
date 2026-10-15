@@ -1,5 +1,10 @@
 "use client";
 
+import { useSession } from "next-auth/react";
+import { ContentReviewControls } from "./ContentReviewControls";
+import type { ContentState } from "@/lib/content-workflow";
+import { assertEditable } from "@/lib/content-workflow";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActionResponse } from "@/actions/publication";
@@ -8,7 +13,8 @@ import type { PublicationInput, PublicationType } from "@/types/publication";
 
 type Props = {
   mode: "create" | "edit";
-  initialData?: {
+  initialData?: ContentState & {
+    reviewNote?: string | null;
     id: string;
     title: string;
     type: PublicationType;
@@ -35,11 +41,20 @@ const textareaClass =
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
 export function PublicationForm({ mode, initialData }: Props) {
+  const { data: session } = useSession();
+  const superAdmin = session?.user.role === "SUPER_ADMIN";
+  let locked = false;
+  if (initialData && !superAdmin) {
+    try { assertEditable(session?.user ?? { id: "", role: "" }, initialData); }
+    catch { locked = true; }
+  }
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState<PublicationInput>({
+    contentVersion: initialData?.contentVersion,
+    intent: initialData?.reviewStatus === "APPROVED" ? "publish" : "draft",
     title: initialData?.title ?? "",
     type: initialData?.type ?? "JURNAL",
     description: initialData?.description ?? "",
@@ -73,7 +88,9 @@ export function PublicationForm({ mode, initialData }: Props) {
       const result: ActionResponse = 
        mode === "create"
         ? await createPublication(form)
-        : await updatePublication(initialData!.id, form);
+        : await updatePublication(initialData!.id, {
+              ...form, contentVersion: initialData!.contentVersion,
+            });
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
@@ -92,6 +109,17 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {initialData && <ContentReviewControls kind="publication" id={initialData.id}
+        state={initialData} superAdmin={superAdmin} />}
+      <fieldset disabled={locked || isSubmitting} className="space-y-6">
+      {superAdmin && <label>Operasi
+        <select name="intent" value={form.intent} onChange={handleChange}>
+          <option value="draft">Simpan draft</option>
+          <option value="publish">Terbitkan / jadwalkan</option>
+        </select>
+      </label>}
+      {locked && <p>Konten ini dikunci untuk perubahan akun Anda.</p>}
+
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -221,6 +249,7 @@ export function PublicationForm({ mode, initialData }: Props) {
           Batal
         </button>
       </div>
+    </fieldset>
     </form>
   );
 }

@@ -1,3 +1,4 @@
+import { publishedContent } from "@/lib/content-visibility";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/ui";
 
@@ -7,7 +8,7 @@ async function getStatistics() {
     prisma.university.count(),
     prisma.event.count({
       where: {
-        status: "PUBLISHED",
+        ...publishedContent,
       },
     }),
   ]);
