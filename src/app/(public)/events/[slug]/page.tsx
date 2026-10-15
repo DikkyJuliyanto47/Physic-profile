@@ -76,7 +76,7 @@ async function EventDetailContent({
 
   const categoryLabel = CATEGORY_LABELS[event.category] ?? event.category;
   await connection();
-  const status = getEventTimeStatus(event.startDate, event.endDate, Date.now());
+  const status = getEventTimeStatus(event.startDate, event.endDate, new Date().getTime());
 
   return (
     <div>

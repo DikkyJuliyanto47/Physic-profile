@@ -1,9 +1,5 @@
 "use client";
 
-import { useContentPermissions } from "./use-content-permissions";
-import { ContentReviewControls } from "./ContentReviewControls";
-import type { ContentState } from "@/lib/content-workflow";
-
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActionResponse } from "@/actions/publication";
@@ -12,8 +8,7 @@ import type { PublicationInput, PublicationType } from "@/types/publication";
 
 type Props = {
   mode: "create" | "edit";
-  initialData?: ContentState & {
-    reviewNote?: string | null;
+  initialData?: {
     id: string;
     title: string;
     type: PublicationType;
@@ -41,18 +36,11 @@ const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
 export function PublicationForm({ mode, initialData }: Props) {
   const router = useRouter();
-  const permissions = useContentPermissions(initialData);
-  const { superAdmin } = permissions;
-  const locked = initialData ? !permissions.canEdit : !permissions.canCreate;
   const submitInFlight = useRef(false);
-  const [reviewBusy, setReviewBusy] = useState(false);
-  const [dirty, setDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState<PublicationInput>({
-    contentVersion: initialData?.contentVersion,
-    intent: initialData?.reviewStatus === "APPROVED" ? "publish" : "draft",
     title: initialData?.title ?? "",
     type: initialData?.type ?? "JURNAL",
     description: initialData?.description ?? "",
@@ -77,20 +65,18 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (submitInFlight.current || reviewBusy || locked) return;
+    if (submitInFlight.current) return;
 
     setError("");
     submitInFlight.current = true;
     setIsSubmitting(true);
-
     let navigating = false;
+
     try {
       const result: ActionResponse = 
        mode === "create"
         ? await createPublication(form)
-        : await updatePublication(initialData!.id, {
-              ...form, contentVersion: initialData!.contentVersion,
-            });
+        : await updatePublication(initialData!.id, form);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
@@ -114,23 +100,7 @@ export function PublicationForm({ mode, initialData }: Props) {
   }
 
   return (
-    <form onChange={(event) => {
-      if (!(event.target instanceof HTMLElement) ||
-          !event.target.closest("[data-review-controls]")) setDirty(true);
-    }} onSubmit={handleSubmit} className="space-y-6">
-      {initialData && <ContentReviewControls kind="publication" id={initialData.id}
-        state={initialData} disabled={dirty || isSubmitting}
-        onBusyChange={setReviewBusy} />}
-      <fieldset disabled={locked || isSubmitting || reviewBusy} className="space-y-6">
-      {superAdmin && <label className={labelClass}>Operasi
-        <select className={inputClass} name="intent" value={form.intent} onChange={handleChange}>
-          <option value="draft">Simpan draft</option>
-          <option value="publish">Terbitkan / jadwalkan</option>
-        </select>
-      </label>}
-      {locked && <p className="text-sm text-neutral-500">{permissions.loading
-        ? "Memuat kewenangan akun..." : "Konten ini hanya dapat dilihat oleh akun Anda."}</p>}
-
+    <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -240,15 +210,17 @@ export function PublicationForm({ mode, initialData }: Props) {
       </div>
 
       <div className="flex items-center gap-2 border-t border-neutral-200 pt-5">
-        {!locked && <button
+        <button
           type="submit"
           disabled={isSubmitting}
           className="h-10 rounded-md bg-primary-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting
             ? "Menyimpan..."
-            : form.intent === "publish" ? "Terbitkan / Jadwalkan" : "Simpan Draft"}
-        </button>}
+            : mode === "create"
+              ? "Buat Publikasi"
+              : "Simpan Perubahan"}
+        </button>
 
         <button
           type="button"
@@ -258,7 +230,6 @@ export function PublicationForm({ mode, initialData }: Props) {
           Batal
         </button>
       </div>
-    </fieldset>
     </form>
   );
 }

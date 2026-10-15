@@ -1,12 +1,6 @@
 const messages: Record<string, string> = {
   saved: "Konten berhasil disimpan.",
   deleted: "Konten berhasil dihapus.",
-  submit: "Pengajuan berhasil dikirim untuk review.",
-  approve: "Pengajuan berhasil disetujui.",
-  revision: "Permintaan revisi berhasil dikirim.",
-  publish: "Konten berhasil diterbitkan atau dijadwalkan.",
-  unpublish: "Publikasi berhasil dibatalkan.",
-  archive: "Konten berhasil diarsipkan.",
 };
 
 export function ContentFeedback({ result }: { result?: string }) {

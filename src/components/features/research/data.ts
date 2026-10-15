@@ -1,4 +1,3 @@
-import { publishedPublications } from "@/lib/content-visibility";
 import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
@@ -29,7 +28,7 @@ export async function getPublishedPublications(): Promise<Publication[]> {
   cacheTag("publications");
 
   const publications = await prisma.publication.findMany({
-    where: publishedPublications(),
+    where: { publishedAt: { not: null, lte: new Date() } },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
 

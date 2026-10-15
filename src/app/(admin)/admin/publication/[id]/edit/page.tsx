@@ -12,13 +12,11 @@ export default async function EditPublicationPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await requireAdmin();
-  if (!session) notFound();
+  if (!await requireAdmin()) notFound();
   const { id } = await params;
 
   const publication = await prisma.publication.findUnique({
-    include: { author: { select: { name: true, email: true } } },
-    where: { id, ...(session.user.role !== "SUPER_ADMIN" && { authorId: session.user.id }) },
+    where: { id },
   });
 
   if (!publication) {
@@ -37,11 +35,7 @@ export default async function EditPublicationPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-6">
-        <p className="mb-4 break-words text-sm text-neutral-500">
-              Pengaju: {publication.author?.name ?? "Belum diketahui"}
-              {publication.author?.email ? ` (${publication.author.email})` : ""}
-            </p>
-            <PublicationForm key={publication.contentVersion} mode="edit" initialData={publication} />
+        <PublicationForm mode="edit" initialData={publication} />
       </div>
     </div>
   );

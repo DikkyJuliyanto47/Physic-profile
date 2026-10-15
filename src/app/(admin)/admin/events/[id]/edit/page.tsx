@@ -13,15 +13,12 @@ export default async function EditEventPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await requireAdmin();
-  if (!session) notFound();
+  if (!await requireAdmin()) notFound();
   const { id } = await params;
 
   const event = await prisma.event.findUnique({
-    where: { id, ...(session.user.role !== "SUPER_ADMIN" && { authorId: session.user.id }) },
+    where: { id },
     select: {
-      author: { select: { name: true, email: true } },
-      authorId: true, reviewStatus: true, reviewNote: true, contentVersion: true,
       id: true,
       title: true,
       category: true,
@@ -51,11 +48,7 @@ export default async function EditEventPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-5 sm:p-6">
-        <p className="mb-4 break-words text-sm text-neutral-500">
-              Pengaju: {event.author?.name ?? "Belum diketahui"}
-              {event.author?.email ? ` (${event.author.email})` : ""}
-            </p>
-            <EventForm key={event.contentVersion} mode="edit" initialData={event} />
+        <EventForm mode="edit" initialData={event} />
       </div>
     </div>
   );

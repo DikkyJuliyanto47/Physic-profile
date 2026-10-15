@@ -1,8 +1,5 @@
 "use client";
 
-import { useContentPermissions } from "@/components/admin/use-content-permissions";
-import type { ContentState } from "@/lib/content-workflow";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -10,37 +7,31 @@ import { useRef, useState, useTransition } from "react";
 import { deleteEvent, toggleEventStatus } from "@/actions/event";
 
 type Props = {
-  state: ContentState;
   eventId: string;
   eventTitle: string;
   currentStatus: string;
-  contentVersion: number;
 };
 
 export function EventActions({
-  state,
   eventId,
   eventTitle,
   currentStatus,
-  contentVersion,
 }: Props) {
   const router = useRouter();
-  const permissions = useContentPermissions(state);
-  const { superAdmin } = permissions;
-
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [toggleError, setToggleError] = useState("");
-  const mutationInFlight = useRef(false);
+  const toggleInFlight = useRef(false);
 
   function handleToggle() {
-    if (isPending || mutationInFlight.current) return;
-    mutationInFlight.current = true;
+    if (isPending || toggleInFlight.current) return;
+    toggleInFlight.current = true;
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleEventStatus(eventId, contentVersion);
+        const result = await toggleEventStatus(eventId);
         if (result.success === true) {
           router.refresh();
         } else {
@@ -49,14 +40,14 @@ export function EventActions({
       } catch {
         setToggleError("Gagal mengubah status agenda. Silakan coba lagi.");
       } finally {
-        mutationInFlight.current = false;
+        toggleInFlight.current = false;
       }
     });
   }
 
   function handleDelete() {
-    if (isPending || mutationInFlight.current) return;
-    mutationInFlight.current = true;
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
     startTransition(async () => {
       try {
@@ -71,7 +62,7 @@ export function EventActions({
       } catch {
         setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
       } finally {
-        mutationInFlight.current = false;
+        deleteInFlight.current = false;
       }
     });
   }
@@ -79,7 +70,7 @@ export function EventActions({
   return (
     <>
       <div className="inline-flex items-center gap-1">
-        {superAdmin && <button
+        <button
           type="button"
           onClick={handleToggle}
           disabled={isPending}
@@ -119,25 +110,22 @@ export function EventActions({
               />
             </svg>
           )}
-        </button>}
+        </button>
 
-        {permissions.canView && (
         <Link
           href={`/admin/events/${eventId}/edit`}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
         >
-          {permissions.canEdit ? "Edit" : "Lihat"}
+          Edit
         </Link>
-        )}
 
-        {permissions.canDelete && <button
+        <button
           type="button"
-          disabled={isPending}
           onClick={() => setShowConfirm(true)}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
         >
           Hapus
-        </button>}
+        </button>
       </div>
 
       {toggleError && (

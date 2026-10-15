@@ -295,3 +295,11 @@ These checks require hosting access and have not been performed as part of the s
 ## License
 
 No license file or licensing information is specified in this repository.
+
+## Application recovery: existing database compatibility
+
+The active application uses the pre-approval database fields. Content approval is inactive.
+ADMIN and SUPER_ADMIN have the pre-approval content permissions; ADMIN publishing is not blocked by an approval workflow.
+NextAuth, active-account checks, sessionVersion, requireAdmin and requireSuperAdmin remain in place.
+The two approval migrations remain pending artifacts and must not be automatically applied as part of this recovery.
+The missing historical normalize_image_urls migration still requires reconciliation before future database deployment.

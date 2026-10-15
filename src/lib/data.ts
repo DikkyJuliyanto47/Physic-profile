@@ -1,4 +1,4 @@
-import { publishedContent, publishedPublications } from "@/lib/content-visibility";
+import { publishedPublications } from "@/lib/content-visibility";
 import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
@@ -69,7 +69,7 @@ export async function getPublishedNews(
   const category = normalizeNewsCategory(kategori);
   const items = await prisma.news.findMany({
     where: {
-      ...publishedContent,
+      status: "PUBLISHED",
       ...(category && { category }),
     },
     select: {
@@ -104,7 +104,7 @@ export async function getNewsBySlug(slug: string) {
   cacheTag("news");
 
   const news = await prisma.news.findUnique({
-    where: { slug, ...publishedContent },
+    where: { slug, status: "PUBLISHED" },
     select: {
       id: true,
       title: true,
@@ -140,7 +140,7 @@ export async function getUpcomingEvents(limit = 4): Promise<EventItem[]> {
 
   const events = await prisma.event.findMany({
     where: {
-      ...publishedContent,
+      status: "PUBLISHED",
       startDate: { gte: new Date() },
     },
     select: {
@@ -177,7 +177,7 @@ export async function getPublishedEvents(): Promise<
   cacheTag("events");
 
   const events = await prisma.event.findMany({
-    where: { ...publishedContent },
+    where: { status: "PUBLISHED" },
     select: {
       id: true,
       title: true,
@@ -212,7 +212,7 @@ export async function getEventBySlug(slug: string) {
   cacheTag("events");
 
   const event = await prisma.event.findUnique({
-    where: { slug, ...publishedContent },
+    where: { slug, status: "PUBLISHED" },
     select: {
       id: true,
       title: true,
@@ -482,7 +482,7 @@ export async function getSitemapNews() {
   cacheTag("news");
 
   return prisma.news.findMany({
-    where: { ...publishedContent },
+    where: { status: "PUBLISHED" },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -494,7 +494,7 @@ export async function getSitemapEvents() {
   cacheTag("events");
 
   return prisma.event.findMany({
-    where: { ...publishedContent },
+    where: { status: "PUBLISHED" },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });

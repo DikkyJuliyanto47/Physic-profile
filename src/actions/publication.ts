@@ -2,14 +2,12 @@
 
 import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
-import { ContentWorkflowError, assertEditable, assertVersion, publicationReview } from "@/lib/content-workflow";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath, updateTag } from "next/cache";
 import type { PublicationInput, PublicationType } from "@/types/publication";
 
 export type ActionResponse = {
   success: boolean;
-  id?: string;
   error?: string;
 };
 
@@ -76,28 +74,21 @@ export async function createPublication(
       return { success: false, error: "Tanggal publikasi tidak valid." };
     }
 
-    const reviewStatus = publicationReview(session.user, data.intent === "publish" ? "PUBLISHED" : "DRAFT");
-    const created = await mutateWithMedia(data, (tx) => tx.publication.create({
+    await mutateWithMedia(data, (tx) => tx.publication.create({
       data: {
         title: data.title.trim(),
         type: data.type,
         description: data.description?.trim() || null,
         externalUrl: data.externalUrl?.trim() || null,
         publishedAt,
-        reviewStatus,
-        status: reviewStatus === "APPROVED" ? "PUBLISHED" : "DRAFT",
-        reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
-        reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
-        authorId: session.user.id,
       },
     }));
 
     updateTag("publications");
     revalidatePath("/research");
     revalidatePath("/admin/publication");
-    return { success: true, id: created.id };
-  } catch (error) {
-    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
+    return { success: true };
+  } catch {
     return {
       success: false,
       error: "Gagal membuat publikasi. Silakan coba lagi.",
@@ -130,41 +121,26 @@ export async function updatePublication(
       return { success: false, error: "Tanggal publikasi tidak valid." };
     }
 
-    await mutateWithMedia(data, async (tx) => {
-      const currentRecord = await tx.publication.findUnique({ where: { id } });
-      if (!currentRecord) throw new Error("Konten tidak ditemukan.");
-      assertVersion(currentRecord, data.contentVersion);
-      assertEditable(session.user, currentRecord);
-      const reviewStatus = publicationReview(session.user, data.intent === "publish" ? "PUBLISHED" : "DRAFT");
-      return tx.publication.update({
-        where: { id, contentVersion: currentRecord.contentVersion },
-        data: {
-          status: reviewStatus === "APPROVED" ? "PUBLISHED" : "DRAFT",
-          reviewStatus: session.user.role === "ADMIN" && currentRecord.reviewStatus === "REVISION_REQUIRED"
-            ? "REVISION_REQUIRED" : reviewStatus,
-          reviewerId: reviewStatus === "APPROVED" ? session.user.id : null,
-          reviewedAt: reviewStatus === "APPROVED" ? new Date() : null,
-          contentVersion: { increment: 1 },
-          title: data.title.trim(),
-          type: data.type,
-          description: data.description?.trim() || null,
-          externalUrl: data.externalUrl?.trim() || null,
-          publishedAt: data.publishedAt === undefined || (currentRecord.publishedAt &&
-            data.publishedAt === new Date(currentRecord.publishedAt.getTime() + 7 * 3600000)
-              .toISOString().slice(0, 10))
-            ? currentRecord.publishedAt
-            : reviewStatus === "APPROVED" ? publishedAt ?? new Date() : publishedAt,
-        },
-      });
-    }, (tx) => tx.publication.findUnique({ where: { id } }));
+    await mutateWithMedia(data, (tx) => tx.publication.update({
+      where: { id },
+      data: {
+        title: data.title.trim(),
+        type: data.type,
+        description: data.description?.trim() || null,
+        externalUrl: data.externalUrl?.trim() || null,
+        publishedAt: data.publishedAt === undefined || (publication.publishedAt &&
+          data.publishedAt === new Date(publication.publishedAt.getTime() + 7 * 3600000)
+            .toISOString().slice(0, 10))
+          ? publication.publishedAt : publishedAt,
+      },
+    }), (tx) => tx.publication.findUnique({ where: { id } }));
 
     updateTag("publications");
     revalidatePath("/research");
     revalidatePath("/admin/publication");
     revalidatePath(`/admin/publication/${id}/edit`);
     return { success: true };
-  } catch (error) {
-    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
+  } catch {
     return { success: false, error: "Gagal memperbarui publikasi." };
   }
 }
@@ -183,20 +159,12 @@ export async function deletePublication(id: string): Promise<ActionResponse> {
       return { success: false, error: "Publikasi tidak ditemukan." };
     }
 
-    assertEditable(session.user, publication);
-    await mutateWithMedia(
-      null,
-      (tx) => tx.publication.delete({
-        where: { id, contentVersion: publication.contentVersion },
-      }),
-      (tx) => tx.publication.findUnique({ where: { id } }),
-    );
+    await mutateWithMedia(null, (tx) => tx.publication.delete({ where: { id } }), (tx) => tx.publication.findUnique({ where: { id } }));
     updateTag("publications");
     revalidatePath("/research");
     revalidatePath("/admin/publication");
     return { success: true };
-  } catch (error) {
-    if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
+  } catch {
     return { success: false, error: "Gagal menghapus publikasi." };
   }
 }

@@ -1,8 +1,6 @@
-import { contentListScope } from "@/lib/content-permissions";
-import { ReviewStatusBadge, ReviewFilter, REVIEW_LABELS } from "@/components/admin/ReviewStatusBadge";
-import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
@@ -86,15 +84,12 @@ function getStatusClassName(status: ContentStatus): string {
 export default async function EventsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; review?: string; result?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status, review, result } = await searchParams;
+  const { q, status, result } = await searchParams;
 
-  const session = await requireAdmin();
-  if (!session) redirect("/login");
-  const where: Record<string, unknown> = contentListScope(session.user);
-
-  if (review && Object.hasOwn(REVIEW_LABELS, review)) where.reviewStatus = review;
+  if (!await requireAdmin()) redirect("/login");
+  const where: Record<string, unknown> = {};
 
   if (q) {
     where.OR = [
@@ -147,7 +142,7 @@ export default async function EventsListPage({
       </div>
 
       <ContentFeedback result={result} />
-      <form method="GET" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <form method="GET" className="flex flex-col gap-3 sm:flex-row">
         <div className="relative min-w-0 flex-1">
           <svg
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -182,7 +177,6 @@ export default async function EventsListPage({
           <option value="ARCHIVED">Arsip</option>
         </select>
 
-        <ReviewFilter value={review} />
         <button
           type="submit"
           className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
@@ -244,9 +238,6 @@ export default async function EventsListPage({
                         <p className="truncate font-medium text-neutral-900">
                           {event.title}
                         </p>
-                        <div className="mt-2"><ReviewStatusBadge status={event.reviewStatus} /></div>
-                        <p className="mt-1 text-xs text-neutral-500">Pengaju: {event.author?.name ?? "Belum diketahui"}</p>
-                        {event.reviewNote && <p className="mt-1 max-w-xs break-words text-xs text-amber-700">Catatan: {event.reviewNote}</p>}
                         <span
                           className={`mt-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${CATEGORY_COLORS[event.category]}`}
                         >
@@ -275,11 +266,9 @@ export default async function EventsListPage({
 
                     <td className="px-5 py-4 text-right">
                       <EventActions
-                        state={event}
                         eventId={event.id}
                         eventTitle={event.title}
                         currentStatus={event.status}
-                        contentVersion={event.contentVersion}
                       />
                     </td>
                   </tr>

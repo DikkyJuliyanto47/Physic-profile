@@ -1,45 +1,36 @@
 "use client";
 
-import { useContentPermissions } from "@/components/admin/use-content-permissions";
-import type { ContentState } from "@/lib/content-workflow";
-
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
 import { deleteNews, toggleNewsStatus } from "@/actions/news";
 
 type Props = {
-  state: ContentState;
   newsId: string;
   newsTitle: string;
   currentStatus: string;
-  contentVersion: number;
 };
 
 export function NewsActions({
-  state,
   newsId,
   newsTitle,
   currentStatus,
-  contentVersion,
 }: Props) {
   const router = useRouter();
-  const permissions = useContentPermissions(state);
-  const { superAdmin } = permissions;
-
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [toggleError, setToggleError] = useState("");
-  const mutationInFlight = useRef(false);
+  const toggleInFlight = useRef(false);
 
   function handleToggle() {
-    if (isPending || mutationInFlight.current || currentStatus === "ARCHIVED") return;
-    mutationInFlight.current = true;
+    if (isPending || toggleInFlight.current || currentStatus === "ARCHIVED") return;
+    toggleInFlight.current = true;
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleNewsStatus(newsId, contentVersion);
+        const result = await toggleNewsStatus(newsId);
         if (result.success === true) {
           router.refresh();
         } else {
@@ -48,14 +39,14 @@ export function NewsActions({
       } catch {
         setToggleError("Gagal mengubah status berita. Silakan coba lagi.");
       } finally {
-        mutationInFlight.current = false;
+        toggleInFlight.current = false;
       }
     });
   }
 
   function handleDelete() {
-    if (isPending || mutationInFlight.current) return;
-    mutationInFlight.current = true;
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
     startTransition(async () => {
       try {
@@ -70,7 +61,7 @@ export function NewsActions({
       } catch {
         setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
       } finally {
-        mutationInFlight.current = false;
+        deleteInFlight.current = false;
       }
     });
   }
@@ -80,7 +71,7 @@ export function NewsActions({
   return (
     <>
       <div className="inline-flex items-center gap-1">
-        {superAdmin && currentStatus !== "ARCHIVED" && (
+        {currentStatus !== "ARCHIVED" && (
         <button
           type="button"
           onClick={handleToggle}
@@ -121,23 +112,20 @@ export function NewsActions({
         </button>
         )}
 
-        {permissions.canView && (
         <a
           href={`/admin/news/${newsId}/edit`}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
         >
-          {permissions.canEdit ? "Edit" : "Lihat"}
+          Edit
         </a>
-        )}
 
-        {permissions.canDelete && <button
+        <button
           type="button"
-          disabled={isPending}
           onClick={() => setShowConfirm(true)}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
         >
           Hapus
-        </button>}
+        </button>
       </div>
 
       {toggleError && (

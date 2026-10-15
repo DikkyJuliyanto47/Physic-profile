@@ -1,34 +1,28 @@
 "use client";
 
-import { useContentPermissions } from "@/components/admin/use-content-permissions";
-import type { ContentState } from "@/lib/content-workflow";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { deletePublication } from "@/actions/publication";
 
 type Props = {
-  state: ContentState;
   publicationId: string;
   publicationTitle: string;
 };
 
 export function PublicationActions({
-  state,
   publicationId,
   publicationTitle,
 }: Props) {
   const router = useRouter();
-  const permissions = useContentPermissions(state);
-  const mutationInFlight = useRef(false);
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
   function handleDelete() {
-    if (isPending || mutationInFlight.current) return;
-    mutationInFlight.current = true;
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
     startTransition(async () => {
       try {
@@ -43,7 +37,7 @@ export function PublicationActions({
       } catch {
         setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
       } finally {
-        mutationInFlight.current = false;
+        deleteInFlight.current = false;
       }
     });
   }
@@ -51,23 +45,20 @@ export function PublicationActions({
   return (
     <>
       <div className="inline-flex items-center gap-1.5">
-        {permissions.canView && (
         <Link
           href={`/admin/publication/${publicationId}/edit`}
           className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
         >
-          {permissions.canEdit ? "Edit" : "Lihat"}
+          Edit
         </Link>
-        )}
 
-        {permissions.canDelete && <button
+        <button
           type="button"
-          disabled={isPending}
           onClick={() => setShowConfirm(true)}
           className="rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:border-red-300 hover:bg-red-50"
         >
           Hapus
-        </button>}
+        </button>
       </div>
 
       {showConfirm && (
