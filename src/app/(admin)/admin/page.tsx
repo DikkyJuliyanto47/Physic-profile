@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 const STAT_CARDS = [
@@ -70,6 +72,9 @@ const QUICK_ACTIONS = [
 ];
 
 export default async function AdminDashboardPage() {
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+
   const [totalBerita, totalAgenda, totalAnggota, totalKampus, kampusList] =
     await Promise.all([
       prisma.news.count(),
