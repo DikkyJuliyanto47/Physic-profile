@@ -52,8 +52,8 @@ export async function ContentReviewQueue({ actor, own, params }: {
         <header className="border-b border-neutral-100 px-5 py-4">
           <p className="text-xs font-medium text-primary-600">{CONTENT_LABELS[request.kind]} · {operationLabels[request.operation]}</p>
           <h2 className="mt-1 break-words text-base font-semibold text-neutral-900">{title}</h2>
-          <p className="mt-1 text-xs text-neutral-500">Pemilik: {request.author.name} · Pengaju: {request.submittedBy.name} · {request.updatedAt.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB</p>
-          {request.reviewer && <p className="mt-1 text-xs text-neutral-500">Reviewer: {request.reviewer.name}</p>}
+          <p className="mt-1 text-xs text-neutral-500">Pemilik: {request.author.name?.trim() || "User"} · Pengaju: {request.submittedBy.name?.trim() || "User"} · {request.updatedAt.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB</p>
+          {request.reviewer && <p className="mt-1 text-xs text-neutral-500">Reviewer: {request.reviewer.name?.trim() || "User"}</p>}
         </header>
         <details className="p-5"><summary className="cursor-pointer text-sm font-medium text-primary-700">Lihat pengajuan</summary>
           <div className="mt-4"><ContentReviewControls id={request.id} kind={request.kind} operation={request.operation} actor={actor}

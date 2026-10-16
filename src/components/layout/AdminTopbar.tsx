@@ -102,15 +102,15 @@ export function AdminTopbar({
               className="flex items-center gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-neutral-50 sm:gap-2.5 sm:px-2"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">
-                {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                {user?.name?.trim()?.charAt(0)?.toUpperCase() || "U"}
               </div>
 
               <div className="hidden min-w-0 text-left sm:block">
                 <p className="max-w-37.5 truncate text-sm font-semibold leading-5 text-neutral-900">
-                  {user?.name ?? "User"}
+                  {user?.name?.trim() || "User"}
                 </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-neutral-400">
-                  Admin
+                  {user?.role === "SUPER_ADMIN" ? "Admin PSI Surabaya" : "Admin"}
                 </p>
               </div>
 
@@ -138,7 +138,7 @@ export function AdminTopbar({
               >
                 <div className="border-b border-neutral-100 px-4 py-3">
                   <p className="truncate text-sm font-semibold text-neutral-900">
-                    {user?.name ?? "User"}
+                    {user?.name?.trim() || "User"}
                   </p>
                   <p className="mt-0.5 truncate text-xs text-neutral-500">
                     {user?.email ?? "-"}

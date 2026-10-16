@@ -10,9 +10,17 @@ async function AuthGuard({ children }: { children: React.ReactNode }) {
     redirect("/login");
   }
   return <AdminLayoutClient>
-    {session.user.role === "ADMIN" && <p className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-      Penambahan, perubahan, dan penghapusan konten menunggu persetujuan Super Admin. {" "}
-      <Link href="/admin/submissions" className="font-semibold underline">Lihat Pengajuan Saya</Link>
+    {session.user.role === "ADMIN" && 
+      <p 
+        className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
+      >
+      Penambahan, perubahan, dan penghapusan konten menunggu persetujuan Admin PSI Surabaya. {" "}
+      <Link 
+        href="/admin/submissions" 
+        className="font-semibold underline"
+      >
+        Lihat Pengajuan Saya
+      </Link>
     </p>}
     {children}
   </AdminLayoutClient>;

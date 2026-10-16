@@ -66,9 +66,9 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
             </thead>
             <tbody>{accounts.map((account) => (
               <tr key={account.id} className="border-b border-neutral-100 last:border-0">
-                <td className="px-5 py-4 text-neutral-900">{account.name}</td>
+                <td className="px-5 py-4 text-neutral-900">{account.name?.trim() || "User"}</td>
                 <td className="px-5 py-4 text-neutral-600">{account.email}</td>
-                <td className="px-5 py-4">{account.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}</td>
+                <td className="px-5 py-4">{account.role === "SUPER_ADMIN" ? "Admin PSI Surabaya" : "Admin"}</td>
                 <td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-medium ${account.isActive ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-600"}`}>{account.isActive ? "Aktif" : "Nonaktif"}</span></td>
                 <td className="px-5 py-4"><button type="button" disabled={busy} className={buttonClass} onClick={() => edit(account)}>Kelola<span className="sr-only"> {account.email}</span></button></td>
               </tr>
@@ -83,7 +83,7 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
         <fieldset disabled={busy} className="grid gap-5 sm:grid-cols-2">
           <div><label htmlFor="admin-name" className="mb-1.5 block text-sm font-medium text-neutral-700">Nama</label><input id="admin-name" required maxLength={100} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} /></div>
           <div><label htmlFor="admin-email" className="mb-1.5 block text-sm font-medium text-neutral-700">Email</label><input id="admin-email" type="email" required maxLength={254} autoComplete="off" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClass} /></div>
-          <div><label htmlFor="admin-role" className="mb-1.5 block text-sm font-medium text-neutral-700">Role</label><select id="admin-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN" })} className={inputClass}><option value="ADMIN">Admin</option><option value="SUPER_ADMIN">Super Admin</option></select></div>
+          <div><label htmlFor="admin-role" className="mb-1.5 block text-sm font-medium text-neutral-700">Role</label><select id="admin-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN" })} className={inputClass}><option value="ADMIN">Admin</option><option value="SUPER_ADMIN">Admin PSI Surabaya</option></select></div>
           <div><label htmlFor="admin-status" className="mb-1.5 block text-sm font-medium text-neutral-700">Status</label><select id="admin-status" value={String(form.isActive)} onChange={(e) => setForm({ ...form, isActive: e.target.value === "true" })} className={inputClass}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
           <div className="sm:col-span-2"><label htmlFor="admin-password" className="mb-1.5 block text-sm font-medium text-neutral-700">{selected ? "Reset password (opsional)" : "Password"}</label><input id="admin-password" type="password" required={!selected} minLength={12} maxLength={72} autoComplete="new-password" value={form.password ?? ""} onChange={(e) => setForm({ ...form, password: e.target.value })} aria-describedby="admin-password-help" className={inputClass} /><p id="admin-password-help" className="mt-1.5 text-xs text-neutral-500">Minimal 12 karakter, maksimal 72 byte.{selected && " Kosongkan untuk mempertahankan password."}</p></div>
         </fieldset>
