@@ -1,3 +1,4 @@
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
@@ -12,7 +13,7 @@ import { ownedContentWhere } from "@/lib/content-approval";
 export default async function UniversitiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ result?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const { q } = params;
@@ -44,6 +45,7 @@ export default async function UniversitiesPage({
 
   return (
     <div className="space-y-6">
+      <ContentFeedback result={params.result} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">

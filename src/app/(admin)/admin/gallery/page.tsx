@@ -1,3 +1,4 @@
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
@@ -29,7 +30,7 @@ function getYouTubeThumbnail(url: string): string | null {
 export default async function GalleryListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; category?: string }>;
+  searchParams: Promise<{ result?: string; page?: string; q?: string; category?: string }>;
 }) {
   const params = await searchParams;
   const { q, category } = params;
@@ -71,6 +72,7 @@ export default async function GalleryListPage({
 
   return (
     <div className="space-y-6">
+      <ContentFeedback result={params.result} />
       <div className="flex flex-col gap-4 border-b border-neutral-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">

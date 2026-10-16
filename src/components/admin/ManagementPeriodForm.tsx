@@ -49,7 +49,7 @@ export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Pro
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/managements");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/managements?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[ManagementPeriodForm] Submit gagal:", error);

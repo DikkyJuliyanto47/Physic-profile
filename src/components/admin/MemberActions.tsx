@@ -31,6 +31,9 @@ export function MemberActions({
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setShowConfirm(false);
+        const url = new URL(window.location.href);
+        url.searchParams.set("result", "deleted");
+        router.replace(url.pathname + url.search, { scroll: false });
         router.refresh();
       } else {
         setError(result.error ?? "Gagal menghapus anggota.");

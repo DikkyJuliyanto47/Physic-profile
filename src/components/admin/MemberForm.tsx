@@ -161,7 +161,7 @@ export function MemberForm({ expectedVersion, mode, universities, initialData }:
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/members");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/members?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[MemberForm] Submit gagal:", error);

@@ -1,3 +1,4 @@
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
@@ -12,7 +13,7 @@ import { ownedContentWhere } from "@/lib/content-approval";
 export default async function MembersListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; universityId?: string }>;
+  searchParams: Promise<{ result?: string; page?: string; q?: string; universityId?: string }>;
 }) {
   const params = await searchParams;
   const { q, universityId } = params;
@@ -64,6 +65,7 @@ export default async function MembersListPage({
 
   return (
     <div className="w-full min-w-0">
+      <ContentFeedback result={params.result} />
       <div className="space-y-6 sm:space-y-8">
         <header>
           <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">

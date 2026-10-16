@@ -38,6 +38,9 @@ export function EventActions({
         const result = await toggleEventStatus(eventId, expectedVersion);
         if (result.success === true) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          const url = new URL(window.location.href);
+          url.searchParams.set("result", "status-updated");
+          router.replace(url.pathname + url.search, { scroll: false });
           router.refresh();
         } else {
           setToggleError(result.error || "Gagal mengubah status agenda. Silakan coba lagi.");

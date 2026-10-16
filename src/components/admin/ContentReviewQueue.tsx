@@ -1,3 +1,4 @@
+import { ContentFeedback } from "./ContentFeedback";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { CONTENT_APPROVAL_UNAVAILABLE, isContentApprovalReady } from "@/lib/content-approval";
@@ -33,7 +34,7 @@ export async function ContentReviewQueue({ actor, own, params }: {
   const pageLink = (value: number) => `${path}?${new URLSearchParams({ ...(params.kind ? { kind: params.kind } : {}), ...(params.review ? { review: params.review } : {}), page: String(value) })}`;
   const operationLabels = { CREATE: "Tambah", UPDATE: "Perubahan", DELETE: "Penghapusan" };
   return <div className="space-y-6">
-    {params.result === "submitted" && <p role="status" className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">Pengajuan tersimpan dan menunggu persetujuan Super Admin.</p>}
+    <ContentFeedback result={params.result} />
     <form method="GET" className="flex flex-wrap gap-3">
       <select name="kind" defaultValue={params.kind ?? ""} aria-label="Modul konten" className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm">
         <option value="">Semua modul</option>{Object.entries(CONTENT_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}

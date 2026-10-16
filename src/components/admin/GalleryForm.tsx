@@ -202,7 +202,7 @@ export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/gallery");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/gallery?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[GalleryForm] Submit gagal:", error);

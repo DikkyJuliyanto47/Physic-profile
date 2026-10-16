@@ -1,3 +1,4 @@
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent, ownedContentWhere } from "@/lib/content-approval";
@@ -18,7 +19,7 @@ export default async function EditManagementPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ positionId?: string; page?: string }>;
+  searchParams: Promise<{ positionId?: string; page?: string; result?: string }>;
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
@@ -65,6 +66,7 @@ export default async function EditManagementPage({
 
   return (
     <div className="space-y-6">
+      <ContentFeedback result={query.result} />
       <div className="flex flex-col gap-1">
         <Link
           href="/admin/managements"

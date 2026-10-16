@@ -3,7 +3,7 @@ import { requireSuperAdmin } from "@/lib/auth-utils";
 import { ContentReviewQueue } from "@/components/admin/ContentReviewQueue";
 
 export default async function ReviewPage({ searchParams }: {
-  searchParams: Promise<{ kind?: string; review?: string; page?: string }>;
+  searchParams: Promise<{ kind?: string; review?: string; page?: string; result?: string }>;
 }) {
   const session = await requireSuperAdmin();
   if (!session) notFound();

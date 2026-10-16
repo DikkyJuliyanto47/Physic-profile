@@ -1,3 +1,4 @@
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
@@ -17,7 +18,7 @@ function formatDate(date: Date): string {
 }
 
 export default async function ManagementPage({ searchParams }: {
-  searchParams: Promise<{ page?: string; positionsPage?: string }>;
+  searchParams: Promise<{ result?: string; page?: string; positionsPage?: string }>;
 }) {
   const params = await searchParams;
   const session = await requireAdmin();
@@ -56,6 +57,7 @@ export default async function ManagementPage({ searchParams }: {
 
   return (
     <div className="space-y-6">
+      <ContentFeedback result={params.result} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kepengurusan</h1>

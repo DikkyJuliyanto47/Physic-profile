@@ -1,4 +1,9 @@
 const messages: Record<string, string> = {
+  submitted: "Pengajuan tersimpan dan menunggu persetujuan Super Admin.",
+  resubmitted: "Pengajuan berhasil diajukan ulang dan menunggu persetujuan Super Admin.",
+  approved: "Pengajuan berhasil disetujui.",
+  rejected: "Pengajuan ditolak dan dikembalikan untuk revisi.",
+  "status-updated": "Status berhasil diperbarui.",
   saved: "Konten berhasil disimpan.",
   deleted: "Konten berhasil dihapus.",
 };

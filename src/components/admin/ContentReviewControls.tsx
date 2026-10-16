@@ -49,7 +49,13 @@ export function ContentReviewControls({ id, kind, operation, actor, state, paylo
         ? await resubmitContent(id, state.contentVersion, draft)
         : await reviewContent(id, state.contentVersion, decision, note);
       if (!result.success) setError(result.error ?? "Operasi gagal.");
-      else { setEditing(false); router.refresh(); }
+      else {
+        setEditing(false);
+        const url = new URL(window.location.href);
+        url.searchParams.set("result", decision === "approve" ? "approved" : decision === "revision" ? "rejected" : "resubmitted");
+        router.replace(url.pathname + url.search, { scroll: false });
+        router.refresh();
+      }
     } catch { setError("Operasi gagal. Muat ulang sebelum mencoba kembali."); }
     finally { inFlight.current = false; setBusy(false); }
   }
