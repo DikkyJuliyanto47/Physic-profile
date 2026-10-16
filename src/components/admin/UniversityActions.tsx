@@ -1,10 +1,12 @@
 "use client";
 
+import { useDialogAccessibility } from "@/lib/use-dialog-accessibility";
+
 import type { ContentVersion } from "@/lib/content-workflow";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 
 import { deleteUniversity } from "@/actions/university";
 
@@ -22,9 +24,11 @@ export function UniversityActions({
   memberCount,
 }: Props) {
   const router = useRouter();
+  const dialogId = useId();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const confirmRef = useDialogAccessibility(showConfirm, () => { setShowConfirm(false); setError(""); }, isPending);
 
   function handleDelete() {
     setError("");
@@ -84,9 +88,9 @@ export function UniversityActions({
     </div>
 
     {showConfirm && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <dialog ref={confirmRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-delete`} tabIndex={-1} className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
         <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
-          <h3 className="text-lg font-semibold text-neutral-900">
+          <h3 id={`${dialogId}-delete`} className="text-lg font-semibold text-neutral-900">
             Hapus Kampus?
           </h3>
 
@@ -107,10 +111,12 @@ export function UniversityActions({
           <div className="mt-6 flex items-center justify-end gap-3">
             <button
               type="button"
+              data-dialog-initial-focus
               onClick={() => {
                 setShowConfirm(false);
                 setError("");
               }}
+              disabled={isPending}
               className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
             >
               Batal
@@ -126,7 +132,7 @@ export function UniversityActions({
             </button>
           </div>
         </div>
-      </div>
+      </dialog>
     )}
   </>
 );

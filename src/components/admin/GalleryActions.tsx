@@ -1,11 +1,13 @@
 "use client";
 
+import { useDialogAccessibility } from "@/lib/use-dialog-accessibility";
+
 import type { ContentVersion } from "@/lib/content-workflow";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { MediaType } from "@/generated/prisma/client";
 import { deleteGalleryItem } from "@/actions/gallery";
 
@@ -33,10 +35,13 @@ export function GalleryActions({
   mediaUrl,
 }: Props) {
   const router = useRouter();
+  const dialogId = useId();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState("");
+  const confirmRef = useDialogAccessibility(showConfirm, () => { setShowConfirm(false); setError(""); }, isPending);
+  const previewRef = useDialogAccessibility(showPreview, () => setShowPreview(false), isPending);
 
   const embedUrl =
     mediaType === "VIDEO" ? getYouTubeEmbedUrl(mediaUrl) : null;
@@ -99,9 +104,9 @@ export function GalleryActions({
       </div>
 
       {showPreview && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 sm:p-8"
-          onClick={() => setShowPreview(false)}
+        <dialog ref={previewRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-preview`} tabIndex={-1}
+          className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 sm:p-8"
+          onClick={() => { if (!isPending) setShowPreview(false); }}
         >
           <div
             className="w-full max-w-5xl overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-elevated"
@@ -109,7 +114,7 @@ export function GalleryActions({
           >
             <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
               <div className="min-w-0">
-                <h3 className="truncate text-sm font-semibold text-neutral-900">
+                <h3 id={`${dialogId}-preview`} className="truncate text-sm font-semibold text-neutral-900">
                   {itemTitle}
                 </h3>
                 <p className="mt-0.5 text-xs text-neutral-500">
@@ -119,6 +124,8 @@ export function GalleryActions({
 
               <button
                 type="button"
+                data-dialog-initial-focus
+                disabled={isPending}
                 onClick={() => setShowPreview(false)}
                 className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 px-3 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
               >
@@ -150,12 +157,12 @@ export function GalleryActions({
               )}
             </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       {showConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+        <dialog ref={confirmRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-delete`} tabIndex={-1}
+          className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
           onClick={() => {
             if (!isPending) {
               setShowConfirm(false);
@@ -168,7 +175,7 @@ export function GalleryActions({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="border-b border-neutral-200 px-5 py-4">
-              <h3 className="text-base font-semibold text-neutral-900">
+              <h3 id={`${dialogId}-delete`} className="text-base font-semibold text-neutral-900">
                 Hapus Media?
               </h3>
             </div>
@@ -192,6 +199,7 @@ export function GalleryActions({
             <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4">
               <button
                 type="button"
+                data-dialog-initial-focus
                 onClick={() => {
                   setShowConfirm(false);
                   setError("");
@@ -212,7 +220,7 @@ export function GalleryActions({
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </>
   );
