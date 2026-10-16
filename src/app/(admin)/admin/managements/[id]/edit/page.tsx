@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent, ownedContentWhere } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
@@ -17,33 +18,23 @@ export default async function EditManagementPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ positionId?: string }>;
+  searchParams: Promise<{ positionId?: string; page?: string }>;
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
   const versions = await contentVersions(["managementPeriod", "managementPosition"]);
   const { id } = await params;
   if (!await canManageContent("managementPeriod", id, session.user)) notFound();
-  const { positionId } = await searchParams;
+  const query = await searchParams;
+  const { positionId } = query;
   if (positionId && !await canManageContent("managementPosition", positionId, session.user)) notFound();
   const positionScope = await ownedContentWhere("managementPosition", session.user);
 
   const [period, memberProfiles] = await Promise.all([
     prisma.managementPeriod.findUnique({
       where: { id },
-      include: {
-        positions: {
-          where: positionScope,
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-          include: {
-            memberProfile: {
-              include: {
-                institution: { select: { id: true, name: true, shortName: true } },
-              },
-            },
-          },
-        },
-      },
+      // Keep full scalar snapshots for the unchanged period concurrency token.
+      include: { positions: { where: positionScope, orderBy: { id: "asc" } } },
     }),
     prisma.memberProfile.findMany({
       orderBy: { name: "asc" },
@@ -56,6 +47,17 @@ export default async function EditManagementPage({
   if (!period) {
     notFound();
   }
+
+  const positionWhere = { ...positionScope, periodId: id };
+  const total = await prisma.managementPosition.count({ where: positionWhere });
+  const page = Math.min(adminPage(query.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const positions = await prisma.managementPosition.findMany({
+    where: positionWhere,
+    take: ADMIN_PAGE_SIZE,
+    skip: (page - 1) * ADMIN_PAGE_SIZE,
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+    include: { memberProfile: { include: { institution: { select: { id: true, name: true, shortName: true } } } } },
+  });
 
   const selectedPosition = positionId
     ? period.positions.find((position) => position.id === positionId) ?? null
@@ -177,7 +179,7 @@ export default async function EditManagementPage({
               </thead>
 
               <tbody>
-                {period.positions.map((position) => (
+                {positions.map((position) => (
                   <tr
                     key={position.id}
                     className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/60"
@@ -224,6 +226,7 @@ export default async function EditManagementPage({
             </table>
           </div>
         )}
+        <AdminPagination page={page} total={total} params={query} label="Posisi" />
       </section>
     </div>
   );

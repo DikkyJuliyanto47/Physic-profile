@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,9 +29,10 @@ function getYouTubeThumbnail(url: string): string | null {
 export default async function GalleryListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; category?: string }>;
 }) {
-  const { q, category } = await searchParams;
+  const params = await searchParams;
+  const { q, category } = params;
   const session = await requireAdmin();
   if (!session) redirect("/login");
   const versions = await contentVersions(["gallery"]);
@@ -49,10 +51,15 @@ export default async function GalleryListPage({
     where.category = category;
   }
 
+  const total = await prisma.gallery.count({ where });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+
   const [items, categories] = await Promise.all([
     prisma.gallery.findMany({
+      take: ADMIN_PAGE_SIZE,
+      skip: (page - 1) * ADMIN_PAGE_SIZE,
       where,
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }, { id: "asc" }],
     }),
     prisma.gallery.findMany({
       select: { category: true },
@@ -247,6 +254,7 @@ export default async function GalleryListPage({
           })}
         </div>
       )}
+      <AdminPagination page={page} total={total} params={params} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,9 +12,10 @@ import { ownedContentWhere } from "@/lib/content-approval";
 export default async function MembersListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; universityId?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; universityId?: string }>;
 }) {
-  const { q, universityId } = await searchParams;
+  const params = await searchParams;
+  const { q, universityId } = params;
   const session = await requireAdmin();
   if (!session) redirect("/login");
   const versions = await contentVersions(["member"]);
@@ -32,10 +34,15 @@ export default async function MembersListPage({
     where.institutionId = universityId;
   }
 
+  const total = await prisma.memberProfile.count({ where });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+
   const [members, universities] = await Promise.all([
     prisma.memberProfile.findMany({
+      take: ADMIN_PAGE_SIZE,
+      skip: (page - 1) * ADMIN_PAGE_SIZE,
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       select: {
         updatedAt: true,
         id: true,
@@ -143,7 +150,7 @@ export default async function MembersListPage({
               Daftar Anggota
             </p>
             <p className="mt-0.5 text-xs text-neutral-500">
-              {members.length} anggota terdaftar.
+              {total} anggota terdaftar.
             </p>
           </div>
 
@@ -260,6 +267,7 @@ export default async function MembersListPage({
           </div>
         </div>
       </div>
+      <AdminPagination page={page} total={total} params={params} />
     </div>
   );
 }

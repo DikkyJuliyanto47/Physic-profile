@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -15,50 +16,43 @@ function formatDate(date: Date): string {
   }).format(new Date(date));
 }
 
-export default async function ManagementPage() {
+export default async function ManagementPage({ searchParams }: {
+  searchParams: Promise<{ page?: string; positionsPage?: string }>;
+}) {
+  const params = await searchParams;
   const session = await requireAdmin();
   if (!session) redirect("/login");
   const versions = await contentVersions(["managementPeriod", "managementPosition"]);
   const scope = await ownedContentWhere("managementPeriod", session.user);
   const positionScope = await ownedContentWhere("managementPosition", session.user);
+  const total = await prisma.managementPeriod.count({ where: scope });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
   const [periods, activePeriod] = await Promise.all([
     prisma.managementPeriod.findMany({
       where: scope,
-      orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
-      include: {
-        positions: {
-          where: positionScope,
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-          include: {
-            memberProfile: {
-              include: {
-                institution: { select: { id: true, name: true, shortName: true } },
-              },
-            },
-          },
-        },
-      },
+      take: ADMIN_PAGE_SIZE,
+      skip: (page - 1) * ADMIN_PAGE_SIZE,
+      orderBy: [{ isActive: "desc" }, { createdAt: "desc" }, { id: "asc" }],
+      // Full scalar position snapshots are required by the existing period token.
+      // Fetch joined display data separately, only for the visible position page.
+      include: { positions: { where: positionScope, orderBy: { id: "asc" } } },
     }),
     prisma.managementPeriod.findFirst({
       where: { ...scope, isActive: true },
-      orderBy: { createdAt: "desc" },
-      include: {
-        positions: {
-          where: positionScope,
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-          include: {
-            memberProfile: {
-              include: {
-                institution: { select: { id: true, name: true, shortName: true } },
-              },
-            },
-          },
-        },
-      },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
     }),
   ]);
-
   const selectedPeriod = activePeriod ?? periods[0] ?? null;
+  const positionWhere = { ...positionScope, periodId: selectedPeriod?.id ?? "" };
+  const positionsTotal = await prisma.managementPosition.count({ where: positionWhere });
+  const positionsPage = Math.min(adminPage(params.positionsPage), Math.max(1, Math.ceil(positionsTotal / ADMIN_PAGE_SIZE)));
+  const positions = selectedPeriod ? await prisma.managementPosition.findMany({
+    where: positionWhere,
+    take: ADMIN_PAGE_SIZE,
+    skip: (positionsPage - 1) * ADMIN_PAGE_SIZE,
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+    include: { memberProfile: { include: { institution: { select: { id: true, name: true, shortName: true } } } } },
+  }) : [];
 
   return (
     <div className="space-y-6">
@@ -154,6 +148,7 @@ export default async function ManagementPage() {
               ))}
             </div>
           )}
+          <AdminPagination page={page} total={total} params={{ ...params, positionsPage: undefined }} label="Periode" />
         </section>
 
         <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
@@ -179,7 +174,7 @@ export default async function ManagementPage() {
             <div className="px-5 py-10 text-center text-sm text-neutral-500">
               Buat periode terlebih dahulu untuk menambahkan posisi.
             </div>
-          ) : selectedPeriod.positions.length === 0 ? (
+          ) : positions.length === 0 ? (
             <div className="px-5 py-12 text-center">
               <p className="text-sm font-medium text-neutral-700">
                 Belum ada posisi kepengurusan.
@@ -206,7 +201,7 @@ export default async function ManagementPage() {
                 </thead>
 
                 <tbody>
-                  {selectedPeriod.positions.map((position) => (
+                  {positions.map((position) => (
                     <tr
                       key={position.id}
                       className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50/60"
@@ -253,6 +248,7 @@ export default async function ManagementPage() {
               </table>
             </div>
           )}
+          <AdminPagination page={positionsPage} total={positionsTotal} params={params} pageKey="positionsPage" label="Posisi" />
         </section>
       </div>
     </div>

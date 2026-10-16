@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { ownedContentWhere } from "@/lib/content-approval";
@@ -36,9 +37,10 @@ function formatDate(date: Date | null): string {
 export default async function PublicationListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string; result?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; type?: string; result?: string }>;
 }) {
-  const { q, type, result } = await searchParams;
+  const params = await searchParams;
+  const { q, type, result } = params;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
@@ -56,9 +58,14 @@ export default async function PublicationListPage({
     where.type = type as PublicationType;
   }
 
+  const total = await prisma.publication.count({ where });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+
   const publications = await prisma.publication.findMany({
+    take: ADMIN_PAGE_SIZE,
+    skip: (page - 1) * ADMIN_PAGE_SIZE,
     where,
-    orderBy: { publishedAt: "desc" },
+    orderBy: [{ publishedAt: "desc" }, { id: "asc" }],
   });
 
   return (
@@ -217,6 +224,7 @@ export default async function PublicationListPage({
           </table>
         </div>
       </div>
+      <AdminPagination page={page} total={total} params={params} />
     </div>
   );
 }

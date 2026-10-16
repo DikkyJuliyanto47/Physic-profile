@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { ownedContentWhere } from "@/lib/content-approval";
@@ -86,9 +87,10 @@ function getStatusClassName(status: ContentStatus): string {
 export default async function EventsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status, result } = await searchParams;
+  const params = await searchParams;
+  const { q, status, result } = params;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
@@ -106,9 +108,14 @@ export default async function EventsListPage({
     where.status = status as ContentStatus;
   }
 
+  const total = await prisma.event.count({ where });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+
   const events = await prisma.event.findMany({
+    take: ADMIN_PAGE_SIZE,
+    skip: (page - 1) * ADMIN_PAGE_SIZE,
     where,
-    orderBy: { startDate: "desc" },
+    orderBy: [{ startDate: "desc" }, { id: "asc" }],
     include: { author: { select: { name: true } } },
   });
 
@@ -283,6 +290,7 @@ export default async function EventsListPage({
           </table>
         </div>
       </div>
+      <AdminPagination page={page} total={total} params={params} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
@@ -63,9 +64,10 @@ function getStatusLabel(status: ContentStatus): string {
 export default async function NewsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status, result } = await searchParams;
+  const params = await searchParams;
+  const { q, status, result } = params;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
@@ -83,9 +85,14 @@ export default async function NewsListPage({
     where.status = status as ContentStatus;
   }
 
+  const total = await prisma.news.count({ where });
+  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+
   const newsList = await prisma.news.findMany({
+    take: ADMIN_PAGE_SIZE,
+    skip: (page - 1) * ADMIN_PAGE_SIZE,
     where,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "asc" }],
     select: {
       contentVersion: true,
       id: true, title: true, slug: true, category: true, status: true,
@@ -191,7 +198,7 @@ export default async function NewsListPage({
               Daftar Berita
             </h2>
             <p className="mt-0.5 text-xs text-neutral-500">
-              {newsList.length} berita ditampilkan
+              {total} berita ditemukan
             </p>
           </div>
         </div>
@@ -290,6 +297,7 @@ export default async function NewsListPage({
           </table>
         </div>
       </section>
+      <AdminPagination page={page} total={total} params={params} />
     </div>
   );
 }

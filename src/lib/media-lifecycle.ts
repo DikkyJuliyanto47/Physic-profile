@@ -205,20 +205,25 @@ async function validateIncoming(value: unknown): Promise<void> {
 async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>> {
   const ids = new Set<string>();
 
-  // Scan ALL scalar fields of ALL generated models, including rich text and
-  // Publication.fileUrl. No assumption that a single media column owns a file.
-  // Model identifiers come solely from the generated schema, never user input.
-  for (const model of Object.values(Prisma.ModelName)) {
-    if (model === "ContentChange") {
-      const [state] = await tx.$queryRaw<Array<{ present: boolean }>>`SELECT to_regclass('public."ContentChange"') IS NOT NULL AS present`;
-      // Retain files until approval storage is provisioned; never assume that
-      // an unavailable queue means there are no proposed media references.
-      if (!state?.present) { ids.add("*"); continue; }
-    }
-    const table = Prisma.raw(`"${model.replaceAll('"', '""')}"`);
-
+  // Only media-bearing URL/rich-text columns and approval snapshots can keep
+  // managed uploads alive. Do not serialize unrelated tables or account data.
+  const [state] = await tx.$queryRaw<Array<{ present: boolean }>>`SELECT to_regclass('public."ContentChange"') IS NOT NULL AS present`;
+  if (!state?.present) return new Set(["*"]);
+  const sources: Record<string, string[]> = {
+    News: ["imageUrl", "content", "excerpt", "pendingRevision"],
+    Event: ["imageUrl", "description", "linkUrl"],
+    MemberProfile: ["photoUrl", "detailUrl", "googleScholarUrl", "scopusUrl", "orcidUrl"],
+    University: ["logoUrl", "description", "deptUrl", "websiteUrl"],
+    Publication: ["fileUrl", "externalUrl", "description"],
+    Gallery: ["mediaUrl", "description"],
+    ContentChange: ["payload", "before"],
+  };
+  for (const [model, columns] of Object.entries(sources)) {
+    // Identifiers are the fixed schema allowlist above, never request input.
+    const fields = Prisma.join(columns.map(column => Prisma.raw(`"${column}"`)));
+    const table = Prisma.raw(`"${model}"`);
     const rows = await tx.$queryRaw<Array<{ value: string }>>(
-      Prisma.sql`SELECT to_jsonb(t)::text AS value FROM ${table} t`
+      Prisma.sql`SELECT jsonb_build_array(${fields})::text AS value FROM ${table}`
     );
 
     for (const row of rows) {

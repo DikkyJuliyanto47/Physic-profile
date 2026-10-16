@@ -32,17 +32,29 @@ export async function ownedContentWhere(kind: ContentKind, actor: { id: string; 
   if (actor.role === "SUPER_ADMIN") return {};
   if (actor.role !== "ADMIN") return { id: { in: [] } };
   try {
-    const ownership = await prisma.contentChange.findMany({ where: { kind }, select: { targetId: true, authorId: true } });
-    const registered = new Set(ownership.map((item) => item.targetId));
-    const ids = ownership.filter((item) => item.authorId === actor.id).map((item) => item.targetId);
-    // Historical News/Event already carry trustworthy authorship. Other legacy
-    // content needs explicit ownership reconciliation; never guess a university.
-    const legacy = kind === "news" ? await prisma.news.findMany({ where: { authorId: actor.id }, select: { id: true } })
-      : kind === "event" ? await prisma.event.findMany({ where: { authorId: actor.id }, select: { id: true } }) : [];
-    ids.push(...legacy.filter((item) => !registered.has(item.id)).map((item) => item.id));
+    // Apply ownership in SQL; a central record always overrides legacy authorship.
+    const legacyTable = kind === "news" ? Prisma.raw('"News"') : kind === "event" ? Prisma.raw('"Event"') : null;
+    const legacy = legacyTable ? Prisma.sql`
+      UNION
+      SELECT legacy.id FROM ${legacyTable} legacy
+      WHERE legacy."authorId" = ${actor.id}
+        AND NOT EXISTS (SELECT 1 FROM "ContentChange" registered
+          WHERE registered.kind = ${kind}::"ContentModule" AND registered."targetId" = legacy.id)
+    ` : Prisma.empty;
+    const ownership = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      SELECT "targetId" AS id FROM "ContentChange"
+      WHERE kind = ${kind}::"ContentModule" AND "authorId" = ${actor.id}
+      ${legacy}
+    `);
+    const ids = ownership.map(item => item.id);
     return { id: { in: ids } };
   } catch (error) {
     if (typeof error === "object" && error && "code" in error && ["P2021", "P2022"].includes(String(error.code))) return { id: { in: [] } };
+    // Raw SQL reports missing relations/columns as P2010 rather than ORM P2021/P2022.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2010") {
+      console.error("[content-approval] Ownership lookup failed; access denied:", error);
+      return { id: { in: [] } };
+    }
     throw error;
   }
 }
