@@ -237,35 +237,6 @@ export function AdminSidebar({
                 </p>
               </div>
             )}
-
-            <button
-              type="button"
-              onClick={handleToggle}
-              title={pinned ? "Ciutkan sidebar" : "Kunci sidebar terbuka"}
-              aria-label={pinned ? "Ciutkan sidebar" : "Kunci sidebar terbuka"}
-              aria-pressed={pinned}
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                pinned
-                  ? "border-primary-700 bg-primary-800 text-white"
-                  : "border-primary-800 text-primary-400 hover:bg-primary-800 hover:text-white"
-              }`}
-            >
-              <svg
-                className={`h-4 w-4 transition-transform duration-300 ${
-                  pinned ? "" : "rotate-180"
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.7}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m14.5 6-6 6 6 6"
-                />
-              </svg>
-            </button>
           </div>
         </div>
 

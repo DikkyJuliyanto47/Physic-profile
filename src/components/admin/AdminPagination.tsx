@@ -15,6 +15,7 @@ export function AdminPagination({ page, total, params, pageKey = "page", label =
   label?: string;
 }) {
   const pages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+  if (pages <= 1) return null;
   function pageLink(next: number) {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
@@ -24,7 +25,6 @@ export function AdminPagination({ page, total, params, pageKey = "page", label =
     return `?${query}`;
   }
   return <nav aria-label={label} className="flex flex-wrap items-center gap-3 text-sm font-medium text-primary-700">
-    <span>{total} data · {label} {page} / {pages}</span>
     {page > 1 && <Link href={pageLink(Math.min(page - 1, pages))}>Sebelumnya</Link>}
     {page < pages && <Link href={pageLink(page + 1)}>Berikutnya</Link>}
   </nav>;
