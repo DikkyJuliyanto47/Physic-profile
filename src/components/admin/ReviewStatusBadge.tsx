@@ -16,6 +16,6 @@ export function ReviewFilter({ value }: { value?: string }) {
   return <select name="review" defaultValue={value ?? ""} aria-label="Status pengajuan"
     className="h-10 rounded-md border border-neutral-200 bg-white px-3.5 text-sm text-neutral-700">
     <option value="">Semua pengajuan</option>
-    {Object.entries(REVIEW_LABELS).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
+    {Object.entries(REVIEW_LABELS).filter(([status]) => status !== "DRAFT").map(([status, label]) => <option key={status} value={status}>{label}</option>)}
   </select>;
 }

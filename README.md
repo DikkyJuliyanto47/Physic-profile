@@ -296,22 +296,32 @@ These checks require hosting access and have not been performed as part of the s
 
 No license file or licensing information is specified in this repository.
 
-## Application recovery: existing database compatibility
+## Centralized content approval
 
-News approval code is staged against the main Prisma schema. News management fails closed
-until its review columns and `pendingRevision` JSONB column are available in the database.
-Public News reads continue to select canonical content only. ADMIN saves submit a snapshot;
-only SUPER_ADMIN approval copies that snapshot into the published fields. Rejection keeps
-the public version and proposed revision, and requires a reason. Agenda and Publication
-retain their existing behavior.
-NextAuth, active-account checks, sessionVersion, requireAdmin and requireSuperAdmin remain in place.
-The two historical approval migrations remain unchanged and must not be automatically applied:
-they alter Event and Publication too, and neither supplies `News.pendingRevision`.
-Before activating News management, reconcile migration history and prepare a reviewed,
-News-only database change matching `ReviewStatus`, `News.reviewStatus`, `reviewerId`
-(with its User foreign key), `reviewedAt`, `reviewNote`, `contentVersion` and nullable
-`pendingRevision` JSONB. Preserve canonical fields, original authors and publication dates;
-grandfather existing PUBLISHED News as APPROVED, leave other News as DRAFT, and leave
-pendingRevision NULL. Stop old News writers at activation to prevent approval bypass.
-No migration or database change is performed by application startup or these checks.
-The missing historical normalize_image_urls migration still requires reconciliation before future database deployment.
+All content actions now use the shared approval queue in the main Prisma schema.
+ADMIN creates, revisions, status changes and deletions remain PENDING_REVIEW.
+Canonical/public records are written only by SUPER_ADMIN directly or after approval.
+Rejected proposals retain their payload and reason for revision and resubmission.
+Review is at /admin/review (SUPER_ADMIN); owned proposals are at /admin/submissions.
+
+Database activation is manual and has NOT been performed:
+- Provision ContentModule, ChangeOperation and ContentChange from prisma/schema.prisma,
+  including its User foreign keys, unique (kind, targetId), version and review indexes.
+- Reconcile existing migration history first, including normalize_image_urls.
+  The two historical approval migrations must not be applied blindly: they also
+  change Event/Publication and do not provide the centralized queue.
+- Ensure the existing News review columns in the main schema are present. Migrate
+  any News.pendingRevision into ContentChange before clearing the old snapshot.
+  Preserve public News fields and original publication dates. The runtime refuses
+  content writes while legacy News snapshots remain or approval storage is missing.
+- Backfill ownership using News/Event.authorId where available. Other legacy
+  modules need explicitly verified owners; ADMIN cannot edit unassigned legacy
+  data. SUPER_ADMIN retains access. Do not infer ownership from member email.
+- Stop older content writers during activation. Base fingerprints must match the
+  canonical snapshot serialized by content-records/content-approval.
+
+Approval rechecks sessionVersion/active role, ownership, request version and the
+canonical base fingerprint in a serializable transaction. Existing media lifecycle
+locking and reference tracking cover queued JSON snapshots. Until the queue table
+exists, cleanup retains media rather than assuming proposed references are absent.
+Manage Admin continues to use its existing authentication and actions.

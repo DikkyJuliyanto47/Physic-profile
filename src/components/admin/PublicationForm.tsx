@@ -84,7 +84,7 @@ export function PublicationForm({ mode, initialData }: Props) {
       }
 
       navigating = true;
-      router.push("/admin/publication?result=saved");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/publication?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[PublicationForm] Submit gagal:", error);

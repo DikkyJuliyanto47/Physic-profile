@@ -209,6 +209,12 @@ async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>>
   // Publication.fileUrl. No assumption that a single media column owns a file.
   // Model identifiers come solely from the generated schema, never user input.
   for (const model of Object.values(Prisma.ModelName)) {
+    if (model === "ContentChange") {
+      const [state] = await tx.$queryRaw<Array<{ present: boolean }>>`SELECT to_regclass('public."ContentChange"') IS NOT NULL AS present`;
+      // Retain files until approval storage is provisioned; never assume that
+      // an unavailable queue means there are no proposed media references.
+      if (!state?.present) { ids.add("*"); continue; }
+    }
     const table = Prisma.raw(`"${model.replaceAll('"', '""')}"`);
 
     const rows = await tx.$queryRaw<Array<{ value: string }>>(

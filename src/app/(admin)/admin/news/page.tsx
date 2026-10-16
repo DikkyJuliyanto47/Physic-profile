@@ -4,13 +4,10 @@ import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
-import { ContentStatus, NewsCategory, ReviewStatus, type Prisma } from "@/generated/prisma/client";
-import { contentListScope, contentPermissions } from "@/lib/content-permissions";
-import { ReviewStatusBadge, ReviewFilter } from "@/components/admin/ReviewStatusBadge";
-import { isNewsApprovalReady, NEWS_APPROVAL_UNAVAILABLE } from "@/lib/news-approval";
-import { parseNewsRevision } from "@/lib/content-workflow";
+import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 
 import { NewsActions } from "./NewsActions";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
   ORGANISASI: "Organisasi",
@@ -65,15 +62,13 @@ function getStatusLabel(status: ContentStatus): string {
 export default async function NewsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; result?: string; review?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status, result, review } = await searchParams;
+  const { q, status, result } = await searchParams;
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
-  if (!await isNewsApprovalReady()) return <p role="status">{NEWS_APPROVAL_UNAVAILABLE}</p>;
-  const where: Prisma.NewsWhereInput = contentListScope(session.user);
-  if (review && Object.values(ReviewStatus).some((value) => value === review)) where.reviewStatus = review as ReviewStatus;
+  const where: Record<string, unknown> = await ownedContentWhere("news", session.user);
 
   if (q) {
     where.OR = [
@@ -89,14 +84,13 @@ export default async function NewsListPage({
   const newsList = await prisma.news.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
+    select: {
+      id: true, title: true, slug: true, category: true, status: true,
+      publishedAt: true, createdAt: true, author: { select: { name: true } },
+    },
   });
 
-  const hasFilter = Boolean(q || status || review);
-  const reviewMessages: Record<string, string> = {
-    approve: "Berita disetujui dan diterbitkan.", revision: "Berita ditolak dengan catatan revisi.",
-    publish: "Berita diterbitkan.", unpublish: "Publikasi dibatalkan.", archive: "Berita diarsipkan.",
-  };
+  const hasFilter = Boolean(q || status);
 
   return (
     <div className="w-full min-w-0 space-y-6 sm:space-y-8">
@@ -132,7 +126,6 @@ export default async function NewsListPage({
       </header>
 
       <ContentFeedback result={result} />
-      {result && Object.hasOwn(reviewMessages, result) && <p role="status" className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-700">{reviewMessages[result]}</p>}
       <form
         method="GET"
         className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center"
@@ -171,7 +164,6 @@ export default async function NewsListPage({
           <option value="ARCHIVED">Arsip</option>
         </select>
 
-        <ReviewFilter value={review} />
         <button
           type="submit"
           className="h-10 rounded-md border border-neutral-200 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
@@ -253,7 +245,7 @@ export default async function NewsListPage({
                     <td className="px-4 py-4 sm:px-5">
                       <div className="min-w-0">
                         <p className="line-clamp-1 font-medium text-neutral-900">
-                          {news.pendingRevision ? parseNewsRevision(news.pendingRevision).title : news.title}
+                          {news.title}
                         </p>
 
                         <span
@@ -270,7 +262,6 @@ export default async function NewsListPage({
                       >
                         {getStatusLabel(news.status)}
                       </span>
-                      <div className="mt-1"><ReviewStatusBadge status={news.reviewStatus} /></div>
                     </td>
 
                     <td className="px-4 py-4 text-neutral-600 sm:px-5">
@@ -286,10 +277,6 @@ export default async function NewsListPage({
                         newsId={news.id}
                         newsTitle={news.title}
                         currentStatus={news.status}
-                        contentVersion={news.contentVersion}
-                        canEdit={contentPermissions(session.user, news).canEdit}
-                        canDelete={contentPermissions(session.user, news).canDelete}
-                        canPublish={session.user.role === "SUPER_ADMIN" && !news.pendingRevision}
                       />
                     </td>
                   </tr>

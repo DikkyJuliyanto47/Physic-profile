@@ -28,6 +28,7 @@ export function PublicationActions({
       try {
         const result = await deletePublication(publicationId);
         if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);
           router.push("/admin/publication?result=deleted");
           router.refresh();

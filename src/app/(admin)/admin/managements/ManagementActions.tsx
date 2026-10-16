@@ -33,6 +33,7 @@ export function ManagementActions({
       const result = await setActiveManagementPeriod(periodId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         router.refresh();
       } else {
         setError(result.error ?? "Gagal mengaktifkan periode.");
@@ -47,6 +48,7 @@ export function ManagementActions({
       const result = await deleteManagementPeriod(periodId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setConfirmDelete(false);
         router.refresh();
       } else {

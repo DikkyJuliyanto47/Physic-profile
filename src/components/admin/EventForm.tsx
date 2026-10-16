@@ -230,7 +230,7 @@ export function EventForm({ mode, initialData }: Props) {
       }
 
       navigating = true;
-      router.push("/admin/events?result=saved");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/events?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[EventForm] Submit gagal:", error);

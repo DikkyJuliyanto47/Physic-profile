@@ -29,6 +29,23 @@ enum ReviewStatus {
   APPROVED
 }
 
+enum ContentModule {
+  news
+  event
+  member
+  managementPeriod
+  managementPosition
+  university
+  publication
+  gallery
+}
+
+enum ChangeOperation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
 enum NewsCategory {
   ORGANISASI
   SEMINAR
@@ -77,6 +94,37 @@ model User {
   newsCreated   News[]              @relation("NewsAuthor")
   newsReviewed  News[]              @relation("NewsReviewer")
   eventsCreated Event[]             @relation("EventAuthor")
+  contentOwned ContentChange[] @relation("ContentOwner")
+  contentSubmitted ContentChange[] @relation("ContentSubmitter")
+  contentReviewed ContentChange[] @relation("ContentReviewer")
+}
+
+// One approval/ownership record per content item. Only approved payloads are
+// written to canonical models; CREATE proposals have no public row yet.
+model ContentChange {
+  id String @id @default(cuid())
+  kind ContentModule
+  targetId String
+  operation ChangeOperation
+  payload Json?
+  before Json?
+  baseHash String?
+  authorId String
+  author User @relation("ContentOwner", fields: [authorId], references: [id], onDelete: Restrict)
+  submittedById String
+  submittedBy User @relation("ContentSubmitter", fields: [submittedById], references: [id], onDelete: Restrict)
+  reviewStatus ReviewStatus @default(PENDING_REVIEW)
+  contentVersion Int @default(1)
+  reviewerId String?
+  reviewer User? @relation("ContentReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewedAt DateTime?
+  reviewNote String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([kind, targetId])
+  @@index([reviewStatus, updatedAt])
+  @@index([authorId, reviewStatus])
 }
 
 // ==========================================
@@ -175,7 +223,8 @@ model News {
   reviewedAt      DateTime?
   reviewNote      String?
   contentVersion  Int          @default(1)
-  // Proposed content; canonical fields above remain the public version.
+  // Historical News-only proposals must be reconciled into ContentChange
+  // before activating centralized approval. New writes use ContentChange.
   pendingRevision Json?
   
   authorId    String

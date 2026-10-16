@@ -25,6 +25,7 @@ export function MemberActions({
       const result = await deleteMember(memberId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setShowConfirm(false);
         router.refresh();
       } else {

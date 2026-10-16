@@ -3,6 +3,9 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { MemberActions } from "./MemberActions";
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 export default async function MembersListPage({
   searchParams,
@@ -10,8 +13,10 @@ export default async function MembersListPage({
   searchParams: Promise<{ q?: string; universityId?: string }>;
 }) {
   const { q, universityId } = await searchParams;
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
 
-  const where: Prisma.MemberProfileWhereInput = {};
+  const where: Prisma.MemberProfileWhereInput = await ownedContentWhere("member", session.user);
 
   if (q) {
     where.OR = [

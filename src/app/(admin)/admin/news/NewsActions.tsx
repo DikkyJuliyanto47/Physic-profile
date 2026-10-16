@@ -9,20 +9,12 @@ type Props = {
   newsId: string;
   newsTitle: string;
   currentStatus: string;
-  contentVersion: number;
-  canEdit: boolean;
-  canDelete: boolean;
-  canPublish: boolean;
 };
 
 export function NewsActions({
   newsId,
   newsTitle,
   currentStatus,
-  contentVersion,
-  canEdit,
-  canDelete,
-  canPublish,
 }: Props) {
   const router = useRouter();
   const deleteInFlight = useRef(false);
@@ -38,8 +30,9 @@ export function NewsActions({
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleNewsStatus(newsId, contentVersion);
+        const result = await toggleNewsStatus(newsId);
         if (result.success === true) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
         } else {
           setToggleError(result.error || "Gagal mengubah status berita. Silakan coba lagi.");
@@ -58,8 +51,9 @@ export function NewsActions({
     setError("");
     startTransition(async () => {
       try {
-        const result = await deleteNews(newsId, contentVersion);
+        const result = await deleteNews(newsId);
         if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);
           router.push("/admin/news?result=deleted");
           router.refresh();
@@ -79,7 +73,7 @@ export function NewsActions({
   return (
     <>
       <div className="inline-flex items-center gap-1">
-        {canPublish && currentStatus !== "ARCHIVED" && (
+        {currentStatus !== "ARCHIVED" && (
         <button
           type="button"
           onClick={handleToggle}
@@ -120,20 +114,20 @@ export function NewsActions({
         </button>
         )}
 
-        {canEdit && <a
+        <a
           href={`/admin/news/${newsId}/edit`}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
         >
           Edit
-        </a>}
+        </a>
 
-        {canDelete && <button
+        <button
           type="button"
           onClick={() => setShowConfirm(true)}
           className="inline-flex h-8 items-center rounded-md px-2.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
         >
           Hapus
-        </button>}
+        </button>
       </div>
 
       {toggleError && (

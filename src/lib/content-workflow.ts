@@ -1,16 +1,16 @@
 import { NewsCategory } from "@/generated/prisma/enums";
 import { parseNewsEventDate } from "./news-event-date";
 
-// Adapted from 749315a. Only News is enabled in this phase.
+// Shared rules adapted from 749315a; used by every content module.
 export class ContentWorkflowError extends Error {}
-export type ContentKind = "news";
+export type ContentKind = "news" | "event" | "member" | "managementPeriod" | "managementPosition" | "university" | "publication" | "gallery";
 export type ReviewOperation = "approve" | "revision" | "publish" | "unpublish" | "archive";
 export type ContentActor = { id: string; role: string };
 export type ContentState = {
   authorId: string;
   reviewStatus: "DRAFT" | "PENDING_REVIEW" | "REVISION_REQUIRED" | "APPROVED";
   contentVersion: number;
-  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 };
 
 export function assertVersion(state: ContentState, version: unknown) {
@@ -48,16 +48,16 @@ export function parseNewsRevision(value: unknown): NewsRevision {
 
 export function assertEditable(actor: ContentActor, state: ContentState) {
   if (actor.role === "SUPER_ADMIN") return;
-  if (actor.role !== "ADMIN" || state.authorId !== actor.id || state.status === "ARCHIVED") {
-    throw new ContentWorkflowError("Anda tidak berhak mengubah berita ini.");
+  if (actor.role !== "ADMIN" || state.authorId !== actor.id) {
+    throw new ContentWorkflowError("Anda tidak berhak mengelola konten ini.");
   }
 }
 
 export function transition(actor: ContentActor, state: ContentState, operation: ReviewOperation, note?: string) {
   if (actor.role !== "SUPER_ADMIN") throw new ContentWorkflowError("Akses Super Admin diperlukan.");
   if (operation === "approve" || operation === "revision") {
-    if (state.reviewStatus !== "PENDING_REVIEW" || state.status === "ARCHIVED") {
-      throw new ContentWorkflowError("Berita tidak lagi menunggu review.");
+    if (state.reviewStatus !== "PENDING_REVIEW") {
+      throw new ContentWorkflowError("Pengajuan tidak lagi menunggu review.");
     }
     if (operation === "revision" && (typeof note !== "string" || !note.trim() || note.length > 5000)) {
       throw new ContentWorkflowError("Alasan penolakan wajib diisi, maksimal 5000 karakter.");

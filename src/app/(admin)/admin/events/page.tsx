@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/auth-utils";
+import { ownedContentWhere } from "@/lib/content-approval";
 import { redirect } from "next/navigation";
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
@@ -88,8 +89,9 @@ export default async function EventsListPage({
 }) {
   const { q, status, result } = await searchParams;
 
-  if (!await requireAdmin()) redirect("/login");
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = await ownedContentWhere("event", session.user);
 
   if (q) {
     where.OR = [

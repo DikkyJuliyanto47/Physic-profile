@@ -33,6 +33,7 @@ export function EventActions({
       try {
         const result = await toggleEventStatus(eventId);
         if (result.success === true) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
         } else {
           setToggleError(result.error || "Gagal mengubah status agenda. Silakan coba lagi.");
@@ -53,6 +54,7 @@ export function EventActions({
       try {
         const result = await deleteEvent(eventId);
         if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);
           router.push("/admin/events?result=deleted");
           router.refresh();

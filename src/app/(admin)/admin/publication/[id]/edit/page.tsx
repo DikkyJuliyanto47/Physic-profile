@@ -1,3 +1,4 @@
+import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -12,8 +13,10 @@ export default async function EditPublicationPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!await requireAdmin()) notFound();
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("publication", id, session.user)) notFound();
 
   const publication = await prisma.publication.findUnique({
     where: { id },

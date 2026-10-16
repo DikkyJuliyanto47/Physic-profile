@@ -23,6 +23,7 @@ export function ManagementPositionActions({ positionId, positionTitle }: Props) 
       const result = await deleteManagementPosition(positionId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setConfirmDelete(false);
         router.refresh();
       } else {

@@ -1,3 +1,5 @@
+import { canManageContent, ownedContentWhere } from "@/lib/content-approval";
+import { requireAdmin } from "@/lib/auth-utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -16,14 +18,20 @@ export default async function EditManagementPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ positionId?: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("managementPeriod", id, session.user)) notFound();
   const { positionId } = await searchParams;
+  if (positionId && !await canManageContent("managementPosition", positionId, session.user)) notFound();
+  const positionScope = await ownedContentWhere("managementPosition", session.user);
 
   const [period, memberProfiles] = await Promise.all([
     prisma.managementPeriod.findUnique({
       where: { id },
       include: {
         positions: {
+          where: positionScope,
           orderBy: [{ order: "asc" }, { createdAt: "asc" }],
           include: {
             memberProfile: {

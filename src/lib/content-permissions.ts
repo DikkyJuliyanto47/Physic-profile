@@ -13,8 +13,8 @@ export function contentPermissions(actor: ContentActor, state: ContentState) {
   return {
     superAdmin,
     canEdit: allowed(() => assertEditable(actor, state)),
-    canDelete: superAdmin || (actor.role === "ADMIN" && actor.id === state.authorId &&
-      state.status === "DRAFT" && state.reviewStatus !== "PENDING_REVIEW"),
+    // ADMIN deletion is a proposal; canonical deletion is always reviewed.
+    canDelete: superAdmin || (actor.role === "ADMIN" && actor.id === state.authorId),
     canReview: allowed(() => transition(actor, state, "approve")),
   };
 }

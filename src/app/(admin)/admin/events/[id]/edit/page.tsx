@@ -1,3 +1,4 @@
+import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 
@@ -13,8 +14,10 @@ export default async function EditEventPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!await requireAdmin()) notFound();
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("event", id, session.user)) notFound();
 
   const event = await prisma.event.findUnique({
     where: { id },
