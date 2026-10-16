@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { MemberActions } from "./MemberActions";
+import { MemberActions } from "@/components/admin/MemberActions";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { ownedContentWhere } from "@/lib/content-approval";

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ManagementPeriodForm } from "@/components/admin/ManagementPeriodForm";
 import { ManagementPositionForm } from "@/components/admin/ManagementPositionForm";
-import { ManagementPositionActions } from "../../ManagementPositionActions";
+import { ManagementPositionActions } from "@/components/admin/ManagementPositionActions";
 
 export const metadata = {
   title: "Kelola Kepengurusan - PSI Surabaya CMS",

@@ -5,7 +5,7 @@ import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PublicationType } from "@/generated/prisma/client";
-import { PublicationActions } from "./PublicationActions";
+import { PublicationActions } from "@/components/admin/PublicationActions";
 
 const TYPE_LABELS: Record<PublicationType, string> = {
   JURNAL: "Jurnal",

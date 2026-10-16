@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ManagementActions } from "./ManagementActions";
-import { ManagementPositionActions } from "./ManagementPositionActions";
+import { ManagementActions } from "@/components/admin/ManagementActions";
+import { ManagementPositionActions } from "@/components/admin/ManagementPositionActions";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { ownedContentWhere } from "@/lib/content-approval";

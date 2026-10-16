@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { GalleryActions } from "./GalleryActions";
+import { GalleryActions } from "@/components/admin/GalleryActions";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { ownedContentWhere } from "@/lib/content-approval";
