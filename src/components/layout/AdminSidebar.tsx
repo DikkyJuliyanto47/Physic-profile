@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { BrandMark } from "@/components/layout/";
 
 const NAV_ITEMS = [
@@ -62,6 +63,10 @@ export function AdminSidebar({
   onPinnedChange,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const navItems = session?.user.role === "SUPER_ADMIN"
+    ? [...NAV_ITEMS, { label: "Manage Admin", href: "/admin/admins", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" }]
+    : NAV_ITEMS;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -158,7 +163,7 @@ export function AdminSidebar({
           </div>
 
           <ul className="space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive =
                 item.href === "/admin"
                   ? pathname === "/admin"
