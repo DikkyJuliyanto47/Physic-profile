@@ -3,8 +3,6 @@ import { requireSuperAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { AdminAccounts } from "@/components/admin/AdminAccounts";
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminAccountsPage() {
   if (!await requireSuperAdmin()) notFound();
   const accounts = await prisma.user.findMany({
