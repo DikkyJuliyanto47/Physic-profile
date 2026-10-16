@@ -23,6 +23,7 @@ export function ContentReviewControls({ id, kind, operation, actor, state, paylo
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<ContentPayload>(payload);
   const permissions = contentPermissions(actor, state);
@@ -40,9 +41,11 @@ export function ContentReviewControls({ id, kind, operation, actor, state, paylo
     const date = new Date(String(value));
     return Number.isNaN(date.getTime()) ? String(value) : new Date(date.getTime() + 7 * 3600000).toISOString().slice(0, -1);
   }
-  async function run(decision: "approve" | "revision" | "resubmit") {
+  async function run(decision: "approve" | "revision" | "resubmit", confirmed = false) {
     if (inFlight.current) return;
+    if (decision === "approve" && operation === "DELETE" && !confirmed) { setConfirmDelete(true); return; }
     if (decision === "revision" && !note.trim()) { setError("Isi alasan penolakan terlebih dahulu."); return; }
+    setConfirmDelete(false);
     inFlight.current = true; setBusy(true); setError("");
     try {
       const result = decision === "resubmit"
@@ -110,6 +113,17 @@ export function ContentReviewControls({ id, kind, operation, actor, state, paylo
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={busy} onClick={() => void run("approve")} className="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{busy ? "Memproses..." : operation === "DELETE" ? "Setujui penghapusan" : "Setujui perubahan"}</button>
         <button type="button" disabled={busy} onClick={() => void run("revision")} className={buttonClass}>Tolak dengan alasan</button>
+      </div>
+    </div>}
+    {confirmDelete && <div role="dialog" aria-modal="true" aria-labelledby={`${fieldId}-delete-title`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+      <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
+        <h3 id={`${fieldId}-delete-title`} className="text-lg font-semibold text-neutral-900">Setujui Penghapusan?</h3>
+        <p className="mt-2 text-sm leading-6 text-neutral-600">Konten <strong>{String(before?.title ?? before?.name ?? before?.period ?? "Konten")} (ID: {String(before?.id ?? id)})</strong> akan dihapus setelah pengajuan disetujui. Tindakan ini tidak dapat dibatalkan.</p>
+        {kind === "managementPeriod" && Array.isArray(before?.positions) && <p className="mt-2 text-sm leading-6 text-neutral-600">Seluruh {before.positions.length} jabatan dalam periode ini juga akan dihapus.</p>}
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <button type="button" disabled={busy} className={buttonClass} onClick={() => setConfirmDelete(false)}>Batal</button>
+          <button type="button" disabled={busy} className={buttonClass} onClick={() => void run("approve", true)}>Ya, Setujui Penghapusan</button>
+        </div>
       </div>
     </div>}
     {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
