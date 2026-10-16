@@ -1,9 +1,13 @@
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
 
-import { NewsActions } from "./NewsActions";
+import { NewsActions } from "@/components/admin/NewsActions";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
   ORGANISASI: "Organisasi",
@@ -58,11 +62,13 @@ function getStatusLabel(status: ContentStatus): string {
 export default async function NewsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status } = await searchParams;
+  const { q, status, result } = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = await ownedContentWhere("news", session.user);
 
   if (q) {
     where.OR = [
@@ -78,7 +84,10 @@ export default async function NewsListPage({
   const newsList = await prisma.news.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
+    select: {
+      id: true, title: true, slug: true, category: true, status: true,
+      publishedAt: true, createdAt: true, author: { select: { name: true } },
+    },
   });
 
   const hasFilter = Boolean(q || status);
@@ -116,6 +125,7 @@ export default async function NewsListPage({
         </Link>
       </header>
 
+      <ContentFeedback result={result} />
       <form
         method="GET"
         className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center"

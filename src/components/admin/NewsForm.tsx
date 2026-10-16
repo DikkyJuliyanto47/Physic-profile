@@ -9,7 +9,7 @@ import {
 } from "@/lib/upload-constraints";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -21,7 +21,10 @@ import {
   type NewsInput,
 } from "@/actions/news";
 
+import type { ContentActor } from "@/lib/content-workflow";
+
 type Props = {
+  actor: ContentActor;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -67,9 +70,10 @@ function FieldLabel({
   );
 }
 
-export function NewsForm({ mode, initialData }: Props) {
+export function NewsForm({ mode, initialData, actor }: Props) {
   const formId = useId();
   const router = useRouter();
+  const submitInFlight = useRef(false);
   const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
 
@@ -166,10 +170,12 @@ export function NewsForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (submitInFlight.current) return;
 
     setError("");
+    submitInFlight.current = true;
     setIsSubmitting(true);
+    let navigating = false;
 
     try {
       const payload: NewsInput = form;
@@ -184,7 +190,8 @@ export function NewsForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push("/admin/news?success=true");
+      navigating = true;
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/news?result=saved");
       router.refresh();
     } catch (error) {
       console.error(" [NewsForm] Submit gagal:", error);
@@ -192,7 +199,10 @@ export function NewsForm({ mode, initialData }: Props) {
         "Koneksi atau layanan bermasalah. Periksa koneksi internet Anda atau coba lagi nanti."
       );
     } finally {
-      setIsSubmitting(false);
+      if (!navigating) {
+        submitInFlight.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 
@@ -205,6 +215,7 @@ export function NewsForm({ mode, initialData }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
+      {actor.role === "ADMIN" && <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">Berita akan diajukan untuk review. Versi publik tetap berlaku sampai disetujui.</p>}
       {isSuccess && (
         <div className="flex items-start justify-between gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
           <div className="flex items-start gap-2.5">
@@ -326,7 +337,7 @@ export function NewsForm({ mode, initialData }: Props) {
             </select>
           </div>
 
-          <div>
+          {actor.role === "SUPER_ADMIN" && <div>
             <FieldLabel htmlFor={`${formId}-status`} required>Status</FieldLabel>
             <select
               id={`${formId}-status`}
@@ -341,7 +352,7 @@ export function NewsForm({ mode, initialData }: Props) {
                 <option value={ContentStatus.ARCHIVED}>Arsipkan</option>
               )}
             </select>
-          </div>
+          </div>}
 
           <div>
             <FieldLabel htmlFor={`${formId}-image`}>Gambar</FieldLabel>

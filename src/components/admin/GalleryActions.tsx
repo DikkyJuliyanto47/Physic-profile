@@ -44,6 +44,7 @@ export function GalleryActions({
       const result = await deleteGalleryItem(itemId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setShowConfirm(false);
         router.refresh();
       } else {

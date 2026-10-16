@@ -1,9 +1,13 @@
+import { requireAdmin } from "@/lib/auth-utils";
+import { ownedContentWhere } from "@/lib/content-approval";
+import { redirect } from "next/navigation";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 import { ContentStatus, EventCategory } from "@/generated/prisma/client";
 
-import { EventActions } from "./EventActions";
+import { EventActions } from "@/components/admin/EventActions";
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   SEMINAR_NASIONAL: "Seminar Nasional",
@@ -81,11 +85,13 @@ function getStatusClassName(status: ContentStatus): string {
 export default async function EventsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; result?: string }>;
 }) {
-  const { q, status } = await searchParams;
+  const { q, status, result } = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = await ownedContentWhere("event", session.user);
 
   if (q) {
     where.OR = [
@@ -137,6 +143,7 @@ export default async function EventsListPage({
         </Link>
       </div>
 
+      <ContentFeedback result={result} />
       <form method="GET" className="flex flex-col gap-3 sm:flex-row">
         <div className="relative min-w-0 flex-1">
           <svg

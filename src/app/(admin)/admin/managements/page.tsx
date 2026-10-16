@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ManagementActions } from "./ManagementActions";
-import { ManagementPositionActions } from "./ManagementPositionActions";
+import { ManagementActions } from "@/components/admin/ManagementActions";
+import { ManagementPositionActions } from "@/components/admin/ManagementPositionActions";
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
@@ -12,11 +15,17 @@ function formatDate(date: Date): string {
 }
 
 export default async function ManagementPage() {
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const scope = await ownedContentWhere("managementPeriod", session.user);
+  const positionScope = await ownedContentWhere("managementPosition", session.user);
   const [periods, activePeriod] = await Promise.all([
     prisma.managementPeriod.findMany({
+      where: scope,
       orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
       include: {
         positions: {
+          where: positionScope,
           orderBy: [{ order: "asc" }, { createdAt: "asc" }],
           include: {
             memberProfile: {
@@ -29,10 +38,11 @@ export default async function ManagementPage() {
       },
     }),
     prisma.managementPeriod.findFirst({
-      where: { isActive: true },
+      where: { ...scope, isActive: true },
       orderBy: { createdAt: "desc" },
       include: {
         positions: {
+          where: positionScope,
           orderBy: [{ order: "asc" }, { createdAt: "asc" }],
           include: {
             memberProfile: {

@@ -1,3 +1,5 @@
+import { canManageContent } from "@/lib/content-approval";
+import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { GalleryForm } from "@/components/admin/GalleryForm";
@@ -11,7 +13,10 @@ export default async function EditGalleryPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("gallery", id, session.user)) notFound();
 
   const item = await prisma.gallery.findUnique({
     where: { id },

@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import { isAdminRole } from "@/lib/authorization";
 import {
   MOCK_AUTH_COOKIE_NAME,
   MOCK_AUTH_USER,
@@ -12,6 +13,16 @@ export const authConfig = {
   },
   providers: [],
   callbacks: {
+    session({ session, token }) {
+      if (session.user) {
+        if (typeof token.id === "string") session.user.id = token.id;
+        session.user.role = isAdminRole(token.role) ? token.role : "";
+        if (typeof token.sessionVersion === "number") {
+          session.user.sessionVersion = token.sessionVersion;
+        }
+      }
+      return session;
+    },
     authorized({ auth, request }) {
       const nextUrl = request.nextUrl;
       const cookieHeader = request.headers.get("cookie") ?? undefined;
@@ -27,8 +38,10 @@ export const authConfig = {
       if (isOnAdmin) {
         if (!isLoggedIn) return false;
 
-        const userRole = (auth?.user?.role as string | undefined) ?? MOCK_AUTH_USER.role;
-        if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN") {
+        const userRole = auth?.user
+          ? auth.user.role
+          : isMockAuthenticated ? MOCK_AUTH_USER.role : undefined;
+        if (!isAdminRole(userRole)) {
           return Response.redirect(new URL("/login", nextUrl));
         }
 

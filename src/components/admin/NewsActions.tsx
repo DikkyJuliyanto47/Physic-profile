@@ -17,6 +17,7 @@ export function NewsActions({
   currentStatus,
 }: Props) {
   const router = useRouter();
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -31,6 +32,7 @@ export function NewsActions({
       try {
         const result = await toggleNewsStatus(newsId);
         if (result.success === true) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
         } else {
           setToggleError(result.error || "Gagal mengubah status berita. Silakan coba lagi.");
@@ -44,16 +46,24 @@ export function NewsActions({
   }
 
   function handleDelete() {
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
-
     startTransition(async () => {
-      const result = await deleteNews(newsId);
-
-      if (result.success) {
-        setShowConfirm(false);
-        router.refresh();
-      } else {
-        setError(result.error ?? "Gagal menghapus.");
+      try {
+        const result = await deleteNews(newsId);
+        if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          setShowConfirm(false);
+          router.push("/admin/news?result=deleted");
+          router.refresh();
+        } else {
+          setError(result.error ?? "Gagal menghapus.");
+        }
+      } catch {
+        setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
+      } finally {
+        deleteInFlight.current = false;
       }
     });
   }

@@ -2,7 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { prisma } from "@/lib/prisma";
-import { UniversityActions } from "./UniversityActions";
+import { UniversityActions } from "@/components/admin/UniversityActions";
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 export default async function UniversitiesPage({
   searchParams,
@@ -10,6 +13,9 @@ export default async function UniversitiesPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const scope = await ownedContentWhere("university", session.user);
 
   const where = q
     ? {
@@ -22,7 +28,7 @@ export default async function UniversitiesPage({
     : {};
 
   const universities = await prisma.university.findMany({
-    where,
+    where: { ...where, ...scope },
     orderBy: { name: "asc" },
     include: { _count: { select: { members: true } } },
   });

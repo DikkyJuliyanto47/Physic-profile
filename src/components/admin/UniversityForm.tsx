@@ -150,7 +150,7 @@ export function UniversityForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push("/admin/universities");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/universities");
       router.refresh();
     } catch (error) {
       console.error("[UniversityForm] Submit gagal:", error);

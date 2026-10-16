@@ -23,7 +23,7 @@ export default function EventsPage() {
 async function EventsContent() {
   const events = await getPublishedEvents();
   await connection();
-  const now = Date.now();
+  const now = new Date().getTime();
   const ongoingEvent = events.find((event) =>
     getEventTimeStatus(event.startDate, event.endDate, now) === "ongoing",
   );

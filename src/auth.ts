@@ -59,6 +59,7 @@ const nextAuth = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         if (user.id) {
@@ -68,20 +69,6 @@ const nextAuth = NextAuth({
         token.sessionVersion = user.sessionVersion ?? 0;
       }
       return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        if (typeof token.id === "string") {
-          session.user.id = token.id;
-        }
-        if (typeof token.role === "string") {
-          session.user.role = token.role;
-        }
-        if (typeof token.sessionVersion === "number") {
-          session.user.sessionVersion = token.sessionVersion;
-        }
-      }
-      return session;
     },
   },
 });

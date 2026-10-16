@@ -87,6 +87,7 @@ function toDatetimeLocal(date: Date | string): string {
 export function EventForm({ mode, initialData }: Props) {
   const formId = useId();
   const router = useRouter();
+  const submitInFlight = useRef(false);
   const trackUpload = useUploadLifecycle();
   const searchParams = useSearchParams();
 
@@ -210,10 +211,12 @@ export function EventForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isSubmitting || uploading) return;
+    if (submitInFlight.current || uploading) return;
 
     setError("");
+    submitInFlight.current = true;
     setIsSubmitting(true);
+    let navigating = false;
 
     try {
       const result: ActionResponse =
@@ -226,7 +229,8 @@ export function EventForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push(`/admin/events?success=${mode === "create" ? "created" : "updated"}`);
+      navigating = true;
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/events?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[EventForm] Submit gagal:", error);
@@ -234,7 +238,10 @@ export function EventForm({ mode, initialData }: Props) {
         "Terjadi kesalahan saat menyimpan agenda. Silakan coba lagi.",
       );
     } finally {
-      setIsSubmitting(false);
+      if (!navigating) {
+        submitInFlight.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 

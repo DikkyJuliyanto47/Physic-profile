@@ -1,3 +1,5 @@
+import { canManageContent } from "@/lib/content-approval";
+import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { MemberForm } from "@/components/admin/MemberForm";
@@ -11,7 +13,10 @@ export default async function EditMemberPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("member", id, session.user)) notFound();
 
   const [member, universities] = await Promise.all([
     prisma.memberProfile.findUnique({ where: { id } }),

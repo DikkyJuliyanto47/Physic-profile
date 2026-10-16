@@ -18,6 +18,7 @@ export function EventActions({
   currentStatus,
 }: Props) {
   const router = useRouter();
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +33,7 @@ export function EventActions({
       try {
         const result = await toggleEventStatus(eventId);
         if (result.success === true) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
         } else {
           setToggleError(result.error || "Gagal mengubah status agenda. Silakan coba lagi.");
@@ -45,16 +47,24 @@ export function EventActions({
   }
 
   function handleDelete() {
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
-
     startTransition(async () => {
-      const result = await deleteEvent(eventId);
-
-      if (result.success) {
-        setShowConfirm(false);
-        router.refresh();
-      } else {
-        setError(result.error ?? "Gagal menghapus.");
+      try {
+        const result = await deleteEvent(eventId);
+        if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          setShowConfirm(false);
+          router.push("/admin/events?result=deleted");
+          router.refresh();
+        } else {
+          setError(result.error ?? "Gagal menghapus.");
+        }
+      } catch {
+        setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
+      } finally {
+        deleteInFlight.current = false;
       }
     });
   }

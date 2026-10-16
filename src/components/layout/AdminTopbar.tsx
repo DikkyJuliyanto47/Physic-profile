@@ -110,7 +110,7 @@ export function AdminTopbar({
                   {user?.name ?? "User"}
                 </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-neutral-400">
-                  {user?.role ?? "ADMIN"}
+                  Admin
                 </p>
               </div>
 

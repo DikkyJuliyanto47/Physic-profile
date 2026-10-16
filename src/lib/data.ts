@@ -1,3 +1,4 @@
+import { publishedPublications } from "@/lib/content-visibility";
 import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
@@ -465,7 +466,7 @@ export async function getAcademicStats() {
       _count: true,
       orderBy: { _count: { fieldOfExpertise: "desc" } },
     }),
-    prisma.publication.count(),
+    prisma.publication.count({ where: publishedPublications() }),
   ]);
 
   return { totalAnggota, expertiseGroups, totalPublikasi };

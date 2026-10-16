@@ -158,7 +158,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
         return;
       }
 
-      router.push("/admin/members");
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/members");
       router.refresh();
     } catch (error) {
       console.error("[MemberForm] Submit gagal:", error);

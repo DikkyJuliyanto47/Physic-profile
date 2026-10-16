@@ -29,6 +29,7 @@ export function UniversityActions({
       const result = await deleteUniversity(universityId);
 
       if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
         setShowConfirm(false);
         router.refresh();
       } else {

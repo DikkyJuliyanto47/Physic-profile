@@ -1,7 +1,11 @@
+import { requireAdmin } from "@/lib/auth-utils";
+import { ownedContentWhere } from "@/lib/content-approval";
+import { redirect } from "next/navigation";
+import { ContentFeedback } from "@/components/admin/ContentFeedback";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PublicationType } from "@/generated/prisma/client";
-import { PublicationActions } from "./PublicationActions";
+import { PublicationActions } from "@/components/admin/PublicationActions";
 
 const TYPE_LABELS: Record<PublicationType, string> = {
   JURNAL: "Jurnal",
@@ -31,11 +35,13 @@ function formatDate(date: Date | null): string {
 export default async function PublicationListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; result?: string }>;
 }) {
-  const { q, type } = await searchParams;
+  const { q, type, result } = await searchParams;
 
-  const where: Record<string, unknown> = {};
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const where: Record<string, unknown> = await ownedContentWhere("publication", session.user);
 
   if (q) {
     where.OR = [
@@ -86,6 +92,7 @@ export default async function PublicationListPage({
         </Link>
       </div>
 
+      <ContentFeedback result={result} />
       <form method="GET" className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <svg

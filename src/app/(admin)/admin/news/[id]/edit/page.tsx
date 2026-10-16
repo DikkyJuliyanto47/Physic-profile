@@ -1,7 +1,9 @@
+import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { NewsForm } from "@/components/admin/NewsForm";
+import { canManageContent } from "@/lib/content-approval";
 
 export const metadata = {
   title: "Edit Berita - PSI Cabang Surabaya",
@@ -12,7 +14,10 @@ export default async function EditNewsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireAdmin();
+  if (!session) notFound();
   const { id } = await params;
+  if (!await canManageContent("news", id, session.user)) notFound();
 
   const news = await prisma.news.findUnique({
     where: { id },
@@ -58,7 +63,7 @@ export default async function EditNewsPage({
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
-            <NewsForm mode="edit" initialData={news} />
+            <NewsForm mode="edit" initialData={news} actor={session.user} />
           </div>
         </div>
       </div>

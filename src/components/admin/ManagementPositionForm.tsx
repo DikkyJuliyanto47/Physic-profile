@@ -73,7 +73,7 @@ export function ManagementPositionForm({
         return;
       }
 
-      router.push(`/admin/managements/${periodId}/edit`);
+      router.push(result.pending ? "/admin/submissions?result=submitted" : `/admin/managements/${periodId}/edit`);
       router.refresh();
     } catch (error) {
       console.error("[ManagementPositionForm] Submit gagal:", error);

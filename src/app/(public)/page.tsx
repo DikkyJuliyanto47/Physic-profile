@@ -1,3 +1,4 @@
+import { publishedContent } from "@/lib/content-visibility";
 import { publicMetadata } from "@/config/seo";
 import {
   AboutSection,
@@ -10,16 +11,21 @@ import {
 } from "@/components/features/home";
 
 import { prisma } from "@/lib/prisma";
+import { cacheLife, cacheTag } from "next/cache";
 import { seoConfig } from "@/config/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata = publicMetadata("Physical Society of Indonesia (PSI) Cabang Surabaya", "Website resmi Physical Society of Indonesia Cabang Surabaya yang menyediakan informasi organisasi, kegiatan ilmiah, berita, riset, publikasi, dan jejaring komunitas fisika.", "/");
 
-export default async function Page() {
-  const [events, universities] = await Promise.all([
+async function getHomeData() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("events", "universities");
+
+  return Promise.all([
     prisma.event.findMany({
       where: {
-        status: "PUBLISHED",
+        ...publishedContent,
       },
       orderBy: {
         startDate: "desc",
@@ -45,6 +51,10 @@ export default async function Page() {
       },
     }),
   ]);
+}
+
+export default async function Page() {
+  const [events, universities] = await getHomeData();
 
   return (
     <>

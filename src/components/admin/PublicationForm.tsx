@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActionResponse } from "@/actions/publication";
 import { createPublication, updatePublication } from "@/actions/publication";
@@ -36,6 +36,7 @@ const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
 export function PublicationForm({ mode, initialData }: Props) {
   const router = useRouter();
+  const submitInFlight = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -64,10 +65,12 @@ export function PublicationForm({ mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (submitInFlight.current) return;
 
     setError("");
+    submitInFlight.current = true;
     setIsSubmitting(true);
+    let navigating = false;
 
     try {
       const result: ActionResponse = 
@@ -80,13 +83,19 @@ export function PublicationForm({ mode, initialData }: Props) {
         return;
       }
 
-      router.push("/admin/publication");
+      navigating = true;
+      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/publication?result=saved");
       router.refresh();
     } catch (error) {
       console.error("[PublicationForm] Submit gagal:", error);
       setError (
         "Koneksi atau layanan bermasalah. Periksa daftar publikasi sebelum mencoba menyimpan kembali."
       );
+    } finally {
+      if (!navigating) {
+        submitInFlight.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 

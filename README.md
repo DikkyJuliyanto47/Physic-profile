@@ -295,3 +295,33 @@ These checks require hosting access and have not been performed as part of the s
 ## License
 
 No license file or licensing information is specified in this repository.
+
+## Centralized content approval
+
+All content actions now use the shared approval queue in the main Prisma schema.
+ADMIN creates, revisions, status changes and deletions remain PENDING_REVIEW.
+Canonical/public records are written only by SUPER_ADMIN directly or after approval.
+Rejected proposals retain their payload and reason for revision and resubmission.
+Review is at /admin/review (SUPER_ADMIN); owned proposals are at /admin/submissions.
+
+Database activation is manual and has NOT been performed:
+- Provision ContentModule, ChangeOperation and ContentChange from prisma/schema.prisma,
+  including its User foreign keys, unique (kind, targetId), version and review indexes.
+- Reconcile existing migration history first, including normalize_image_urls.
+  The two historical approval migrations must not be applied blindly: they also
+  change Event/Publication and do not provide the centralized queue.
+- Ensure the existing News review columns in the main schema are present. Migrate
+  any News.pendingRevision into ContentChange before clearing the old snapshot.
+  Preserve public News fields and original publication dates. The runtime refuses
+  content writes while legacy News snapshots remain or approval storage is missing.
+- Backfill ownership using News/Event.authorId where available. Other legacy
+  modules need explicitly verified owners; ADMIN cannot edit unassigned legacy
+  data. SUPER_ADMIN retains access. Do not infer ownership from member email.
+- Stop older content writers during activation. Base fingerprints must match the
+  canonical snapshot serialized by content-records/content-approval.
+
+Approval rechecks sessionVersion/active role, ownership, request version and the
+canonical base fingerprint in a serializable transaction. Existing media lifecycle
+locking and reference tracking cover queued JSON snapshots. Until the queue table
+exists, cleanup retains media rather than assuming proposed references are absent.
+Manage Admin continues to use its existing authentication and actions.

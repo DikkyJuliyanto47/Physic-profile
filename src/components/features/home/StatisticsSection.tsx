@@ -1,13 +1,19 @@
+import { publishedContent } from "@/lib/content-visibility";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/ui";
+import { cacheLife, cacheTag } from "next/cache";
 
 async function getStatistics() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("members", "universities", "events");
+
   const [members, universities, activities] = await Promise.all([
     prisma.memberProfile.count(),
     prisma.university.count(),
     prisma.event.count({
       where: {
-        status: "PUBLISHED",
+        ...publishedContent,
       },
     }),
   ]);

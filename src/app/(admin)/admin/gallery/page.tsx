@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { GalleryActions } from "./GalleryActions";
+import { GalleryActions } from "@/components/admin/GalleryActions";
+import { requireAdmin } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import { ownedContentWhere } from "@/lib/content-approval";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("id-ID", {
@@ -27,8 +30,11 @@ export default async function GalleryListPage({
   searchParams: Promise<{ q?: string; category?: string }>;
 }) {
   const { q, category } = await searchParams;
+  const session = await requireAdmin();
+  if (!session) redirect("/login");
+  const scope = await ownedContentWhere("gallery", session.user);
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { ...scope };
 
   if (q) {
     where.OR = [
@@ -49,7 +55,7 @@ export default async function GalleryListPage({
     prisma.gallery.findMany({
       select: { category: true },
       distinct: ["category"],
-      where: { category: { not: null } },
+      where: { ...scope, category: { not: null } },
       orderBy: { category: "asc" },
     }),
   ]);

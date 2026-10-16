@@ -45,3 +45,6 @@ project_overview.md
 
 # Private ownership metadata and cross-process media lifecycle lock
 /.media-lifecycle/
+
+# Isolated Phase 00 database cluster, logs and disposable validation artifacts
+/.phase00/

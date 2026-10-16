@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { deletePublication } from "@/actions/publication";
 
 type Props = {
@@ -15,21 +15,30 @@ export function PublicationActions({
   publicationTitle,
 }: Props) {
   const router = useRouter();
+  const deleteInFlight = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
   function handleDelete() {
+    if (isPending || deleteInFlight.current) return;
+    deleteInFlight.current = true;
     setError("");
-
     startTransition(async () => {
-      const result = await deletePublication(publicationId);
-
-      if (result.success) {
-        setShowConfirm(false);
-        router.refresh();
-      } else {
-        setError(result.error ?? "Gagal menghapus.");
+      try {
+        const result = await deletePublication(publicationId);
+        if (result.success) {
+          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          setShowConfirm(false);
+          router.push("/admin/publication?result=deleted");
+          router.refresh();
+        } else {
+          setError(result.error ?? "Gagal menghapus.");
+        }
+      } catch {
+        setError("Gagal menghapus. Muat ulang sebelum mencoba kembali.");
+      } finally {
+        deleteInFlight.current = false;
       }
     });
   }
@@ -54,9 +63,10 @@ export function PublicationActions({
       </div>
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="delete-publication-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold tracking-tight text-neutral-900">
+            <h3 id="delete-publication-title" className="text-lg font-semibold tracking-tight text-neutral-900">
               Hapus Publikasi?
             </h3>
 
