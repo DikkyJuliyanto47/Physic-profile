@@ -1,327 +1,398 @@
-# Physical Society of Indonesia - Surabaya Branch
+# Physical Society of Indonesia
 
-This repository contains the web application for the Physical Society of Indonesia (PSI) Surabaya Branch. It provides public organizational information and an authenticated administration area for managing content stored in PostgreSQL.
+### Surabaya Branch
+
+Public organizational website and authenticated content management system for PSI Surabaya, built with Next.js, PostgreSQL, and centralized content approval.
+
+![Next.js](https://img.shields.io/badge/Next.js-16.2.12-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-19.2.4-149ECA?style=flat-square&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7.9.1-2D3748?style=flat-square&logo=prisma&logoColor=white)
+![NextAuth / Auth.js](https://img.shields.io/badge/NextAuth%20%2F%20Auth.js-5.0.0--beta.32-6B46C1?style=flat-square)
+
+[Getting Started](#getting-started) | [Architecture](#system-architecture) | [Documentation](#technical-documentation)
 
 ## Overview
 
-The public application includes a landing page, organization/about information, events, news, research and publications, gallery content, member and management information, university information, and contact information. Public listings and detail pages read content from the database where implemented.
+The public website presents organization profiles, scientific activities, news, events, research/publications, members, management, universities, galleries, and contact information. The admin dashboard provides content management, account administration, submission review, and media handling.
 
-The `/admin` area provides authenticated CRUD screens for managing news, events, members, management periods and positions, universities, publications, and gallery items. Authentication uses NextAuth credentials with a Prisma-backed user record. A development-only mock-auth path is controlled by `NEXT_PUBLIC_MOCK_AUTH`.
+The package name is **`psi-surabaya`**. There is no public account registration. Most public content is database-backed; organizational copy, bundled assets, and the home gallery also use local frontend data. The source implements role-based authorization, approval, concurrency checks, and server-side admin pagination. Database activation and production storage are environment-dependent; source availability alone does not establish deployment readiness.
 
-## Tech Stack
+## Contents
 
-Versions below are taken from `package.json` and `package-lock.json`:
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Application Routes](#application-routes)
+- [Frontend Architecture](#frontend-architecture)
+- [Backend Architecture](#backend-architecture)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [Content Approval Workflow](#content-approval-workflow)
+- [Database and Migrations](#database-and-migrations)
+- [Media Management](#media-management)
+- [Environment Variables](#environment-variables)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Production Deployment](#production-deployment)
+- [Technical Documentation](#technical-documentation)
+- [Maintenance Notes](#maintenance-notes)
+- [License](#license)
 
-- Next.js `16.2.12` with the App Router
-- React `19.2.4` and React DOM `19.2.4`
-- TypeScript `5.x` with strict checking enabled
-- Tailwind CSS `4.x` through `@tailwindcss/postcss`
-- Prisma `7.9.1` with PostgreSQL and `@prisma/adapter-pg`
-- NextAuth `5.0.0-beta.32` for credentials authentication and JWT sessions
-- ESLint `9.x` with `eslint-config-next` rules
-- `next/image` for image rendering and `framer-motion` for animation
-- `lucide-react`, `react-icons`, and Font Awesome packages for icons
-- npm, identified by `package-lock.json` (`lockfileVersion: 3`)
+## Technology Stack
 
-## Application Architecture
+Versions are resolved from `package-lock.json`, not inferred from dependency ranges.
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16.2.12, App Router |
+| UI | React / React DOM 19.2.4 |
+| Language | TypeScript 5.9.3, strict checking |
+| Styling | Tailwind CSS 4.3.3 through @tailwindcss/postcss |
+| Database | PostgreSQL; local Compose uses postgres:16-alpine |
+| ORM | Prisma 7.9.1 and @prisma/adapter-pg |
+| Authentication | NextAuth 5.0.0-beta.32 / Auth.js, credentials and JWT |
+| Passwords / HTML | bcryptjs / sanitize-html |
+| Presentation | next/image, framer-motion, Lucide, React Icons, Font Awesome |
+| Linting | ESLint 9.39.5 and eslint-config-next |
+| Package manager | npm; lockfile version 3 |
+
+## System Architecture
+
+Frontend and backend run in one Next.js application. Server Components are the default; Client Components handle browser interaction.
 
 ```text
-Browser
-  -> Next.js App Router route
-  -> server/client page and feature components
-  -> server actions or cached data helpers
-  -> Prisma Client with PostgreSQL
-
-Browser
-  -> /api/auth/[...nextauth] or /api/upload
-  -> Next.js route handler
-  -> authentication or local file-system operation
+Browser -> App Router -> Server Components -> cached readers / Prisma -> PostgreSQL
+Browser -> Client Components -> Server Actions -> guards / validation
+                                                -> approval transaction -> Prisma
+Browser -> Route Handlers -> Auth.js or managed filesystem uploads
 ```
 
-The application uses Server Components by default. Client Components are used for browser interaction such as the home gallery carousel and admin forms. `src/lib/data.ts` contains cached server-side readers for published news, events, members, management, gallery, and universities. The home page also queries published events and universities directly with Prisma.
+`src/lib/data.ts` supplies cached public readers, presentation mapping, date formatting, and sanitized News/Event rich text. It uses domain cache tags and cacheLife("hours"); `next.config.ts` enables Cache Components. Some home sections query Prisma directly. Content mutations update domain tags and revalidate the layout.
 
-There are three distinct content and asset paths:
+| Content/asset source | Usage |
+|---|---|
+| PostgreSQL canonical records | Public news/events, directories, management, gallery, publications |
+| Static frontend data | Home GallerySection reads three galleryItems from src/components/features/home/data.ts |
+| public/assets/ | Bundled images and logos |
+| public/uploads/news/ | Runtime uploads from several admin forms; existing URL prefix retained |
 
-- **Database-backed content:** public news, events, members, management, gallery, and university pages use Prisma data readers. Publication data is used by the research/publication area and admin screens.
-- **Static frontend content:** the home page's `GallerySection` imports local `galleryItems` from `src/components/features/home/data.ts`.
-- **Static assets:** files under `public/assets` are served directly by Next.js.
-- **Uploaded assets:** `POST /api/upload` writes uploaded files to `public/uploads/news` and returns a URL such as `/uploads/news/<filename>`.
+The home carousel is independent of database gallery edits and uploaded media.
 
 ## Project Structure
 
 ```text
 .
-├── docs/frontend/              Frontend architecture and design documentation
-├── prisma/                     Schema, migrations, and seed script
-├── public/
-│   ├── assets/                 Bundled logos, hero, gallery, news, and other images
-│   └── uploads/news/           Files written by the upload route
-├── src/
-│   ├── app/                    App Router layouts, pages, metadata, and API routes
-│   ├── actions/                Server actions for admin content mutations
-│   ├── components/
-│   │   ├── admin/              Reusable admin forms
-│   │   ├── features/           Feature-level public and dashboard components
-│   │   ├── forms/              Shared form exports
-│   │   ├── layout/             Public and admin navigation/layout components
-│   │   └── ui/                 Reusable UI primitives
-│   ├── config/                 Site configuration
-│   ├── generated/prisma/       Generated Prisma client output
-│   ├── hooks/                  Hook exports (currently minimal)
-│   ├── lib/                    Prisma, auth, mock-auth, and data helpers
-│   ├── server/                 Server entry points and database exports
-│   ├── types/                  Shared TypeScript types
-│   └── utils/                  Small utilities such as `cn`
-├── docker-compose.yml          Local PostgreSQL 16 service
-├── next.config.ts              Next.js image and cache configuration
-├── prisma.config.ts            Prisma schema, migration, and seed configuration
-└── package.json                Dependencies and npm scripts
+|-- docs/
+|   |-- frontend/             Routes, components, rendering, design system
+|   |-- backend/              Server architecture, authentication, workflow
+|   '-- database/             Models, relations, migration notes
+|-- prisma/                   Schema, migration SQL, seed
+|-- public/
+|   |-- assets/               Bundled static assets
+|   '-- uploads/news/         Runtime media
+|-- src/
+|   |-- app/                  Layouts, pages, metadata, API routes
+|   |-- actions/              Content, review, account Server Actions
+|   |-- components/
+|   |   |-- admin/            Forms, mutation controls, queue, feedback
+|   |   |-- features/         Domain-specific public/dashboard components
+|   |   |-- forms/            Shared form exports
+|   |   |-- layout/           Public/admin navigation and layout
+|   |   |-- seo/              Structured-data components
+|   |   '-- ui/               Presentation primitives
+|   |-- config/               Site, navigation, SEO configuration
+|   |-- generated/prisma/     Generated Prisma client
+|   |-- lib/                  Data, guards, approval, media, client hooks
+|   |-- hooks/                Minimal hook exports
+|   |-- server/               Server/database entry-point exports
+|   |-- types/                Shared types
+|   '-- utils/                Utilities such as cn
+|-- docker-compose.yml        Local PostgreSQL service
+|-- next.config.ts            Cache and image configuration
+|-- prisma.config.ts          Schema, migration, seed, datasource configuration
+'-- package.json              Metadata, scripts, dependencies
 ```
 
-## Pages and Routes
+Private runtime metadata in `.media-lifecycle/` must persist alongside public uploads.
 
-### Public routes
+## Application Routes
+
+### Public website
 
 | Route | Purpose |
 |---|---|
-| `/` | Landing page with the static gallery, about, statistics, latest news, events, universities, and join CTA sections |
-| `/about` | Organization/about information |
-| `/events` and `/events/[slug]` | Published event listing and event details |
-| `/gallery` | Database-backed gallery listing |
-| `/managements` | Active management information |
-| `/members` | Member directory |
-| `/news` and `/news/[slug]` | Published news listing and news details |
-| `/research` | Research and publication content |
-| `/universities` and `/universities/[slug]` | University listing and details |
-| `/contact` | Contact information |
+| / | Landing page: static gallery, organization, statistics, news, events, universities, join CTA |
+| /about | Organization profile |
+| /news, /news/[slug] | Published news and details |
+| /events, /events/[slug] | Published events and details |
+| /research | Research and publications |
+| /gallery | Database-backed gallery |
+| /members | Member directory |
+| /managements | Management information |
+| /universities, /universities/[slug] | University directory and details |
+| /contact | Contact information |
 
-### Authentication and administration routes
+### Authentication and administration
 
-`/login`, `/forgot-password`, and `/reset-password` provide authentication-related pages. `/admin` is protected and contains dashboard, news, events, members, managements, universities, publication, and gallery management screens, including their create and edit routes where present.
+| Route | Purpose |
+|---|---|
+| /login | Credentials login; optional development mock-auth path |
+| /forgot-password, /reset-password | Presentation pages; no email/token recovery backend is established by these pages |
+| /admin | Protected overview |
+| /admin/news, /admin/events, /admin/members | Content listings |
+| /admin/universities, /admin/publication, /admin/gallery | Content listings |
+| Listing routes above + /new or /[id]/edit | Create/edit forms |
+| /admin/managements, /admin/managements/create, /admin/managements/[id]/edit | Period/position management; positionId selects an existing position |
+| /admin/submissions | Owned proposals |
+| /admin/review | Content review by Admin PSI Surabaya |
+| /admin/admins | Account management by Admin PSI Surabaya |
 
-### API routes
+### API endpoints
 
-- `GET`/`POST` `/api/auth/[...nextauth]` exposes the NextAuth handlers.
-- `POST` `/api/upload` accepts a multipart form file and writes it under `public/uploads/news`.
+| Method and route | Purpose |
+|---|---|
+| GET/POST /api/auth/[...nextauth] | Auth.js session, CSRF, signin, signout and related actions |
+| POST /api/upload | Validated multipart upload; returns { url } |
+| DELETE /api/upload | Owner-checked upload release signal |
+| POST /api/upload/cleanup | Authenticated maintenance cleanup |
 
-## Main Components
+## Frontend Architecture
 
-Public layout components include `PublicNavbar`, `PublicMobileNav`, and `PublicFooter`. Home feature components are exported from `src/components/features/home/index.ts`, including `GallerySection`, `AboutSection`, `StatisticsSection`, `LatestNewsPanel`, `EventsSection`, `UniversitiesSection`, and `JoinCtaSection`.
+The root layout supplies global CSS, font loading, and metadata. The public layout composes PublicNavbar, PublicMobileNav through navigation, and PublicFooter. The dashboard layout guards access and renders AdminLayoutClient with SessionProvider, AdminSidebar, and AdminTopbar. Overview also guards its own queries.
 
-Feature folders also contain the news, events, gallery, management, members, research, universities, about, contact, and dashboard components. Shared presentation primitives such as `Container`, `Section`, `PageHeader`, `Card`, `Button`, `ScrollReveal`, and `PersonCard` are in `src/components/ui`.
+Public features live in `src/components/features/`. Home exports include GallerySection, AboutSection, StatisticsSection, LatestNewsPanel, EventsSection, UniversitiesSection, and JoinCtaSection. UI primitives include Container, Section, SectionHeading, PageHeader, Card, Button, Badge, and PersonCard. Tailwind tokens and admin focus indicators live in `src/app/globals.css`.
 
-## Data Flow
+CMS Client Components receive server-loaded data and expected-version tokens. Forms provide input validation, upload tracking, loading, and inline errors; server validation remains authoritative. Successful navigation uses the result query parameter and ContentFeedback for saved/submitted/deleted/approved/rejected/resubmitted/status-updated messages. Review feedback is outside queue items that can disappear after processing.
 
-Static home gallery:
+Admin listings use take/skip pagination, page size 20, filtered counts, and id tie-breakers. Search/filter and ownership remain in server queries. AdminPagination shows only previous/next controls and is hidden for one page. Period/position lists have separate page parameters; the review queue has its own navigation.
 
-```text
-GallerySection
-  -> galleryItems in src/components/features/home/data.ts
-  -> /public/assets/gallery/*
-  -> next/image
-```
+Member/University delete and Gallery preview/delete use native modal dialogs through `use-dialog-accessibility.ts`: initial focus, inert background, Escape handling, and focus restoration. Other confirmations remain inline implementations. Sensitive account changes and approval of deletion require confirmation; period deletion identifies cascading position removal. Dialog behavior is not assumed identical across all components.
 
-This carousel is intentionally not connected to the gallery database reader, news responses, or `/uploads/news`.
+## Backend Architecture
 
-Dynamic public content:
+Server Actions in `src/actions/` delegate content operations to shared helpers.
 
-```text
-Public page or feature
-  -> src/lib/data.ts cached reader, or direct Prisma query on the home page
-  -> Prisma Client
-  -> PostgreSQL
-  -> mapped data
-  -> UI
-```
+| Source | Responsibility |
+|---|---|
+| src/lib/content-approval.ts | Guards, ownership, version checks, transactions, responses, cache invalidation |
+| src/lib/content-fields.ts | Field normalization and domain validation |
+| src/lib/content-workflow.ts | Editable-state, version, review transition rules |
+| src/lib/content-records.ts | Canonical snapshots and model-specific mutations |
+| src/actions/admin.ts | Account validation, mutation, session revocation |
+| src/lib/media-lifecycle.ts | Storage coordination and cleanup |
 
-Admin mutations are implemented as server actions in `src/actions`, protected by `requireAdmin()` and the admin layout/middleware. Credentials are checked against the Prisma `User` model using `bcryptjs`.
+The flow is guard -> approval readiness -> transactional actor/ownership/version checks -> normalization -> proposal/canonical mutation -> commit -> cleanup -> cache invalidation -> response. Content transactions use Serializable isolation and recheck active state, role, and sessionVersion inside the transaction.
 
-## Image Handling
+Results distinguish success, error, pending, and requestId where applicable. Known Prisma errors map to unavailable approval storage, unique/reference conflicts, missing records, or concurrency conflicts. Covered client mutation handlers distinguish business/version errors from rejected or malformed transport responses. Unknown outcomes require inspection before manual retry; those handlers do not automatically repeat mutations.
 
-- Local images in `public/assets` and `public/uploads/news` can be referenced by root-relative URLs.
-- Components use Next.js `Image` (`next/image`) for rendered images.
-- `next.config.ts` permits remote images only from `https://img.youtube.com/vi/**`.
-- The home `GallerySection` uses the three local images defined in `src/components/features/home/data.ts`.
-- The upload route creates `public/uploads/news` when needed and returns a root-relative URL. It does not upload to a separate storage service.
+## Authentication and Authorization
 
-### Uploaded media storage
+`src/auth.ts` defines the existing NextAuth instance with credentials and JWT sessions lasting up to eight hours. Login reads User, rejects inactive accounts, and verifies the password with bcrypt. The catch-all auth route exports its GET/POST handlers. Client logout calls signOut and returns to /login; CSRF protection remains enabled.
 
-`POST /api/upload` stores media at `process.cwd()/public/uploads/news`, including uploads from forms other than news. Names use a generated UUID and the validated extension; existing `/uploads/news/<filename>` URLs remain unchanged. Uploads accept non-empty PNG, JPEG, or WebP images up to 1 MB, with matching MIME type, extension, and image signature. Directory creation or file-write failures return HTTP 500 without a success URL and are logged on the server.
+`src/lib/auth-utils.ts` and `authorization.ts` compare sessions with the current database account: valid role, isActive, and sessionVersion. JWT middleware/proxy checks do not replace these guards. The repository contains src/middleware.ts and root proxy.ts; Next.js discovery determines which runs, so their presence does not establish simultaneous execution.
 
-The application runtime user must be able to create and write this directory and `process.cwd()/.media-lifecycle`; the serving process must be able to read uploaded images. The private lifecycle directory contains ownership metadata and deletion tombstones, not public media. Both directories must persist together. Upload URLs and the existing `{ url }` upload response are unchanged.
+| Internal role | Display label | Scope |
+|---|---|---|
+| SUPER_ADMIN | Admin PSI Surabaya | Accounts, review, all content, direct content mutation |
+| ADMIN | Admin | Owned content through submissions and own proposal queue |
 
-AUDIT-014 lifecycle implementation:
+Identity remains dynamic User.name, separate from role labels. Existing JWTs retain the name received at login; renamed accounts may need logout/login to refresh display identity. Role/status/password changes increment sessionVersion. The UI signs out if the current account's session is revoked. Name/email changes do not increment it. The final active SUPER_ADMIN cannot be deactivated or demoted.
 
-- News, Event, Gallery, Member, University and Publication CRUD use the central `src/lib/media-lifecycle.ts` helper. It captures old media under a storage lock, commits the database change, then checks references before removing owned media. Reference checks cover every scalar field of every generated Prisma model, including content/description text, academic URLs and `Publication.fileUrl`. The actual schema currently has no `DocumentResource` or `ContactMessage` model. Matching a filename UUID anywhere conservatively retains it, including absolute URLs and common encoded references.
-- Only canonical `/uploads/news/<UUID-v4>.<png|jpg|jpeg|webp>` files with application ownership metadata can be deleted. Legacy files without metadata, external URLs, bundled static assets, symlinks, hard links and paths outside the permitted directories are retained. There is no automatic adoption or sweeping of unknown legacy files.
-- All five upload forms track only newly uploaded URLs and send an owner-checked `DELETE /api/upload` release signal when unmounted or closed. Release does not delete anything. Released uploads become eligible after 24 hours and are still retained if referenced. Active/unreleased uploads have no automatic expiry: lost responses, failed release requests and abandoned sessions without a reliable release signal are intentionally retained. Failed/partial writes and failed ownership registration can leave unowned files, which are also retained. A page preserved in the browser back/forward cache is not released.
-- Cleanup of released files runs opportunistically after subsequent uploads. An authenticated admin can also invoke `POST /api/upload/cleanup` for quiet deployments. Its response reports `enabled`, `deleted`, `retained` and `failed`; failures return HTTP 500, and disabled cleanup with retained candidates returns HTTP 503. No scheduler is installed. Failed immediate cleanup candidates are recorded for later maintenance when metadata storage remains writable.
-- Filesystem `mkdir` locking spans the database commit and cleanup, while PostgreSQL advisory transaction locks coordinate reference mutations/checks. Incoming owned URLs must still exist under the lock; deletion tombstones reject later saves of removed uploads. Only lock acquisition waits (up to five seconds); mutations are never automatically retried. A crashed process can leave `.media-lifecycle/lock`, deliberately blocking subsequent media CRUD/upload/release operations. Remove that empty lock directory only after confirming that all relevant writers/cleanup processes have stopped; there is no automatic takeover.
-- Physical deletion is enabled in development. In production it stays disabled unless `MEDIA_SHARED_STORAGE=true` explicitly confirms **one persistent storage namespace shared by every instance for both media and lifecycle metadata**, with every media-reference writer using this helper. Old application versions, imports, direct SQL or other writers bypassing coordination invalidate that guarantee; keep deletion disabled during mixed-version deployment. Storage directories must be application-controlled and must not be renamed or modified externally during operations. The full reference scan is intentionally conservative and can become expensive as the database grows; scan/lock failures preserve files.
+Mock auth requires NODE_ENV=development and NEXT_PUBLIC_MOCK_AUTH=true. It uses the existing mock cookie, is disabled outside development, and does not satisfy requireSuperAdmin.
 
-This implementation has not been runtime-verified for AUDIT-014. It does not resolve AUDIT-025: durable mounts, permissions, runtime media serving, cross-instance visibility and coordinated backups still require verification in the intended deployment. Back up/restore media, metadata (including tombstones), and the database together; metadata loss disables ownership-based cleanup and must not be repaired by guessing ownership.
+### Ownership
+
+ContentChange.authorId is the central ownership source. SQL filters allowed target ids before listing. News/Event authorId is a legacy fallback only without a central record. Other unassigned legacy data remains manageable by Admin PSI Surabaya; ownership is not inferred from member email or university affiliation. Mutation helpers recheck ownership transactionally.
+
+## Content Approval Workflow
+
+ContentChange stores one mutable proposal/ownership record per kind/targetId, not an append-only audit log. Fields include operation, owner, submitter, payload, before snapshot, baseHash, review metadata, and contentVersion.
+
+1. **Submit:** Admin CREATE stores PENDING_REVIEW without a public row. UPDATE/DELETE and status proposals leave canonical content unchanged while pending.
+2. **Approve:** Admin PSI Surabaya verifies proposal version and canonical hash, applies the mutation, records APPROVED/reviewer/time, and clears payload/before.
+3. **Reject:** A reason is required; status becomes REVISION_REQUIRED. The proposal remains available for correction; canonical content is unchanged.
+4. **Resubmit:** An authorized editor revises an open proposal after version/hash checks; it returns to PENDING_REVIEW with review metadata reset.
+5. **Direct administration:** Admin PSI Surabaya can mutate canonical content through the shared path, retaining existing ownership and recording APPROVED metadata.
+
+News/Event public readers require PUBLISHED. Publication requires a non-null publishedAt no later than now. Approval and public visibility are separate concerns.
+
+### Optimistic concurrency control
+
+Existing-content mutations carry the token rendered with the form/row: canonical fingerprint plus the observed proposal version, or null when absent. Forms retain the initial token. News uses contentVersion; other models use updatedAt or scalar snapshots, with periods including positions. Review/resubmit also compare canonical baseHash. Checks and writes are atomic in Serializable transactions; proposal updates constrain contentVersion. Conflicts reject stale writes.
+
+Tokens protect target/proposal state, not every related record or external writer. Full scalar period-position snapshots and version metadata remain necessary even when display joins are paginated. The runtime blocks content writes if central approval storage is missing or legacy News.pendingRevision snapshots remain.
+
+## Database and Migrations
+
+The shared PrismaClient uses PrismaPg; the generator writes to `src/generated/prisma`. Schema and CLI paths are configured in `prisma.config.ts`.
+
+| Model | Purpose |
+|---|---|
+| User | Administrator identity, password hash, role, active state, sessionVersion |
+| News / Event | Authored content and publication state; News retains legacy review fields |
+| Publication | Type, external/file links, publication date |
+| MemberProfile / University | Standalone members and optional institutional affiliation |
+| ManagementPeriod / ManagementPosition | Periods, active state, positions, optional member assignments |
+| Gallery | Media URLs, type, category, order, featured state |
+| ContentChange | Central ownership and versioned proposals |
+
+User is not directly linked to MemberProfile. ContentChange.targetId is polymorphic, without foreign keys to each content table; the application validates targets. Period deletion cascades to positions; member deletion clears optional position assignments. The schema allows institution links to become null on university deletion, but application logic refuses deletion while members remain. Review/ownership references to User restrict deletion. Transactions, unique constraints, foreign keys, and application checks jointly enforce integrity.
+
+### Migration evidence
+
+Available migrations are baseline, final-verification (empty), admin-session-version, news-event-date, and central-content-approval. Obsolete legacy approval folders are absent. Central SQL creates approval enums, News metadata, and ContentChange, deliberately rejecting existing/partial approval objects and unresolved history.
+
+The documented read-only inspection on **16 October 2026** found central marked complete with applied_steps_count 0 and a matching checksum; ContentChange/News approval fields existed. This does not establish how SQL was initially applied or prove activation in every environment. No live database inspection was performed for this README update.
+
+That inspection also found 20260928000000_normalize_image_urls in database history without its SQL file in the repository. History is not established as fully synchronized. Central comments still reference legacy migrations and an absent activation document; they are not instructions to provision duplicate objects or rerun central SQL. Review the environment's actual history before applying pending migrations. See [migration documentation](docs/database/migrations.md).
+
+## Media Management
+
+### Upload validation and storage
+
+POST /api/upload requires an admin session and a non-empty PNG, JPEG, or WebP image up to **1 MiB**. MIME type, extension, filename, and byte signature are validated. Directories are created as needed; UUID filenames retain the /uploads/news/ URL prefix, including uploads from forms other than news. The response remains { url }. Write failures return HTTP 500 without a success URL and are logged. No external storage service is used.
+
+Images use next/image, with unoptimized rendering where specified. Remote optimization is allowlisted only for https://img.youtube.com/vi/** in next.config.ts. Bundled assets and runtime uploads have different deployment requirements.
+
+### Reference tracking, cleanup, and locks
+
+- **Ownership:** only canonical UUID-v4 upload files with valid application metadata are physical deletion candidates. Unknown legacy files, static assets, symlinks/hardlinks, and paths outside validated directories are not adopted. External URLs are not physical deletion targets.
+- **References:** checks read media-bearing URL/rich-text columns on News, Event, MemberProfile, University, Publication, and Gallery, plus News.pendingRevision and ContentChange.payload/before. They no longer serialize every field of every model. A matching UUID in those columns, including absolute URLs or common encoded references, conservatively retains the file. Ambiguous decoding or missing approval storage retains media. The current schema has no DocumentResource or ContactMessage model.
+- **Commit boundary:** mutateWithMedia captures previous references, commits the mutation, marks candidates released, then checks references before unlink. Cleanup errors never turn a committed save into a retryable mutation failure. Candidates are recorded for later maintenance when metadata remains writable.
+- **Release signals:** upload forms track newly created URLs, not initial or pasted media. Unmount/page exit sends owner-checked DELETE signals, at most 50 URLs per request. Pages retained in the back/forward cache are not released. Release does not delete files.
+- **Retention:** released uploads become eligible after 24 hours and still require reference checks. Active/unreleased uploads do not expire automatically. Lost responses, failed releases, partial writes, and failed metadata registration may leave retained files. Unknown ownership is never guessed.
+- **Maintenance:** cleanup runs opportunistically after uploads and via authenticated POST /api/upload/cleanup. Responses report enabled, deleted, retained, and failed; failures return 500, while disabled cleanup with retained candidates returns 503. No scheduler or durable background worker is installed.
+- **Coordination:** a filesystem mkdir lock spans mutation/commit/cleanup; PostgreSQL advisory transaction locks coordinate reference changes/checks. Incoming managed URLs must exist, and tombstones reject later saves of deleted media. Only lock acquisition waits, up to five seconds; mutations are not automatically retried.
+- **Crash behavior:** a stale .media-lifecycle/lock deliberately blocks later lifecycle operations. There is no automatic takeover. Remove that empty lock only after confirming all relevant writers and cleanup processes have stopped. Query/lock failures preserve files.
+
+Cleanup is synchronous within the storage lock and still scans all rows in relevant columns. Its cost grows with those tables. Physical deletion is active in development. Production requires MEDIA_SHARED_STORAGE=true to affirm a persistent namespace shared by every instance for both uploads and metadata, with every reference writer using the helper. Mixed-version writers, imports, direct SQL, independent disks, or external storage changes invalidate this guarantee.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and replace the placeholders. Do not commit real credentials.
+Use .env.example as the template and keep real credentials out of version control. MEDIA_SHARED_STORAGE is consumed by source even though it is absent from the template.
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string used by Prisma and the seed script |
-| `AUTH_SECRET` | Yes | Secret used by NextAuth |
-| `NEXT_PUBLIC_SITE_URL` | No | Base URL for metadata, robots, and sitemap; the application has a fallback when omitted |
-| `NEXT_PUBLIC_MOCK_AUTH` | No | Set to `true` only for the development mock-auth path; it is ignored outside development |
-| `MEDIA_SHARED_STORAGE` | No | Set to `true` to enable physical media cleanup outside development only after verifying the storage/writer requirements above; otherwise files are retained |
-| `ADMIN_EMAIL` | For seeding | Admin email read by `prisma/seed.ts` |
-| `ADMIN_PASSWORD` | For seeding | Admin password read by `prisma/seed.ts` |
-| `NODE_ENV` | Set by runtime | Used to distinguish development mock auth and Prisma client behavior |
+| Variable | Use |
+|---|---|
+| DATABASE_URL | Required PostgreSQL connection for Prisma, CLI configuration, and seed |
+| AUTH_SECRET | Required Auth.js secret |
+| NEXT_PUBLIC_SITE_URL | Optional public HTTPS origin for absolute metadata, robots, and sitemap; localhost/IP/example domains, credentials, ports, and path/query/hash values are rejected; absolute URL output is limited when omitted/invalid |
+| NEXT_PUBLIC_MOCK_AUTH | Optional development-only mock auth, ignored outside development |
+| MEDIA_SHARED_STORAGE | true enables physical cleanup outside development, subject to the storage/writer contract above |
+| ADMIN_EMAIL, ADMIN_PASSWORD | Seed inputs; not normal credentials-login configuration |
+| NODE_ENV | Runtime mode controlling mock auth, client reuse, and cleanup defaults |
 
-`NEXTAUTH_URL` is not required by the current source and is intentionally not listed.
+Project configuration does not explicitly require/read NEXTAUTH_URL. Auth.js may additionally interpret its standard deployment environment conventions; this table lists variables directly consumed by project source.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js and npm compatible with Next.js `16.2.12` (use a current Node.js LTS release).
-- PostgreSQL accessible through `DATABASE_URL`. The included Docker Compose file provides PostgreSQL 16 for local development.
+- Node.js matching Prisma's declared engines: **^20.19, ^22.12, or >=24.0**, and npm. Next.js alone declares >=20.9.0, but Prisma imposes the stricter requirement.
+- PostgreSQL with a compatible schema and reviewed migration history.
+- Writable upload/metadata directories for media operations.
 
-### Installation
+### Install and configure
 
-```bash
-git clone https://github.com/DikkyJuliyanto47/Physic-profile.git
-cd Physic-profile
-npm install
-```
-
-Create the environment file:
+From a checkout of this repository:
 
 ```bash
-copy .env.example .env
+npm ci
 ```
 
-On shells that support `cp`, the equivalent is `cp .env.example .env`.
+Copy the environment template using the command for your shell:
 
-To start the local database with Docker Compose:
+```powershell
+Copy-Item .env.example .env
+```
+
+```bash
+cp .env.example .env
+```
+
+Configure database connectivity and AUTH_SECRET locally or through the deployment environment. No real connection string/password is provided here. Prisma CLI loads dotenv through prisma.config.ts; application-only .env.local values do not automatically configure its datasource.
+
+For an optional **local development database**, Compose provides PostgreSQL 16:
 
 ```bash
 docker compose up -d postgres
 ```
 
-Set `DATABASE_URL` to match the PostgreSQL service, for example:
+This starts a local database service; skip it when using an existing database. Compose's bundled development credentials are not production configuration. Starting PostgreSQL does not apply the application schema.
 
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
-```
+### Database and development startup
 
-Apply migrations and optionally seed an admin user using the Prisma CLI. The seed reads `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+Inspect existing migration history before applying SQL, particularly the approval/history conditions under [Database and Migrations](#database-and-migrations). There is no unconditional reset/migration sequence for an existing database in this README.
 
-### Development
+After confirming schema compatibility, generate the client and start development:
 
 ```bash
+npx prisma generate
 npm run dev
 ```
 
-Open `http://localhost:3000`.
-
-### Production build
-
-```bash
-npm run build
-npm run start
-```
-
-`npm run build` generates the Prisma client before building the Next.js application.
+Open http://localhost:3000 and use an existing active admin account. The configured seed reads ADMIN_EMAIL/ADMIN_PASSWORD, creates an initial SUPER_ADMIN if absent, and can change an existing account's password/sessionVersion if the password differs. It is not a required startup step or a rename mechanism; the commands above do not run it.
 
 ## Available Scripts
 
-| Command | Description |
+| Command | Actual script |
 |---|---|
-| `npm run dev` | Start the Next.js development server |
-| `npm run build` | Generate Prisma Client and create a production Next.js build |
-| `npm run start` | Start the production Next.js server |
-| `npm run lint` | Run ESLint |
+| npm run dev | next dev |
+| npm run build | prisma generate && next build |
+| npm run start | next start |
+| npm run lint | eslint |
 
-Additional database operations are available through the installed Prisma CLI, including `npx prisma migrate dev`, `npx prisma studio`, and `npx prisma generate`.
+The installed Prisma CLI also provides generation, schema validation/inspection, Studio, and migration management. These are separate operations, not additional npm scripts. Build generates the client; it does not migrate or seed the database.
 
-## Development Guidelines
+## Production Deployment
 
-- Keep application code in TypeScript and preserve the strict compiler configuration.
-- Follow the App Router structure in `src/app`; use Server Components unless client-side interaction requires a Client Component.
-- Keep feature-specific UI in `src/components/features` and shared primitives in `src/components/ui`.
-- Use `src/lib/prisma.ts` for the shared Prisma client and `src/lib/data.ts` for cached public data readers.
-- Keep admin mutations behind the existing `requireAdmin()` guard and authentication middleware.
-- Place bundled static images in `public/assets`; treat uploaded content as URLs returned by the upload route.
-
-## Deployment
-
-The repository contains no provider-specific deployment or CI/CD configuration. A production deployment must provide the required environment variables and PostgreSQL database, then run:
+The repository contains no provider-specific deployment or CI/CD setup. Build and run with:
 
 ```bash
 npm run build
 npm run start
 ```
 
-`docker-compose.yml` is a local PostgreSQL setup, not an application deployment configuration.
+The environment must supply PostgreSQL connectivity, compatible migration state, authentication configuration, and persistent writable media storage. Compose runs only PostgreSQL; its postgres_data volume does not store uploads. Source/static review does not prove production readiness.
 
-### Production media requirements
+### Storage, serving, and recovery
 
-Production media persistence is **not guaranteed by this repository**. Compose runs only PostgreSQL; its `postgres_data` volume does not store uploaded media. No application volume or production media-serving configuration is supplied.
+1. Persist public/uploads/news and .media-lifecycle together across restarts, redeployments, and release-directory changes. Ephemeral/serverless storage or a read-only application directory does not satisfy this filesystem implementation.
+2. Every writer and media reader must see the same uploads and lifecycle metadata. Storage must remain application-controlled and must not be renamed/modified externally during operations. No object-storage integration is implemented.
+3. The runtime user needs create/write permissions for both directories; the serving process needs read access to uploads. A completed upload proves a write, not HTTP availability. Hosting must serve runtime-created /uploads/news/* URLs from the durable directory. Next.js discovery of post-startup public files must be verified for that environment; no custom serving route is supplied.
+4. Coordinate PostgreSQL, media, and metadata/tombstone backups and recovery points. A database-only backup cannot recover images. Restore original filenames, paths, and permissions. Metadata loss prevents ownership-based cleanup and must not be repaired by guessing. Backup frequency, retention, and restore execution are infrastructure responsibilities not supplied by this repository.
 
-- Provide writable, durable storage at the application's resolved `public/uploads/news` path, retained across restarts, redeploys, and release-directory changes. An ephemeral container/serverless filesystem or a read-only release directory does not satisfy this requirement.
-- For multiple application instances, all upload writers and media readers must see the same files through shared durable storage. Object storage is an alternative requiring a separate deployment and integration decision; the current implementation uses only the local filesystem.
-- Bundled `public/assets` files and media created after startup have different deployment requirements. Returning `/uploads/news/<filename>` confirms a completed file write, not HTTP availability. Do not assume Next.js static asset serving will discover runtime uploads in every production deployment. The chosen hosting setup must serve these URLs from the same durable directory after upload, for example through a configured reverse proxy/static file service, without changing existing URLs. No custom serving route is currently provided. Check both direct media requests and `next/image` rendering in the actual hosting environment.
-- Back up the media directory separately from PostgreSQL, with coordinated recovery points so restored database URLs have corresponding files. Define backup frequency, retention, and a restore procedure for the chosen infrastructure. Restore files with their original filenames and directory layout, restore read/write permissions, and verify existing URLs. A database-only backup cannot recover media.
+### Deployment verification boundary
 
-### Manual staging verification
+Persistence, permissions, runtime serving, multi-instance visibility, and coordinated recovery were not verified during this documentation update. Checks in the target hosting environment include:
 
-Perform these checks in the intended production-like hosting environment before declaring media storage reliable:
+- Confirm working directory, mounts, permissions, and URL mappings on every instance.
+- Upload after startup; verify the direct URL, next/image rendering, and an existing image.
+- Repeat access after restart/redeploy and across instances.
+- In isolated staging, verify unwritable storage returns HTTP 500 without a success URL and logs the error, then restore permissions.
+- Restore a coordinated database/media/metadata backup in an isolated environment; verify existing URLs and a subsequent upload.
 
-1. Confirm the runtime working directory, storage mount, permissions, and serving mapping for `/uploads/news/*` on every instance.
-2. Upload an allowed image through the admin form after the application has started. Confirm the response URL returns the correct image immediately and renders through `next/image`; check an existing media URL too.
-3. Repeat access after an application restart and redeploy. If multiple instances are used, confirm a file uploaded on one instance can be read through the others.
-4. In an isolated staging setup, simulate unwritable storage and confirm upload returns HTTP 500 without a success URL and a storage error appears in server logs. Restore permissions afterward.
-5. Restore a coordinated database/media backup into an isolated environment and verify existing URLs, image rendering, and a subsequent upload.
+## Technical Documentation
 
-These checks require hosting access and have not been performed as part of the static storage audit.
+Detailed technical documentation is written in Indonesian.
+
+| Area | Documents |
+|---|---|
+| Frontend | [Overview](docs/frontend/readme.md), [architecture](docs/frontend/architecture.md), [routing](docs/frontend/routing.md), [components](docs/frontend/component-architecture.md), [design system](docs/frontend/design-system.md), [UI patterns](docs/frontend/development-guidelines.md) |
+| Backend | [Architecture](docs/backend/README.md), [authentication and workflow](docs/backend/auth_and_workflow.md) |
+| Database | [Models and integrity](docs/database/README.md), [migration evidence](docs/database/migrations.md) |
 
 ## Maintenance Notes
 
-- Home landing-page content and its static gallery items are maintained in `src/components/features/home`.
-- Database-backed public readers and response mapping are maintained in `src/lib/data.ts`.
-- Prisma schema, migrations, and seed behavior are under `prisma/`.
-- Site metadata, robots, and sitemap use `NEXT_PUBLIC_SITE_URL` with an application fallback.
-- The remote image allowlist is maintained in `next.config.ts`.
+- Home gallery items remain in src/components/features/home/data.ts; database gallery changes do not replace the carousel.
+- Cached readers, presentation mapping, and HTML sanitization live in src/lib/data.ts. Mutation helpers invalidate corresponding tags.
+- Schema, SQL migrations, database history, and seed have different responsibilities; schema.prisma alone does not prove deployment state.
+- User.name is identity data; role labels are display text. A new login refreshes the JWT name after account renaming.
+- next.config.ts owns the remote image allowlist. src/config/seo.ts and App Router metadata files own site-origin, robots, sitemap, and structured metadata behavior.
+- Version metadata, owned-id scopes, option lists, and full scalar position snapshots can grow independently of paginated display rows.
+- A development auth 404 does not imply a second auth instance is needed. The existing catch-all exports handlers; verify route discovery and restart a stale dev server before changing authentication configuration.
 
 ## License
 
-No license file or licensing information is specified in this repository.
-
-## Centralized content approval
-
-All content actions now use the shared approval queue in the main Prisma schema.
-ADMIN creates, revisions, status changes and deletions remain PENDING_REVIEW.
-Canonical/public records are written only by SUPER_ADMIN directly or after approval.
-Rejected proposals retain their payload and reason for revision and resubmission.
-Review is at /admin/review (SUPER_ADMIN); owned proposals are at /admin/submissions.
-
-Database activation is manual and has NOT been performed:
-- Provision ContentModule, ChangeOperation and ContentChange from prisma/schema.prisma,
-  including its User foreign keys, unique (kind, targetId), version and review indexes.
-- Reconcile existing migration history first, including normalize_image_urls.
-  The two historical approval migrations must not be applied blindly: they also
-  change Event/Publication and do not provide the centralized queue.
-- Ensure the existing News review columns in the main schema are present. Migrate
-  any News.pendingRevision into ContentChange before clearing the old snapshot.
-  Preserve public News fields and original publication dates. The runtime refuses
-  content writes while legacy News snapshots remain or approval storage is missing.
-- Backfill ownership using News/Event.authorId where available. Other legacy
-  modules need explicitly verified owners; ADMIN cannot edit unassigned legacy
-  data. SUPER_ADMIN retains access. Do not infer ownership from member email.
-- Stop older content writers during activation. Base fingerprints must match the
-  canonical snapshot serialized by content-records/content-approval.
-
-Approval rechecks sessionVersion/active role, ownership, request version and the
-canonical base fingerprint in a serializable transaction. Existing media lifecycle
-locking and reference tracking cover queued JSON snapshots. Until the queue table
-exists, cleanup retains media rather than assuming proposed references are absent.
-Manage Admin continues to use its existing authentication and actions.
+No license file or explicit licensing terms are specified in this repository. No license is inferred from the project name or dependency licenses.
