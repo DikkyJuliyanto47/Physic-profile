@@ -22,6 +22,13 @@ enum ContentStatus {
   ARCHIVED
 }
 
+enum ReviewStatus {
+  DRAFT
+  PENDING_REVIEW
+  REVISION_REQUIRED
+  APPROVED
+}
+
 enum NewsCategory {
   ORGANISASI
   SEMINAR
@@ -68,6 +75,7 @@ model User {
 
   // Relations
   newsCreated   News[]              @relation("NewsAuthor")
+  newsReviewed  News[]              @relation("NewsReviewer")
   eventsCreated Event[]             @relation("EventAuthor")
 }
 
@@ -161,6 +169,14 @@ model News {
   status      ContentStatus @default(DRAFT)
   publishedAt DateTime?
   eventDate   DateTime?
+  reviewStatus    ReviewStatus @default(DRAFT)
+  reviewerId      String?
+  reviewer        User?        @relation("NewsReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  reviewedAt      DateTime?
+  reviewNote      String?
+  contentVersion  Int          @default(1)
+  // Proposed content; canonical fields above remain the public version.
+  pendingRevision Json?
   
   authorId    String
   author      User          @relation("NewsAuthor", fields: [authorId], references: [id])

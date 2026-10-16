@@ -1,11 +1,14 @@
 "use server";
 
-import { requireAdmin } from "@/lib/auth-utils";
+import { requireAdmin, requireSuperAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { mutateWithMedia } from "@/lib/media-lifecycle";
-import { ContentStatus, NewsCategory } from "@/generated/prisma/client";
+import { Prisma, ContentStatus, type NewsCategory } from "@/generated/prisma/client";
 import { revalidatePath, updateTag } from "next/cache";
 import { parseNewsEventDate } from "@/lib/news-event-date";
+import { ContentWorkflowError, assertEditable, assertVersion, parseNewsRevision, transition } from "@/lib/content-workflow";
+import { contentPermissions } from "@/lib/content-permissions";
+import { requireNewsApproval, verifyNewsActor, newsActionError } from "@/lib/news-approval";
 
 export type NewsInput = {
   title: string;
@@ -15,289 +18,142 @@ export type NewsInput = {
   imageUrl?: string;
   status: ContentStatus;
   eventDate?: string;
+  contentVersion?: number;
 };
+export type ActionResponse = { success: boolean; error?: string };
 
-export type ActionResponse = {
-  success: boolean;
-  error?: string;
-};
-
-function slugify(text: string): string {
-  return text
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function slugify(text: string) {
+  return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-function validateInput(data: NewsInput): string | null {
-  if (!data.title?.trim()) return "Judul berita wajib diisi.";
-  if (data.title.trim().length > 200) return "Judul berita maksimal 200 karakter.";
-  if (!data.content?.trim()) return "Konten berita wajib diisi.";
-  if (!data.category) return "Kategori berita wajib dipilih.";
-  if (!data.status) return "Status berita wajib dipilih.";
-  if (data.eventDate !== undefined &&
-    (typeof data.eventDate !== "string" ||
-      (data.eventDate !== "" && !parseNewsEventDate(data.eventDate)))) {
-    return "Tanggal kegiatan tidak valid.";
+function validateInput(data: NewsInput) {
+  const revision = parseNewsRevision(data);
+  if (!Object.values(ContentStatus).some((status) => status === data.status)) {
+    throw new ContentWorkflowError("Status berita tidak valid.");
   }
-
-  if (data.excerpt && data.excerpt.trim().length > 1000) {
-    return "Ringkasan maksimal 1000 karakter.";
-  }
-
-  return null;
+  return revision;
 }
 
-function isUniqueConstraintError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "P2002"
-  );
-}
-
-function revalidateNews(): void {
+function revalidateNews(slug?: string) {
   updateTag("news");
+  revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/news");
   revalidatePath("/admin/news");
+  if (slug) revalidatePath(`/news/${slug}`);
 }
 
 export async function createNews(data: NewsInput): Promise<ActionResponse> {
   try {
     const session = await requireAdmin();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const validationError = validateInput(data);
-    if (validationError) {
-      return { success: false, error: validationError };
-    }
-
-    if (data.status === ContentStatus.ARCHIVED) {
-      return {
-        success: false,
-        error: "Berita baru tidak dapat langsung diarsipkan.",
-      };
-    }
-
-    const slug = slugify(data.title);
-
-    if (!slug) {
-      return { success: false, error: "Judul berita harus mengandung huruf atau angka." };
-    }
-
-    const existing = await prisma.news.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-
-    if (existing) {
-      return {
-        success: false,
-        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
-      };
-    }
-
-    await mutateWithMedia(data, (tx) => tx.news.create({
-      data: {
-        title: data.title.trim(),
-        slug,
-        category: data.category,
-        excerpt: data.excerpt?.trim() || null,
-        content: data.content.trim(),
-        imageUrl: data.imageUrl?.trim() || null,
-        status: data.status,
-        publishedAt:
-          data.status === ContentStatus.PUBLISHED ? new Date() : null,
-        authorId: session.user.id,
-        eventDate: data.eventDate ? parseNewsEventDate(data.eventDate) : null,
-      },
-    }));
-
-    revalidateNews();
-
+    if (!session) throw new ContentWorkflowError("Unauthorized. Silakan login.");
+    await requireNewsApproval();
+    const revision = validateInput(data);
+    if (data.status === "ARCHIVED") throw new ContentWorkflowError("Berita baru tidak dapat langsung diarsipkan.");
+    const slug = slugify(revision.title);
+    if (!slug) throw new ContentWorkflowError("Judul berita harus mengandung huruf atau angka.");
+    await mutateWithMedia(revision, async (tx) => {
+      const actor = await verifyNewsActor(tx, session.user);
+      const superAdmin = actor.role === "SUPER_ADMIN";
+      await tx.news.create({ data: {
+        ...revision, eventDate: revision.eventDate ? parseNewsEventDate(revision.eventDate) : null,
+        slug, authorId: actor.id,
+        status: superAdmin ? data.status : "DRAFT",
+        publishedAt: superAdmin && data.status === "PUBLISHED" ? new Date() : null,
+        reviewStatus: superAdmin ? data.status === "PUBLISHED" ? "APPROVED" : "DRAFT" : "PENDING_REVIEW",
+        pendingRevision: superAdmin ? Prisma.DbNull : revision,
+        reviewerId: superAdmin && data.status === "PUBLISHED" ? actor.id : null,
+        reviewedAt: superAdmin && data.status === "PUBLISHED" ? new Date() : null,
+      }, select: { id: true } });
+    }, undefined, { isolationLevel: "Serializable" });
+    revalidateNews(slug);
     return { success: true };
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return {
-        success: false,
-        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
-      };
-    }
-
-    return {
-      success: false,
-      error: "Gagal membuat berita. Silakan coba lagi.",
-    };
-  }
+  } catch (error) { return newsActionError(error); }
 }
 
-export async function updateNews(
-  id: string,
-  data: NewsInput,
-): Promise<ActionResponse> {
+export async function updateNews(id: string, data: NewsInput): Promise<ActionResponse> {
   try {
     const session = await requireAdmin();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const validationError = validateInput(data);
-    if (validationError) {
-      return { success: false, error: validationError };
-    }
-
-    const current = await prisma.news.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        slug: true,
-        status: true,
-        publishedAt: true,
-      },
-    });
-
-    if (!current) {
-      return { success: false, error: "Berita tidak ditemukan." };
-    }
-
-    const publishedAt =
-      data.status === ContentStatus.PUBLISHED
-        ? current.status === ContentStatus.PUBLISHED
-          ? current.publishedAt
-          : new Date()
-        : null;
-
-    await mutateWithMedia(data, (tx) => tx.news.update({
-      where: { id },
-      data: {
-        title: data.title.trim(),
-        category: data.category,
-        excerpt: data.excerpt?.trim() || null,
-        content: data.content.trim(),
-        imageUrl: data.imageUrl?.trim() || null,
-        status: data.status,
-        publishedAt,
-        eventDate: data.eventDate === undefined
-          ? undefined
-          : data.eventDate ? parseNewsEventDate(data.eventDate) : null,
-      },
-    }), (tx) => tx.news.findUnique({ where: { id } }));
-
-    revalidateNews();
-    revalidatePath(`/news/${current.slug}`);
-
+    if (!session) throw new ContentWorkflowError("Unauthorized. Silakan login.");
+    await requireNewsApproval();
+    const revision = validateInput(data);
+    const slug = await mutateWithMedia(revision, async (tx) => {
+      const actor = await verifyNewsActor(tx, session.user);
+      const current = await tx.news.findUnique({ where: { id } });
+      if (!current) throw new ContentWorkflowError("Berita tidak ditemukan.");
+      assertEditable(actor, current);
+      assertVersion(current, data.contentVersion);
+      const snapshot = { ...revision, eventDate: data.eventDate === undefined
+        ? current.eventDate?.toISOString().slice(0, 10) ?? null : revision.eventDate };
+      const superAdmin = actor.role === "SUPER_ADMIN";
+      const result = await tx.news.updateMany({ where: { id, contentVersion: current.contentVersion }, data: {
+        ...(superAdmin ? {
+          ...snapshot, eventDate: snapshot.eventDate ? parseNewsEventDate(snapshot.eventDate) : null,
+          status: data.status,
+          publishedAt: data.status === "PUBLISHED" ? current.publishedAt ?? new Date() : null,
+          pendingRevision: Prisma.DbNull,
+          reviewStatus: data.status === "PUBLISHED" ? "APPROVED" : "DRAFT",
+          reviewerId: data.status === "PUBLISHED" ? actor.id : null,
+          reviewedAt: data.status === "PUBLISHED" ? new Date() : null,
+        } : {
+          pendingRevision: snapshot, reviewStatus: "PENDING_REVIEW", reviewerId: null, reviewedAt: null,
+          updatedAt: current.updatedAt,
+        }),
+        reviewNote: null, contentVersion: { increment: 1 },
+      } });
+      if (result.count !== 1) throw new ContentWorkflowError("Konten berubah. Muat ulang.");
+      return current.slug;
+    }, (tx) => tx.news.findUnique({ where: { id } }), { isolationLevel: "Serializable" });
+    revalidateNews(slug);
+    revalidatePath(`/admin/news/${id}/edit`);
     return { success: true };
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return {
-        success: false,
-        error: "Judul berita menghasilkan alamat yang sudah digunakan. Gunakan judul lain.",
-      };
-    }
-
-    return {
-      success: false,
-      error: "Gagal memperbarui berita. Silakan coba lagi.",
-    };
-  }
+  } catch (error) { return newsActionError(error); }
 }
 
-export async function deleteNews(id: string): Promise<ActionResponse> {
+export async function deleteNews(id: string, version?: number): Promise<ActionResponse> {
   try {
     const session = await requireAdmin();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const news = await prisma.news.findUnique({
-      where: { id },
-      select: { id: true, slug: true },
-    });
-
-    if (!news) {
-      return { success: false, error: "Berita tidak ditemukan." };
-    }
-
-    await mutateWithMedia(null, (tx) => tx.news.delete({
-      where: { id },
-    }), (tx) => tx.news.findUnique({ where: { id } }));
-
-    revalidateNews();
-    revalidatePath(`/news/${news.slug}`);
-
+    if (!session) throw new ContentWorkflowError("Unauthorized. Silakan login.");
+    await requireNewsApproval();
+    const slug = await mutateWithMedia(null, async (tx) => {
+      const actor = await verifyNewsActor(tx, session.user);
+      const current = await tx.news.findUnique({ where: { id } });
+      if (!current) throw new ContentWorkflowError("Berita tidak ditemukan.");
+      assertVersion(current, version);
+      if (!contentPermissions(actor, current).canDelete) throw new ContentWorkflowError("Anda tidak berhak menghapus berita ini.");
+      await tx.news.delete({ where: { id, contentVersion: current.contentVersion } });
+      return current.slug;
+    }, (tx) => tx.news.findUnique({ where: { id } }), { isolationLevel: "Serializable" });
+    revalidateNews(slug);
     return { success: true };
-  } catch {
-    return {
-      success: false,
-      error: "Gagal menghapus berita. Silakan coba lagi.",
-    };
-  }
+  } catch (error) { return newsActionError(error); }
 }
 
-export async function toggleNewsStatus(
-  id: string,
-): Promise<ActionResponse> {
+// Retained API; pending revisions must be reviewed on the edit page.
+export async function toggleNewsStatus(id: string, version?: number): Promise<ActionResponse> {
   try {
-    const session = await requireAdmin();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized. Silakan login." };
-    }
-
-    const news = await prisma.news.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
-
-    if (!news) {
-      return { success: false, error: "Berita tidak ditemukan." };
-    }
-
-    if (
-      news.status !== ContentStatus.DRAFT &&
-      news.status !== ContentStatus.PUBLISHED
-    ) {
-      return {
-        success: false,
-        error: "Berita terarsip hanya dapat diubah melalui form edit.",
-      };
-    }
-
-    const newStatus =
-      news.status === ContentStatus.PUBLISHED
-        ? ContentStatus.DRAFT
-        : ContentStatus.PUBLISHED;
-
-    await prisma.news.update({
-      where: { id },
-      data: {
-        status: newStatus,
-        publishedAt:
-          newStatus === ContentStatus.PUBLISHED ? new Date() : null,
-      },
-    });
-
-    revalidateNews();
-
+    const session = await requireSuperAdmin();
+    if (!session) throw new ContentWorkflowError("Akses Super Admin diperlukan.");
+    await requireNewsApproval();
+    const slug = await prisma.$transaction(async (tx) => {
+      const actor = await verifyNewsActor(tx, session.user);
+      if (actor.role !== "SUPER_ADMIN") throw new ContentWorkflowError("Akses Super Admin diperlukan.");
+      const current = await tx.news.findUnique({ where: { id } });
+      if (!current) throw new ContentWorkflowError("Berita tidak ditemukan.");
+      assertVersion(current, version);
+      if (current.pendingRevision || current.status === "ARCHIVED") throw new ContentWorkflowError("Gunakan halaman edit untuk meninjau berita ini.");
+      const status = current.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+      const reviewStatus = transition(actor, current, status === "PUBLISHED" ? "publish" : "unpublish");
+      await tx.news.update({ where: { id, contentVersion: current.contentVersion }, data: {
+        status, publishedAt: status === "PUBLISHED" ? current.publishedAt ?? new Date() : null,
+        reviewStatus,
+        ...(status === "PUBLISHED" ? { reviewerId: actor.id, reviewedAt: new Date(), reviewNote: null } : {}),
+        contentVersion: { increment: 1 },
+      } });
+      return current.slug;
+    }, { isolationLevel: "Serializable" });
+    revalidateNews(slug);
     return { success: true };
-  } catch {
-    return {
-      success: false,
-      error: "Gagal mengubah status berita. Silakan coba lagi.",
-    };
-  }
+  } catch (error) { return newsActionError(error); }
 }

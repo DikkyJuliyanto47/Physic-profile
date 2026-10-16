@@ -1,10 +1,16 @@
 import { NewsForm } from "@/components/admin/NewsForm";
+import { requireAdmin } from "@/lib/auth-utils";
+import { notFound } from "next/navigation";
+import { isNewsApprovalReady, NEWS_APPROVAL_UNAVAILABLE } from "@/lib/news-approval";
 
 export const metadata = {
   title: "Tambah Berita Baru - PSI Cabang Surabaya",
 };
 
-export default function NewNewsPage() {
+export default async function NewNewsPage() {
+  const session = await requireAdmin();
+  if (!session) notFound();
+  if (!await isNewsApprovalReady()) return <p role="status">{NEWS_APPROVAL_UNAVAILABLE}</p>;
   return (
     <div className="w-full min-w-0">
       <div className="mx-auto w-full max-w-4xl space-y-6 sm:space-y-8">
@@ -28,7 +34,7 @@ export default function NewNewsPage() {
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
-            <NewsForm mode="create" />
+            <NewsForm mode="create" actor={session.user} />
           </div>
         </div>
       </div>

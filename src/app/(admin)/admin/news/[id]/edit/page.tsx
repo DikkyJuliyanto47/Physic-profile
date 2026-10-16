@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { NewsForm } from "@/components/admin/NewsForm";
+import { contentPermissions } from "@/lib/content-permissions";
+import { parseNewsRevision } from "@/lib/content-workflow";
+import { isNewsApprovalReady, NEWS_APPROVAL_UNAVAILABLE } from "@/lib/news-approval";
 
 export const metadata = {
   title: "Edit Berita - PSI Cabang Surabaya",
@@ -13,7 +16,9 @@ export default async function EditNewsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!await requireAdmin()) notFound();
+  const session = await requireAdmin();
+  if (!session) notFound();
+  if (!await isNewsApprovalReady()) return <p role="status">{NEWS_APPROVAL_UNAVAILABLE}</p>;
   const { id } = await params;
 
   const news = await prisma.news.findUnique({
@@ -27,12 +32,21 @@ export default async function EditNewsPage({
       imageUrl: true,
       status: true,
       eventDate: true,
+      authorId: true,
+      reviewStatus: true,
+      reviewNote: true,
+      contentVersion: true,
+      pendingRevision: true,
     },
   });
 
-  if (!news) {
+  if (!news || !contentPermissions(session.user, news).canEdit) {
     notFound();
   }
+
+  const revision = news.pendingRevision ? parseNewsRevision(news.pendingRevision) : null;
+  const initialData = revision ? { ...news, ...revision,
+    eventDate: revision.eventDate ? new Date(`${revision.eventDate}T00:00:00Z`) : null } : news;
 
   return (
     <div className="w-full min-w-0">
@@ -60,7 +74,7 @@ export default async function EditNewsPage({
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
-            <NewsForm mode="edit" initialData={news} />
+            <NewsForm key={news.contentVersion} mode="edit" initialData={initialData} actor={session.user} />
           </div>
         </div>
       </div>

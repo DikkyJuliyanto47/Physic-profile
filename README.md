@@ -298,8 +298,20 @@ No license file or licensing information is specified in this repository.
 
 ## Application recovery: existing database compatibility
 
-The active application uses the pre-approval database fields. Content approval is inactive.
-ADMIN and SUPER_ADMIN have the pre-approval content permissions; ADMIN publishing is not blocked by an approval workflow.
+News approval code is staged against the main Prisma schema. News management fails closed
+until its review columns and `pendingRevision` JSONB column are available in the database.
+Public News reads continue to select canonical content only. ADMIN saves submit a snapshot;
+only SUPER_ADMIN approval copies that snapshot into the published fields. Rejection keeps
+the public version and proposed revision, and requires a reason. Agenda and Publication
+retain their existing behavior.
 NextAuth, active-account checks, sessionVersion, requireAdmin and requireSuperAdmin remain in place.
-The two approval migrations remain pending artifacts and must not be automatically applied as part of this recovery.
+The two historical approval migrations remain unchanged and must not be automatically applied:
+they alter Event and Publication too, and neither supplies `News.pendingRevision`.
+Before activating News management, reconcile migration history and prepare a reviewed,
+News-only database change matching `ReviewStatus`, `News.reviewStatus`, `reviewerId`
+(with its User foreign key), `reviewedAt`, `reviewNote`, `contentVersion` and nullable
+`pendingRevision` JSONB. Preserve canonical fields, original authors and publication dates;
+grandfather existing PUBLISHED News as APPROVED, leave other News as DRAFT, and leave
+pendingRevision NULL. Stop old News writers at activation to prevent approval bypass.
+No migration or database change is performed by application startup or these checks.
 The missing historical normalize_image_urls migration still requires reconciliation before future database deployment.
