@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { Eye, EyeOff } from "lucide-react";
 import { saveAdmin, type AdminInput } from "@/actions/admin";
 
 type Account = Omit<AdminInput, "password"> & { id: string };
@@ -16,6 +17,7 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [form, setForm] = useState<AdminInput>({ ...empty });
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const inFlight = useRef(false);
   const [feedback, setFeedback] = useState<{ error: boolean; text: string } | null>(null);
@@ -105,7 +107,29 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
           <div><label htmlFor="admin-email" className="mb-1.5 block text-sm font-medium text-neutral-700">Email</label><input id="admin-email" type="email" required maxLength={254} autoComplete="off" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClass} /></div>
           <div><label htmlFor="admin-role" className="mb-1.5 block text-sm font-medium text-neutral-700">Role</label><select id="admin-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN" })} className={inputClass}><option value="ADMIN">Admin</option><option value="SUPER_ADMIN">Admin PSI Surabaya</option></select></div>
           <div><label htmlFor="admin-status" className="mb-1.5 block text-sm font-medium text-neutral-700">Status</label><select id="admin-status" value={String(form.isActive)} onChange={(e) => setForm({ ...form, isActive: e.target.value === "true" })} className={inputClass}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
-          <div className="sm:col-span-2"><label htmlFor="admin-password" className="mb-1.5 block text-sm font-medium text-neutral-700">{selected ? "Reset password (opsional)" : "Password"}</label><input id="admin-password" type="password" required={!selected} minLength={12} maxLength={72} autoComplete="new-password" value={form.password ?? ""} onChange={(e) => setForm({ ...form, password: e.target.value })} aria-describedby="admin-password-help" className={inputClass} /><p id="admin-password-help" className="mt-1.5 text-xs text-neutral-500">Minimal 12 karakter, maksimal 72 byte.{selected && " Kosongkan untuk mempertahankan password."}</p></div>
+          <div className="sm:col-span-2">
+            <label 
+              htmlFor="admin-password" 
+              className="mb-1.5 block text-sm font-medium text-neutral-700"
+            >
+              {selected 
+                ? "Reset password (opsional)" 
+                : "Password"
+              }
+            </label>
+            <div className="relative">
+              <input id="admin-password" type={showPassword ? "text" : "password"} required={!selected} minLength={12} maxLength={72} autoComplete="new-password" value={form.password ?? ""} onChange={(e) => setForm({ ...form, password: e.target.value })} aria-describedby="admin-password-help" className={`${inputClass} pr-11`} />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                aria-pressed={showPassword}
+                className="absolute inset-y-0 right-3 flex items-center text-neutral-500 hover:text-neutral-800"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <p id="admin-password-help" className="mt-1.5 text-xs text-neutral-500">Minimal 12 karakter, maksimal 72 karakter.{selected && " Kosongkan untuk mempertahankan password."}</p></div>
         </fieldset>
         <p className="text-xs leading-5 text-neutral-500">Perubahan role, status, atau password membatalkan sesi akun tersebut. Jika akun Anda sendiri diubah, Anda perlu login kembali.</p>
         <div className="flex gap-3"><button disabled={busy || confirmation !== null} className="rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50">{busy ? "Menyimpan..." : "Simpan Akun"}</button>{selected && <button type="button" disabled={busy || confirmation !== null} className={buttonClass} onClick={() => edit()}>Batal</button>}</div>

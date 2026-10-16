@@ -72,7 +72,7 @@ export function AdminSidebar({
   const navItems = session?.user.role === "SUPER_ADMIN"
     ? [...NAV_ITEMS,
       { label: "Review Konten", href: "/admin/review", icon: "M9 12l2 2 4-4M5 3h14v18H5z" },
-      { label: "Manage Admin", href: "/admin/admins", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" }]
+      { label: "Manajemen Admin", href: "/admin/admins", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" }]
     : NAV_ITEMS;
 
   useEffect(() => {

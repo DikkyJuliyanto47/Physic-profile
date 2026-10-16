@@ -1,113 +1,31 @@
-# Frontend Development Guidelines
+# Pola Implementasi UI Existing
 
-Dokumen ini berisi pedoman praktis untuk penulisan kode frontend. Tujuannya
-menjaga konsistensi tanpa membuat aturan yang berlebihan.
+## Form dan Server Actions
 
-## 1. Naming Convention
+Form CMS memakai state terkontrol, tipe input dari action, dan validasi HTML seperti required, maxLength, tipe email, serta pemeriksaan ukuran/jenis upload. Validasi authoritative tetap di server melalui `normalizeContent()` dan helper domain. Input URL dan rich text mempunyai aturan server tersendiri; validasi UI tidak memberikan authorization.
 
-| Jenis | Konvensi | Contoh |
-|---|---|---|
-| Folder | `kebab-case` | `perguruan-tinggi` |
-| Route segment | `kebab-case`, Bahasa Indonesia | `riset-publikasi` |
-| Component file | `PascalCase.tsx` | `PublicNavbar.tsx` |
-| Hook file | `use-kebab-case.ts` | `use-media-query.ts` |
-| Type file | `kebab-case.ts` | `news.ts` |
-| Utility file | `kebab-case.ts` | `format-date.ts` |
+Form edit menyimpan expected version awal bersama draft. Token tidak diambil ulang saat tombol simpan ditekan. Mutation UPDATE/DELETE, toggle, dan aktivasi meneruskan token melalui action existing. Pesan konflik server tampil sebagai error; data tidak dianggap tersimpan ketika hasil gagal.
 
-## 2. File Naming
+## Feedback dan error
 
-- `page.tsx` dan `layout.tsx` mengikuti konvensi wajib Next.js App Router,
-  tidak diganti nama.
-- Satu file komponen berisi satu komponen utama. Sub-komponen kecil yang
-  hanya dipakai internal boleh berada di file yang sama.
+Setelah hasil berhasil, form mengarahkan ke listing dengan `?result=saved` atau ke `/admin/submissions?result=submitted` bila pending. Delete memakai `deleted`, perubahan status memakai `status-updated`. Review memakai `approved`, `rejected`, atau `resubmitted`; banner berada di luar item queue yang dapat hilang.
 
-## 3. Component Naming
+`router.refresh()` mempertahankan pengambilan ulang data existing. Pesan URL adalah feedback navigasi, bukan bukti mutation baru ketika URL dibuka ulang. `ContentFeedback` hanya menerima kode yang dikenal. Respons bisnis `success: false` dipisahkan dari kegagalan transport. Lima komponen Member/University/Gallery/Management/ManagementPosition Actions menangkap rejection dan respons tidak valid; pesan meminta pemeriksaan data terbaru sebelum retry manual. Tidak ada retry mutation otomatis pada handler tersebut.
 
-- Nama komponen menggunakan `PascalCase` dan sebaiknya deskriptif terhadap
-  fungsinya, bukan bentuk visualnya (mis. `NewsCard`, bukan `Card2`).
-- Export komponen menggunakan named export, kecuali untuk `page.tsx` dan
-  `layout.tsx` yang wajib default export sesuai konvensi Next.js.
+## Dialog dan tindakan sensitif
 
-## 4. Folder Naming
+Member delete, University delete, Gallery preview/delete memakai native `dialog.showModal()` melalui hook bersama: background inert, fokus awal ke tutup/batal, Escape diblokir ketika pending, dan fokus dikembalikan jika pemicu masih ada. Kontrol tutup/batal dinonaktifkan selama mutation.
 
-- Folder domain di `components/features/` dan `actions/` mengikuti nama
-  domain yang sama dengan struktur routing agar mudah ditelusuri.
+Persetujuan penghapusan dan perubahan role/status/reset password akun existing memiliki dialog konfirmasi inline. Cancel tidak memanggil mutation. Simpan nama/email biasa tidak membutuhkan konfirmasi sensitif. Konfirmasi cascade menyebut posisi yang ikut terhapus. Perilaku native modal pada empat dialog tadi tidak dapat diasumsikan berlaku pada seluruh dialog inline lainnya.
 
-## 5. TypeScript Guidelines
+## Pagination, pencarian, filter
 
-- Hindari `any`. Jika tipe data dari integration boundary belum pasti,
-  gunakan tipe eksplisit sementara di `src/types/` dan tandai sebagai TBD,
-  bukan langsung `any`.
-- Props komponen selalu didefinisikan dengan `interface` atau `type` yang
-  eksplisit, tidak inferred dari pemakaian.
+Listing News, Event, Member, University, Publication, Gallery, ManagementPeriod, dan ManagementPosition memakai query server dengan take/skip 20, count sesuai filter/ownership, dan id sebagai tie-breaker sorting. Parameter halaman tidak valid kembali ke halaman pertama; halaman terlalu besar dibatasi ke jumlah halaman hasil count.
 
-## 6. Component Reusability
+`AdminPagination` mempertahankan parameter filter, memakai pageKey existing, dan menghapus result dari tautan navigasi. Bila hanya satu halaman, tidak ada area pagination atau teks jumlah data. Queue review mempunyai navigasi sendiri di `ContentReviewQueue`.
 
-- Sebelum membuat komponen baru, cek apakah komponen serupa sudah ada di
-  `ui/` atau `features/`.
-- Reuse dilakukan setelah ada kebutuhan konkret kedua, bukan diasumsikan di
-  awal (lihat juga `component-architecture.md` bagian 7).
+Pengelolaan periode mempertahankan snapshot scalar semua posisi untuk token concurrency; daftar tampilan posisi beserta join dipaginasi terpisah. Metadata versi dan opsi pilihan pada form/filter tidak seluruhnya dipaginasi.
 
-## 7. Server vs Client Component
+## Konvensi source
 
-- Default: Server Component.
-- Gunakan `"use client"` hanya jika komponen membutuhkan salah satu dari:
-  `useState`, `useEffect`, browser API, atau event handler interaktif.
-- Jika hanya sebagian kecil dari halaman yang butuh interaktivitas,
-  pisahkan bagian tersebut menjadi Client Component kecil, bukan menjadikan
-  seluruh halaman Client Component.
-
-## 8. Tailwind CSS Usage
-
-- Gunakan utility class langsung di komponen, hindari CSS file terpisah
-  kecuali untuk kebutuhan global (`globals.css`).
-- Hindari duplikasi kombinasi class yang panjang di banyak tempat — jika satu
-  kombinasi dipakai berulang, itu tanda kebutuhan komponen `ui/`, bukan tanda
-  kebutuhan class custom baru.
-
-## 9. Responsive Design
-
-- Setiap komponen visual dirancang mobile-first, kemudian disesuaikan untuk
-  breakpoint `md` ke atas sesuai kebutuhan.
-- Public Website memprioritaskan tampilan mobile karena mayoritas pengunjung
-  kemungkinan mengakses dari perangkat mobile.
-
-## 10. Accessibility
-
-- Elemen interaktif (button, link, form) wajib memiliki label yang jelas,
-  baik secara visual maupun untuk screen reader (`aria-label` jika perlu).
-- Kontras warna teks terhadap background mengikuti standar keterbacaan umum,
-  disesuaikan setelah token warna final tersedia (lihat `design-system.md`).
-
-## 11. Loading State
-
-- Halaman atau komponen yang menunggu data dari integration boundary wajib
-  memiliki representasi loading state yang konsisten (mis. skeleton atau
-  spinner dari `ui/`), bukan tampilan kosong tanpa indikasi.
-
-## 12. Empty State
-
-- Setiap daftar data (berita, agenda, anggota, dst.) wajib memiliki tampilan
-  khusus saat data kosong, bukan membiarkan area kosong tanpa keterangan.
-
-## 13. Error State
-
-- Kegagalan pengambilan data ditampilkan dengan pesan yang jelas ke
-  pengguna, bukan halaman kosong atau crash tanpa penjelasan.
-
-## 14. Code Organization
-
-- Logic presentasi (tampilan) dipisahkan dari logic domain jika komponen
-  mulai kompleks — tetapi pemisahan ini dilakukan saat benar-benar
-  dibutuhkan, bukan di awal secara default.
-- Import antar layer mengikuti arah ketergantungan yang sudah ditetapkan di
-  `component-architecture.md` dan `architecture.md`.
-
-## 15. Prinsip Umum
-
-- Keep it simple.
-- Hindari abstraksi prematur.
-- Hindari duplikasi UI — namun jangan memaksakan reuse jika dua kasus
-  sebenarnya berbeda kebutuhan.
-- Komponen tetap fokus pada satu tanggung jawab.
-- Pisahkan presentasi dari logic hanya ketika kompleksitas memang menuntutnya.
+Komponen memakai PascalCase; file route mengikuti page.tsx/layout.tsx/route.ts. Hook existing memakai use-kebab-case di `src/lib/`. URL domain mengikuti nama folder bahasa Inggris. Style memakai utility Tailwind dan token di globals.css; props typed memisahkan server data dari interaksi client. Skeleton area ada di loading.tsx; listing menyediakan empty state.
