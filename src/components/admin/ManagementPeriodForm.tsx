@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,6 +12,7 @@ import {
 } from "@/actions/management";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -18,7 +21,8 @@ type Props = {
   };
 };
 
-export function ManagementPeriodForm({ mode, initialData }: Props) {
+export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +42,7 @@ export function ManagementPeriodForm({ mode, initialData }: Props) {
       const result: ActionResponse =
         mode === "create"
           ? await createManagementPeriod(form)
-          : await updateManagementPeriod(initialData!.id, form);
+          : await updateManagementPeriod(initialData!.id, form, draftVersion!);
       
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

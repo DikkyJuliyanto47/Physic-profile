@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { ownedContentWhere } from "@/lib/content-approval";
 import { redirect } from "next/navigation";
@@ -91,6 +92,7 @@ export default async function EventsListPage({
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["event"]);
   const where: Record<string, unknown> = await ownedContentWhere("event", session.user);
 
   if (q) {
@@ -268,6 +270,7 @@ export default async function EventsListPage({
 
                     <td className="px-5 py-4 text-right">
                       <EventActions
+                        expectedVersion={contentVersion("event", event, versions)}
                         eventId={event.id}
                         eventTitle={event.title}
                         currentStatus={event.status}

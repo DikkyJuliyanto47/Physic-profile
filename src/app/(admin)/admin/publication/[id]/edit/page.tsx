@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
@@ -15,6 +16,7 @@ export default async function EditPublicationPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["publication"]);
   const { id } = await params;
   if (!await canManageContent("publication", id, session.user)) notFound();
 
@@ -38,7 +40,7 @@ export default async function EditPublicationPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-6">
-        <PublicationForm mode="edit" initialData={publication} />
+        <PublicationForm expectedVersion={contentVersion("publication", publication, versions)} mode="edit" initialData={publication} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -20,6 +22,7 @@ import {
 } from "@/actions/university";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -33,7 +36,8 @@ type Props = {
   };
 };
 
-export function UniversityForm({ mode, initialData }: Props) {
+export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const formId = useId();
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
@@ -143,7 +147,7 @@ export function UniversityForm({ mode, initialData }: Props) {
       const result: ActionResponse = 
         mode === "create"
           ? await createUniversity(form)
-          : await updateUniversity(initialData!.id, form);
+          : await updateUniversity(initialData!.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

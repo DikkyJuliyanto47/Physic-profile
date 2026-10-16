@@ -4,6 +4,7 @@ import { parseNewsEventDate } from "./news-event-date";
 // Shared rules adapted from 749315a; used by every content module.
 export class ContentWorkflowError extends Error {}
 export type ContentKind = "news" | "event" | "member" | "managementPeriod" | "managementPosition" | "university" | "publication" | "gallery";
+export type ContentVersion = { canonical: string; proposal: number | null };
 export type ReviewOperation = "approve" | "revision" | "publish" | "unpublish" | "archive";
 export type ContentActor = { id: string; role: string };
 export type ContentState = {

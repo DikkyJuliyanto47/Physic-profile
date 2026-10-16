@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +11,7 @@ import {
 } from "@/actions/management";
 
 type Props = {
+  expectedVersion: ContentVersion;
   periodId: string;
   periodName: string;
   isActive: boolean;
@@ -16,6 +19,7 @@ type Props = {
 };
 
 export function ManagementActions({
+  expectedVersion,
   periodId,
   periodName,
   isActive,
@@ -30,7 +34,7 @@ export function ManagementActions({
     setError("");
 
     startTransition(async () => {
-      const result = await setActiveManagementPeriod(periodId);
+      const result = await setActiveManagementPeriod(periodId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
@@ -45,7 +49,7 @@ export function ManagementActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteManagementPeriod(periodId);
+      const result = await deleteManagementPeriod(periodId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

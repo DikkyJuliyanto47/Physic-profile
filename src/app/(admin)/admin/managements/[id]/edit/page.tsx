@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent, ownedContentWhere } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import Link from "next/link";
@@ -20,6 +21,7 @@ export default async function EditManagementPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["managementPeriod", "managementPosition"]);
   const { id } = await params;
   if (!await canManageContent("managementPeriod", id, session.user)) notFound();
   const { positionId } = await searchParams;
@@ -88,7 +90,7 @@ export default async function EditManagementPage({
         </div>
 
         <div className="p-5">
-          <ManagementPeriodForm mode="edit" initialData={period} />
+          <ManagementPeriodForm expectedVersion={contentVersion("managementPeriod", period, versions)} mode="edit" initialData={period} />
         </div>
       </section>
 
@@ -115,6 +117,7 @@ export default async function EditManagementPage({
 
         <div className="p-5">
           <ManagementPositionForm
+            expectedVersion={selectedPosition ? contentVersion("managementPosition", selectedPosition, versions) : undefined}
             key={selectedPosition ? `edit:${period.id}:${selectedPosition.id}` : `create:${period.id}`}
             mode={selectedPosition ? "edit" : "create"}
             periodId={period.id}
@@ -210,6 +213,7 @@ export default async function EditManagementPage({
 
                     <td className="px-5 py-3.5">
                       <ManagementPositionActions
+                        expectedVersion={contentVersion("managementPosition", position, versions)}
                         positionId={position.id}
                         positionTitle={position.title}
                       />

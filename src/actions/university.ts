@@ -1,4 +1,5 @@
 "use server";
+import type { ContentVersion } from "@/lib/content-workflow";
 import { submitContent, type ContentResult } from "@/lib/content-approval";
 
 export type UniversityInput = {
@@ -17,10 +18,10 @@ export async function createUniversity(data: UniversityInput): Promise<ActionRes
   return submitContent("university", "CREATE", null, data);
 }
 
-export async function updateUniversity(id: string, data: UniversityInput): Promise<ActionResponse> {
-  return submitContent("university", "UPDATE", id, data);
+export async function updateUniversity(id: string, data: UniversityInput, version: ContentVersion): Promise<ActionResponse> {
+  return submitContent("university", "UPDATE", id, data, false, version);
 }
 
-export async function deleteUniversity(id: string): Promise<ActionResponse> {
-  return submitContent("university", "DELETE", id);
+export async function deleteUniversity(id: string, version: ContentVersion): Promise<ActionResponse> {
+  return submitContent("university", "DELETE", id, {}, false, version);
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -24,6 +26,7 @@ import {
 import type { ContentActor } from "@/lib/content-workflow";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   actor: ContentActor;
   mode: "create" | "edit";
   initialData?: {
@@ -70,7 +73,8 @@ function FieldLabel({
   );
 }
 
-export function NewsForm({ mode, initialData, actor }: Props) {
+export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const formId = useId();
   const router = useRouter();
   const submitInFlight = useRef(false);
@@ -183,7 +187,7 @@ export function NewsForm({ mode, initialData, actor }: Props) {
       const result: ActionResponse =
         mode === "create"
           ? await createNews(payload)
-          : await updateNews(initialData!.id, payload);
+          : await updateNews(initialData!.id, payload, draftVersion!);
       
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

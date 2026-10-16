@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
 
@@ -16,12 +17,14 @@ export default async function EditNewsPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["news"]);
   const { id } = await params;
   if (!await canManageContent("news", id, session.user)) notFound();
 
   const news = await prisma.news.findUnique({
     where: { id },
     select: {
+      contentVersion: true,
       id: true,
       title: true,
       category: true,
@@ -63,7 +66,7 @@ export default async function EditNewsPage({
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
-            <NewsForm mode="edit" initialData={news} actor={session.user} />
+            <NewsForm expectedVersion={contentVersion("news", news, versions)} mode="edit" initialData={news} actor={session.user} />
           </div>
         </div>
       </div>

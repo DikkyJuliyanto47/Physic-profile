@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { ownedContentWhere } from "@/lib/content-approval";
 import { redirect } from "next/navigation";
@@ -41,6 +42,7 @@ export default async function PublicationListPage({
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["publication"]);
   const where: Record<string, unknown> = await ownedContentWhere("publication", session.user);
 
   if (q) {
@@ -203,6 +205,7 @@ export default async function PublicationListPage({
 
                     <td className="px-5 py-3.5 text-right">
                       <PublicationActions
+                        expectedVersion={contentVersion("publication", pub, versions)}
                         publicationId={pub.id}
                         publicationTitle={pub.title}
                       />

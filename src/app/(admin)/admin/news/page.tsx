@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
@@ -68,6 +69,7 @@ export default async function NewsListPage({
 
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["news"]);
   const where: Record<string, unknown> = await ownedContentWhere("news", session.user);
 
   if (q) {
@@ -85,6 +87,7 @@ export default async function NewsListPage({
     where,
     orderBy: { createdAt: "desc" },
     select: {
+      contentVersion: true,
       id: true, title: true, slug: true, category: true, status: true,
       publishedAt: true, createdAt: true, author: { select: { name: true } },
     },
@@ -274,6 +277,7 @@ export default async function NewsListPage({
 
                     <td className="px-4 py-4 text-right sm:px-5">
                       <NewsActions
+                        expectedVersion={contentVersion("news", news, versions)}
                         newsId={news.id}
                         newsTitle={news.title}
                         currentStatus={news.status}

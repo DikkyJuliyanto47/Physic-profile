@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
@@ -16,12 +17,14 @@ export default async function EditUniversityPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["university"]);
   const { id } = await params;
   if (!await canManageContent("university", id, session.user)) notFound();
 
   const university = await prisma.university.findUnique({
     where: { id },
     select: {
+      updatedAt: true,
       id: true,
       name: true,
       shortName: true,
@@ -47,7 +50,7 @@ export default async function EditUniversityPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-card">
-        <UniversityForm mode="edit" initialData={university} />
+        <UniversityForm expectedVersion={contentVersion("university", university, versions)} mode="edit" initialData={university} />
       </div>
     </div>
   );

@@ -1,16 +1,19 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteManagementPosition } from "@/actions/management";
 
 type Props = {
+  expectedVersion: ContentVersion;
   positionId: string;
   positionTitle: string;
 };
 
-export function ManagementPositionActions({ positionId, positionTitle }: Props) {
+export function ManagementPositionActions({ expectedVersion, positionId, positionTitle }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -20,7 +23,7 @@ export function ManagementPositionActions({ positionId, positionTitle }: Props) 
     setError("");
 
     startTransition(async () => {
-      const result = await deleteManagementPosition(positionId);
+      const result = await deleteManagementPosition(positionId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

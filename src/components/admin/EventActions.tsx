@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -7,12 +9,14 @@ import { useRef, useState, useTransition } from "react";
 import { deleteEvent, toggleEventStatus } from "@/actions/event";
 
 type Props = {
+  expectedVersion: ContentVersion;
   eventId: string;
   eventTitle: string;
   currentStatus: string;
 };
 
 export function EventActions({
+  expectedVersion,
   eventId,
   eventTitle,
   currentStatus,
@@ -31,7 +35,7 @@ export function EventActions({
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleEventStatus(eventId);
+        const result = await toggleEventStatus(eventId, expectedVersion);
         if (result.success === true) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
@@ -52,7 +56,7 @@ export function EventActions({
     setError("");
     startTransition(async () => {
       try {
-        const result = await deleteEvent(eventId);
+        const result = await deleteEvent(eventId, expectedVersion);
         if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);

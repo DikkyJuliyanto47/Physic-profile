@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -33,7 +35,7 @@ type MemberInitialData = {
   detailUrl: string | null;
 };
 
-type Props =
+type Props = { expectedVersion?: ContentVersion } & (
   | {
       mode: "create";
       universities: UniversityOption[];
@@ -43,14 +45,15 @@ type Props =
       mode: "edit";
       universities: UniversityOption[];
       initialData: MemberInitialData;
-    };
+    });
 
 const inputClass =
   "h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
-export function MemberForm({ mode, universities, initialData }: Props) {
+export function MemberForm({ expectedVersion, mode, universities, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,7 +154,7 @@ export function MemberForm({ mode, universities, initialData }: Props) {
       const result: ActionResponse = 
        mode === "create"
         ? await createMember(form)
-        : await updateMember(initialData.id, form);
+        : await updateMember(initialData.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

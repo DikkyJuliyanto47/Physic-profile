@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -20,6 +22,7 @@ import {
 } from "@/actions/gallery";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -67,7 +70,8 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return match ? `https://www.youtube.com/embed/${match[1]}` : null;
 }
 
-export function GalleryForm({ mode, initialData }: Props) {
+export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
 
@@ -191,7 +195,7 @@ export function GalleryForm({ mode, initialData }: Props) {
       const result: ActionResponse = 
         mode === "create"
           ? await createGalleryItem(form)
-          : await updateGalleryItem(initialData!.id, form);
+          : await updateGalleryItem(initialData!.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

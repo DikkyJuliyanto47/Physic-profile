@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActionResponse } from "@/actions/publication";
@@ -7,6 +9,7 @@ import { createPublication, updatePublication } from "@/actions/publication";
 import type { PublicationInput, PublicationType } from "@/types/publication";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -34,7 +37,8 @@ const textareaClass =
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
-export function PublicationForm({ mode, initialData }: Props) {
+export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const submitInFlight = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,7 +80,7 @@ export function PublicationForm({ mode, initialData }: Props) {
       const result: ActionResponse = 
        mode === "create"
         ? await createPublication(form)
-        : await updatePublication(initialData!.id, form);
+        : await updatePublication(initialData!.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");

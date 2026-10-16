@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ManagementActions } from "@/components/admin/ManagementActions";
@@ -17,6 +18,7 @@ function formatDate(date: Date): string {
 export default async function ManagementPage() {
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["managementPeriod", "managementPosition"]);
   const scope = await ownedContentWhere("managementPeriod", session.user);
   const positionScope = await ownedContentWhere("managementPosition", session.user);
   const [periods, activePeriod] = await Promise.all([
@@ -141,6 +143,7 @@ export default async function ManagementPage() {
                     </div>
 
                     <ManagementActions
+                      expectedVersion={contentVersion("managementPeriod", period, versions)}
                       periodId={period.id}
                       periodName={period.period}
                       isActive={period.isActive}
@@ -239,6 +242,7 @@ export default async function ManagementPage() {
 
                       <td className="px-5 py-3.5 text-right">
                         <ManagementPositionActions
+                          expectedVersion={contentVersion("managementPosition", position, versions)}
                           positionId={position.id}
                           positionTitle={position.title}
                         />

@@ -1,15 +1,19 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteMember } from "@/actions/member";
 
 type Props = {
+  expectedVersion: ContentVersion;
   memberId: string;
   memberName: string;
 };
 
 export function MemberActions({
+  expectedVersion,
   memberId,
   memberName,
 }: Props) {
@@ -22,7 +26,7 @@ export function MemberActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteMember(memberId);
+      const result = await deleteMember(memberId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

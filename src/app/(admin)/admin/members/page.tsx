@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -15,6 +16,7 @@ export default async function MembersListPage({
   const { q, universityId } = await searchParams;
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["member"]);
 
   const where: Prisma.MemberProfileWhereInput = await ownedContentWhere("member", session.user);
 
@@ -35,6 +37,7 @@ export default async function MembersListPage({
       where,
       orderBy: { createdAt: "desc" },
       select: {
+        updatedAt: true,
         id: true,
         name: true,
         email: true,
@@ -243,6 +246,7 @@ export default async function MembersListPage({
 
                         <td className="px-5 py-3.5 text-right">
                           <MemberActions
+                            expectedVersion={contentVersion("member", member, versions)}
                             memberId={member.id}
                             memberName={member.name}
                           />

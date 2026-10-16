@@ -1,17 +1,21 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
 import { deleteNews, toggleNewsStatus } from "@/actions/news";
 
 type Props = {
+  expectedVersion: ContentVersion;
   newsId: string;
   newsTitle: string;
   currentStatus: string;
 };
 
 export function NewsActions({
+  expectedVersion,
   newsId,
   newsTitle,
   currentStatus,
@@ -30,7 +34,7 @@ export function NewsActions({
     setToggleError("");
     startTransition(async () => {
       try {
-        const result = await toggleNewsStatus(newsId);
+        const result = await toggleNewsStatus(newsId, expectedVersion);
         if (result.success === true) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           router.refresh();
@@ -51,7 +55,7 @@ export function NewsActions({
     setError("");
     startTransition(async () => {
       try {
-        const result = await deleteNews(newsId);
+        const result = await deleteNews(newsId, expectedVersion);
         if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);

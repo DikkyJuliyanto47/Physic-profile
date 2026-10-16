@@ -1,16 +1,20 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { deletePublication } from "@/actions/publication";
 
 type Props = {
+  expectedVersion: ContentVersion;
   publicationId: string;
   publicationTitle: string;
 };
 
 export function PublicationActions({
+  expectedVersion,
   publicationId,
   publicationTitle,
 }: Props) {
@@ -26,7 +30,7 @@ export function PublicationActions({
     setError("");
     startTransition(async () => {
       try {
-        const result = await deletePublication(publicationId);
+        const result = await deletePublication(publicationId, expectedVersion);
         if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
           setShowConfirm(false);

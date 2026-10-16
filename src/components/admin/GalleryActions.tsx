@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +10,7 @@ import { MediaType } from "@/generated/prisma/client";
 import { deleteGalleryItem } from "@/actions/gallery";
 
 type Props = {
+  expectedVersion: ContentVersion;
   itemId: string;
   itemTitle: string;
   mediaType: MediaType;
@@ -23,6 +26,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
 }
 
 export function GalleryActions({
+  expectedVersion,
   itemId,
   itemTitle,
   mediaType,
@@ -41,7 +45,7 @@ export function GalleryActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteGalleryItem(itemId);
+      const result = await deleteGalleryItem(itemId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

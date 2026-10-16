@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useUploadLifecycle } from "@/lib/use-upload-lifecycle";
 
 import {
@@ -22,6 +24,7 @@ import {
 } from "@/actions/event";
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   initialData?: {
     id: string;
@@ -84,7 +87,8 @@ function toDatetimeLocal(date: Date | string): string {
   return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}`;
 }
 
-export function EventForm({ mode, initialData }: Props) {
+export function EventForm({ expectedVersion, mode, initialData }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const formId = useId();
   const router = useRouter();
   const submitInFlight = useRef(false);
@@ -222,7 +226,7 @@ export function EventForm({ mode, initialData }: Props) {
       const result: ActionResponse =
         mode === "create"
           ? await createEvent(form)
-          : await updateEvent(initialData!.id, form);
+          : await updateEvent(initialData!.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Gagal menyimpan agenda.");

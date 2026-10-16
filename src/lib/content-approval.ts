@@ -5,9 +5,9 @@ import { prisma } from "./prisma";
 import { requireAdmin, requireSuperAdmin } from "./auth-utils";
 import { mutateWithMedia } from "./media-lifecycle";
 import { revalidatePath, updateTag } from "next/cache";
-import { ContentWorkflowError, assertEditable, assertVersion, transition, type ContentKind } from "./content-workflow";
+import { ContentWorkflowError, assertEditable, assertVersion, transition, type ContentKind, type ContentVersion } from "./content-workflow";
 import { isContentKind, normalizeContent } from "./content-fields";
-import { applyContent, readContent, type ContentSnapshot } from "./content-records";
+import { applyContent, readContent, type ContentSnapshot, snapshot } from "./content-records";
 
 export type ContentResult = { success: boolean; error?: string; pending?: boolean; requestId?: string };
 export const CONTENT_APPROVAL_UNAVAILABLE = "Persetujuan konten belum diaktifkan. Hubungi pengelola sistem.";
@@ -67,6 +67,40 @@ function hash(value: ContentSnapshot | null) {
   return value ? createHash("sha256").update(JSON.stringify(stable(value))).digest("hex") : null;
 }
 
+// Capture proposal versions before reading the page's canonical rows. Concurrent
+// changes between these reads cause a conservative conflict, never a fresh token for stale data.
+export async function contentVersions(kinds: ContentKind[]) {
+  try {
+    const rows = await prisma.contentChange.findMany({ where: { kind: { in: kinds } }, select: { kind: true, targetId: true, contentVersion: true } });
+    return Object.fromEntries(rows.map(row => [`${row.kind}:${row.targetId}`, row.contentVersion]));
+  } catch (error) {
+    if (typeof error === "object" && error && "code" in error && ["P2021", "P2022"].includes(String(error.code))) return {};
+    throw error;
+  }
+}
+
+export function contentVersion(kind: ContentKind, record: object, versions: Record<string, number>): ContentVersion {
+  const value = record as Record<string, unknown>;
+  return { canonical: canonicalVersion(kind, value), proposal: versions[`${kind}:${value.id}`] ?? null };
+}
+
+function canonicalVersion(kind: ContentKind, value: Record<string, unknown>) {
+  const fields = kind === "news" ? ["contentVersion"]
+    : kind === "managementPeriod" ? ["period", "isActive", "positions"]
+    : kind === "managementPosition" ? ["periodId", "memberProfileId", "title", "department", "order"]
+    : ["updatedAt"];
+  if (fields.some(key => value[key] === undefined)) throw new ContentWorkflowError("Versi konten tidak tersedia. Muat ulang.");
+  const selected = Object.fromEntries(fields.map(key => [key, value[key]]));
+  // Period deletion cascades to positions: include their scalar state, independent
+  // of UI ordering or joined member data, so stale pages cannot delete changed positions.
+  if (kind === "managementPeriod") {
+    selected.positions = (value.positions as Record<string, unknown>[]).map(position =>
+      Object.fromEntries(["id", "periodId", "memberProfileId", "title", "department", "order", "createdAt"].map(key => [key, position[key]]))
+    ).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  }
+  return hash(snapshot(selected))!;
+}
+
 export function contentError(error: unknown): ContentResult {
   if (error instanceof ContentWorkflowError) return { success: false, error: error.message };
   const code = typeof error === "object" && error !== null && "code" in error ? error.code : undefined;
@@ -85,7 +119,7 @@ export function revalidateContent() {
 
 // All existing module actions delegate here. No unapproved canonical rows exist.
 export async function submitContent(kind: ContentKind, operation: "CREATE" | "UPDATE" | "DELETE", targetId: string | null,
-  input: unknown = {}, patch = false, newsVersion?: number): Promise<ContentResult> {
+  input: unknown = {}, patch = false, expectedVersion?: ContentVersion): Promise<ContentResult> {
   try {
     const session = await requireAdmin();
     if (!session) throw new ContentWorkflowError("Unauthorized. Silakan login.");
@@ -97,10 +131,12 @@ export async function submitContent(kind: ContentKind, operation: "CREATE" | "UP
       const actor = await verifyContentActor(tx, session.user);
       const current = operation === "CREATE" ? null : await readContent(tx, kind, id);
       if (operation !== "CREATE" && !current) throw new ContentWorkflowError("Konten tidak ditemukan.");
-      if (kind === "news" && current && newsVersion !== undefined && newsVersion !== current.contentVersion) {
-        throw new ContentWorkflowError("Konten telah berubah. Muat ulang sebelum melanjutkan.");
-      }
       const previous = await tx.contentChange.findUnique({ where: { kind_targetId: { kind, targetId: id } } });
+      if (operation !== "CREATE" && (!expectedVersion || !current ||
+        expectedVersion.canonical !== canonicalVersion(kind, current) ||
+        expectedVersion.proposal !== (previous?.contentVersion ?? null))) {
+        throw new ContentWorkflowError("Konten atau pengajuan telah berubah. Muat ulang sebelum melanjutkan.");
+      }
       const ownerId = previous?.authorId ?? (typeof current?.authorId === "string" ? current.authorId : operation === "CREATE" ? actor.id : null);
       if (actor.role !== "SUPER_ADMIN" && ownerId !== actor.id) throw new ContentWorkflowError("Anda tidak memiliki hak pengelolaan konten ini.");
       const payload = operation === "DELETE" ? {} : normalizeContent(kind, input, current ?? {});
@@ -127,9 +163,10 @@ export async function submitContent(kind: ContentKind, operation: "CREATE" | "UP
         reviewStatus: direct ? "APPROVED" as const : "PENDING_REVIEW" as const,
         reviewerId: direct ? actor.id : null, reviewedAt: direct ? new Date() : null, reviewNote: null,
       };
-      const request = await tx.contentChange.upsert({ where: { kind_targetId: { kind, targetId: id } },
-        create: { ...metadata, kind, targetId: id, authorId: ownerId ?? actor.id },
-        update: { ...metadata, contentVersion: { increment: 1 } }, select: { id: true } });
+      const request = previous
+        ? await tx.contentChange.update({ where: { id: previous.id, contentVersion: previous.contentVersion },
+          data: { ...metadata, contentVersion: { increment: 1 } }, select: { id: true } })
+        : await tx.contentChange.create({ data: { ...metadata, kind, targetId: id, authorId: ownerId ?? actor.id }, select: { id: true } });
       return { success: true, pending: !direct, requestId: request.id };
     }, (tx) => operation === "CREATE" ? Promise.resolve(null) : Promise.all([
       readContent(tx, kind, id), tx.contentChange.findUnique({ where: { kind_targetId: { kind, targetId: id } } }),
@@ -186,6 +223,7 @@ export async function reviseContent(id: string, version: number, input: unknown)
       if (!["PENDING_REVIEW", "REVISION_REQUIRED"].includes(request.reviewStatus)) throw new ContentWorkflowError("Pengajuan sudah selesai.");
       const current = await readContent(tx, request.kind, request.targetId);
       if (request.operation !== "CREATE" && !current) throw new ContentWorkflowError("Konten sudah tidak tersedia.");
+      if (hash(current) !== request.baseHash) throw new ContentWorkflowError("Versi publik telah berubah. Muat ulang dan buat pengajuan berdasarkan konten terbaru.");
       const payload = request.operation === "DELETE" ? {} : normalizeContent(request.kind, input);
       if (actor.role === "ADMIN") {
         if (request.operation === "CREATE" && (request.kind === "news" || request.kind === "event")) payload.status = "PUBLISHED";

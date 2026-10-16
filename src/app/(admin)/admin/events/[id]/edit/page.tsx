@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
@@ -16,12 +17,14 @@ export default async function EditEventPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["event"]);
   const { id } = await params;
   if (!await canManageContent("event", id, session.user)) notFound();
 
   const event = await prisma.event.findUnique({
     where: { id },
     select: {
+      updatedAt: true,
       id: true,
       title: true,
       category: true,
@@ -51,7 +54,7 @@ export default async function EditEventPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-5 sm:p-6">
-        <EventForm mode="edit" initialData={event} />
+        <EventForm expectedVersion={contentVersion("event", event, versions)} mode="edit" initialData={event} />
       </div>
     </div>
   );

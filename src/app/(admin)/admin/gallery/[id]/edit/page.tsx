@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
@@ -15,6 +16,7 @@ export default async function EditGalleryPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["gallery"]);
   const { id } = await params;
   if (!await canManageContent("gallery", id, session.user)) notFound();
 
@@ -38,7 +40,7 @@ export default async function EditGalleryPage({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-card">
-        <GalleryForm mode="edit" initialData={item} />
+        <GalleryForm expectedVersion={contentVersion("gallery", item, versions)} mode="edit" initialData={item} />
       </div>
     </div>
   );

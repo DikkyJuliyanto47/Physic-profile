@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -7,12 +9,14 @@ import { useState, useTransition } from "react";
 import { deleteUniversity } from "@/actions/university";
 
 type Props = {
+  expectedVersion: ContentVersion;
   universityId: string;
   universityName: string;
   memberCount: number;
 };
 
 export function UniversityActions({
+  expectedVersion,
   universityId,
   universityName,
   memberCount,
@@ -26,7 +30,7 @@ export function UniversityActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteUniversity(universityId);
+      const result = await deleteUniversity(universityId, expectedVersion);
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

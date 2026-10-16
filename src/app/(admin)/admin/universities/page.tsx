@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -15,6 +16,7 @@ export default async function UniversitiesPage({
   const { q } = await searchParams;
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["university"]);
   const scope = await ownedContentWhere("university", session.user);
 
   const where = q
@@ -190,6 +192,7 @@ export default async function UniversitiesPage({
 
                     <td className="px-5 py-3 text-right">
                       <UniversityActions
+                        expectedVersion={contentVersion("university", uni, versions)}
                         universityId={uni.id}
                         universityName={uni.name}
                         memberCount={uni._count.members}

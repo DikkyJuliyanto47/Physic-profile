@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { canManageContent } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { notFound } from "next/navigation";
@@ -15,6 +16,7 @@ export default async function EditMemberPage({
 }) {
   const session = await requireAdmin();
   if (!session) notFound();
+  const versions = await contentVersions(["member"]);
   const { id } = await params;
   if (!await canManageContent("member", id, session.user)) notFound();
 
@@ -53,7 +55,7 @@ export default async function EditMemberPage({
           </div>
 
           <div className="p-5 sm:p-6 lg:p-7">
-            <MemberForm
+            <MemberForm expectedVersion={contentVersion("member", member, versions)}
               mode="edit"
               universities={universities}
               initialData={member}

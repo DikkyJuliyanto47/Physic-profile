@@ -1,3 +1,4 @@
+import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -32,6 +33,7 @@ export default async function GalleryListPage({
   const { q, category } = await searchParams;
   const session = await requireAdmin();
   if (!session) redirect("/login");
+  const versions = await contentVersions(["gallery"]);
   const scope = await ownedContentWhere("gallery", session.user);
 
   const where: Record<string, unknown> = { ...scope };
@@ -203,6 +205,7 @@ export default async function GalleryListPage({
 
                     <div className="absolute inset-x-0 bottom-0 flex justify-end bg-linear-to-t from-black/55 to-transparent px-2 pb-2 pt-8 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                       <GalleryActions
+                        expectedVersion={contentVersion("gallery", item, versions)}
                         itemId={item.id}
                         itemTitle={item.title}
                         mediaType={item.mediaType}

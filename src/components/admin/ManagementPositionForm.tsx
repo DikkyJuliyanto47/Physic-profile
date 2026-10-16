@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentVersion } from "@/lib/content-workflow";
+
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +17,7 @@ type MemberOption = {
 };
 
 type Props = {
+  expectedVersion?: ContentVersion;
   mode: "create" | "edit";
   periodId: string;
   memberProfiles: MemberOption[];
@@ -29,11 +32,13 @@ type Props = {
 };
 
 export function ManagementPositionForm({
+  expectedVersion,
   mode,
   periodId,
   memberProfiles,
   initialData,
 }: Props) {
+  const [draftVersion] = useState(expectedVersion);
   const formId = useId();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,7 +71,7 @@ export function ManagementPositionForm({
       const result: ActionResponse =
         mode === "create"
           ? await createManagementPosition(payload)
-          : await updateManagementPosition(initialData!.id, payload);
+          : await updateManagementPosition(initialData!.id, payload, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
