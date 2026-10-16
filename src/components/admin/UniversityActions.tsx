@@ -30,7 +30,18 @@ export function UniversityActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteUniversity(universityId, expectedVersion);
+      let result: Awaited<ReturnType<typeof deleteUniversity>>;
+      try {
+        result = await deleteUniversity(universityId, expectedVersion);
+        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
+          (result.pending !== undefined && typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")) {
+          throw new Error("Invalid mutation response");
+        }
+      } catch {
+        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        return;
+      }
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }

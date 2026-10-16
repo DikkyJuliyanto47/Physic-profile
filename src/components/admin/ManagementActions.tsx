@@ -34,7 +34,18 @@ export function ManagementActions({
     setError("");
 
     startTransition(async () => {
-      const result = await setActiveManagementPeriod(periodId, expectedVersion);
+      let result: Awaited<ReturnType<typeof setActiveManagementPeriod>>;
+      try {
+        result = await setActiveManagementPeriod(periodId, expectedVersion);
+        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
+          (result.pending !== undefined && typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")) {
+          throw new Error("Invalid mutation response");
+        }
+      } catch {
+        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        return;
+      }
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
@@ -52,7 +63,18 @@ export function ManagementActions({
     setError("");
 
     startTransition(async () => {
-      const result = await deleteManagementPeriod(periodId, expectedVersion);
+      let result: Awaited<ReturnType<typeof deleteManagementPeriod>>;
+      try {
+        result = await deleteManagementPeriod(periodId, expectedVersion);
+        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
+          (result.pending !== undefined && typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")) {
+          throw new Error("Invalid mutation response");
+        }
+      } catch {
+        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        return;
+      }
 
       if (result.success) {
           if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
@@ -96,6 +118,12 @@ export function ManagementActions({
           Hapus
         </button>
       </div>
+
+      {error && !confirmDelete && (
+        <div role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
