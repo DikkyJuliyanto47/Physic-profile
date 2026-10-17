@@ -125,8 +125,15 @@ export function contentError(error: unknown): ContentResult {
 }
 
 export function revalidateContent() {
-  for (const tag of ["news", "events", "members", "managements", "universities", "publications", "gallery"]) updateTag(tag);
-  revalidatePath("/", "layout");
+  try {
+    for (const tag of ["news", "events", "members", "managements", "universities", "publications", "gallery"]) updateTag(tag);
+    revalidatePath("/", "layout");
+  } catch (error) {
+    console.error("[content-approval] Database committed; cache revalidation failed:", error);
+    throw new ContentWorkflowError(
+      "Perubahan telah tersimpan, tetapi pembaruan tampilan gagal. Muat ulang dan periksa data atau pengajuan sebelum mencoba lagi.",
+    );
+  }
 }
 
 // All existing module actions delegate here. No unapproved canonical rows exist.

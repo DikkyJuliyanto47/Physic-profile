@@ -440,6 +440,17 @@ export async function mutateWithMedia<T>(
     isolationLevel?: Prisma.TransactionIsolationLevel;
   } = {},
 ): Promise<T> {
+  // Vercel has no writable persistent application volume. Database-only changes
+  // must not acquire a filesystem lock, even when replacing old local media.
+  // Keep managed incoming URLs on the validated storage path below; never
+  // silently accept a local upload that this instance cannot verify.
+  if (process.env.VERCEL === "1" && managedFiles(incoming).size === 0) {
+    return prisma.$transaction(async (tx) => {
+      await databaseLock(tx);
+      return mutation(tx);
+    }, transactionOptions);
+  }
+
   return withStorageLock(async () => {
     const committed = await prisma.$transaction(async (tx) => {
       await databaseLock(tx);
