@@ -1,4 +1,8 @@
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
@@ -64,7 +68,12 @@ function getStatusLabel(status: ContentStatus): string {
 export default async function NewsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; status?: string; result?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    status?: string;
+    result?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { q, status, result } = params;
@@ -72,7 +81,10 @@ export default async function NewsListPage({
   const session = await requireAdmin();
   if (!session) redirect("/login");
   const versions = await contentVersions(["news"]);
-  const where: Record<string, unknown> = await ownedContentWhere("news", session.user);
+  const where: Record<string, unknown> = await ownedContentWhere(
+    "news",
+    session.user,
+  );
 
   if (q) {
     where.OR = [
@@ -86,7 +98,10 @@ export default async function NewsListPage({
   }
 
   const total = await prisma.news.count({ where });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
 
   const newsList = await prisma.news.findMany({
     take: ADMIN_PAGE_SIZE,
@@ -95,8 +110,14 @@ export default async function NewsListPage({
     orderBy: [{ createdAt: "desc" }, { id: "asc" }],
     select: {
       contentVersion: true,
-      id: true, title: true, slug: true, category: true, status: true,
-      publishedAt: true, createdAt: true, author: { select: { name: true } },
+      id: true,
+      title: true,
+      slug: true,
+      category: true,
+      status: true,
+      publishedAt: true,
+      createdAt: true,
+      author: { select: { name: true } },
     },
   });
 

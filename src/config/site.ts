@@ -3,7 +3,8 @@ import type { NavItem, SocialLink } from "@/types";
 export const siteConfig = {
   name: "Physical Society of Indonesia - Cabang Surabaya",
   shortName: "PSI Surabaya",
-  description: "Wadah kolaborasi akademisi, peneliti, dan pendidik fisika dari perguruan tinggi di wilayah Surabaya untuk pengembangan keilmuan, pendidikan, dan penelitian fisika.",
+  description:
+    "Wadah kolaborasi akademisi, peneliti, dan pendidik fisika dari perguruan tinggi di wilayah Surabaya untuk pengembangan keilmuan, pendidikan, dan penelitian fisika.",
 };
 
 export const publicNav: NavItem[] = [
@@ -13,7 +14,7 @@ export const publicNav: NavItem[] = [
     children: [
       { label: "Profil Singkat", href: "/about#tentang" },
       { label: "Sejarah PSI", href: "/about#sejarah" },
-      { label: "Visi & Misi", href: "/about#visi-misi" }
+      { label: "Visi & Misi", href: "/about#visi-misi" },
     ],
   },
   {
@@ -27,7 +28,7 @@ export const publicNav: NavItem[] = [
     label: "Anggota",
     children: [
       { label: "Direktori Anggota", href: "/members" },
-      { label: "Perguruan Tinggi", href: "/universities" }
+      { label: "Perguruan Tinggi", href: "/universities" },
     ],
   },
   {
@@ -35,17 +36,18 @@ export const publicNav: NavItem[] = [
     children: [
       { label: "Riset", href: "/research" },
       { label: "Publikasi", href: "/research#semua-publikasi" },
-      { label: "Buku", href: "/research#buku"},
-      { label: "HKI", href: "/research#hki"},
+      { label: "Buku", href: "/research#buku" },
+      { label: "HKI", href: "/research#hki" },
     ],
   },
-  { label: "Galeri", href: "/gallery",
+  {
+    label: "Galeri",
+    href: "/gallery",
     children: [
-      { label: "Foto", href: "/gallery#foto"},
-      { label: "Video", href: "/gallery#video"},
-
-    ]
-   },
+      { label: "Foto", href: "/gallery#foto" },
+      { label: "Video", href: "/gallery#video" },
+    ],
+  },
 ];
 
 export const footerNav: Record<"about" | "jelajahi", NavItem[]> = {

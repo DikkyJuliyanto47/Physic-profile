@@ -19,7 +19,7 @@ export function SectionNav({
   className = "",
 }: SectionNavProps) {
   const [activeHref, setActiveHref] = useState(
-    defaultActiveHref ?? items[0]?.href ?? ""
+    defaultActiveHref ?? items[0]?.href ?? "",
   );
 
   useEffect(() => {
@@ -33,10 +33,7 @@ export function SectionNav({
       (entries) => {
         const visibleSections = entries
           .filter((entry) => entry.isIntersecting)
-          .sort(
-            (a, b) =>
-              a.boundingClientRect.top - b.boundingClientRect.top
-          );
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
 
         const activeSection = visibleSections[0];
 
@@ -47,7 +44,7 @@ export function SectionNav({
       {
         rootMargin: "-20% 0px -65% 0px",
         threshold: 0,
-      }
+      },
     );
 
     sections.forEach((section) => observer.observe(section));

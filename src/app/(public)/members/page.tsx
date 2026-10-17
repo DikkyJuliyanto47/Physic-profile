@@ -6,7 +6,11 @@ import { MembersSection } from "@/components/features/members";
 import { UniversityDirectory } from "@/components/features/members/UniversityDirectory";
 import { JoinCtaSection } from "@/components/features/home";
 
-export const metadata = publicMetadata("Anggota PSI Surabaya", "Direktori anggota dan jejaring akademisi fisika Physical Society of Indonesia Cabang Surabaya.", "/members");
+export const metadata = publicMetadata(
+  "Anggota PSI Surabaya",
+  "Direktori anggota dan jejaring akademisi fisika Physical Society of Indonesia Cabang Surabaya.",
+  "/members",
+);
 
 export default async function Page() {
   const members = await getMembers();
@@ -17,13 +21,15 @@ export default async function Page() {
 
   return (
     <div className="[&_aside_nav_ul]:border-t-0 [&_aside_nav_a]:px-4 [&_aside_nav_a]:py-3 [&_aside_nav_a]:text-sm [&_aside_nav_a]:leading-5 [&_aside_nav_a]:wrap-anywhere [&_aside_nav_a:focus-visible]:outline-2 [&_aside_nav_a:focus-visible]:-outline-offset-2 [&_aside_nav_a:focus-visible]:outline-primary-700">
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Anggota", path: "/members" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Anggota", path: "/members" },
+        ]}
+      />
       <PublicPageShell
         title="Anggota Physical Society of Indonesia Cabang Surabaya"
-        breadcrumbs={[
-          { label: "Beranda", href: "/" },
-          { label: "Anggota" },
-        ]}
+        breadcrumbs={[{ label: "Beranda", href: "/" }, { label: "Anggota" }]}
         navItems={[
           ...institutions.map((institution) => ({
             label: institution,

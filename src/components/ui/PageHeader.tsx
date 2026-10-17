@@ -1,10 +1,6 @@
-
 import { Container } from "./Container";
 import { Section } from "./Section";
-import {
-  PageBreadcrumb,
-  type BreadcrumbItem,
-} from "./PageBreadcrumb";
+import { PageBreadcrumb, type BreadcrumbItem } from "./PageBreadcrumb";
 
 interface PageHeaderProps {
   breadcrumb?: BreadcrumbItem[];
@@ -21,13 +17,11 @@ export function PageHeader({
   description,
   children,
 }: PageHeaderProps) {
-return (
+  return (
     <Section padding="compact">
       <Container>
         <div>
-          {breadcrumb && (
-            <PageBreadcrumb items={breadcrumb} />
-          )}
+          {breadcrumb && <PageBreadcrumb items={breadcrumb} />}
 
           <div className="mt-6 max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">

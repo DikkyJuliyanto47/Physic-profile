@@ -32,7 +32,11 @@ export function PublicationActions({
       try {
         const result = await deletePublication(publicationId, expectedVersion);
         if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          if (result.pending) {
+            router.push("/admin/submissions?result=submitted");
+            router.refresh();
+            return;
+          }
           setShowConfirm(false);
           router.push("/admin/publication?result=deleted");
           router.refresh();
@@ -67,10 +71,17 @@ export function PublicationActions({
       </div>
 
       {showConfirm && (
-        <div role="dialog" aria-modal="true" aria-labelledby="delete-publication-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-publication-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+        >
           <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-xl">
-            <h3 id="delete-publication-title" className="text-lg font-semibold tracking-tight text-neutral-900">
+            <h3
+              id="delete-publication-title"
+              className="text-lg font-semibold tracking-tight text-neutral-900"
+            >
               Hapus Publikasi?
             </h3>
 

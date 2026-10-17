@@ -13,7 +13,11 @@ type Props = {
   positionTitle: string;
 };
 
-export function ManagementPositionActions({ expectedVersion, positionId, positionTitle }: Props) {
+export function ManagementPositionActions({
+  expectedVersion,
+  positionId,
+  positionTitle,
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -26,18 +30,29 @@ export function ManagementPositionActions({ expectedVersion, positionId, positio
       let result: Awaited<ReturnType<typeof deleteManagementPosition>>;
       try {
         result = await deleteManagementPosition(positionId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         setConfirmDelete(false);
         const url = new URL(window.location.href);
         url.searchParams.set("result", "deleted");
@@ -71,11 +86,13 @@ export function ManagementPositionActions({ expectedVersion, positionId, positio
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
           <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
-            <h3 className="text-lg font-semibold text-neutral-900">Hapus Posisi?</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">
+              Hapus Posisi?
+            </h3>
 
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              Apakah Anda yakin ingin menghapus <strong>{positionTitle}</strong> dari
-              struktur kepengurusan?
+              Apakah Anda yakin ingin menghapus <strong>{positionTitle}</strong>{" "}
+              dari struktur kepengurusan?
             </p>
 
             {error && (

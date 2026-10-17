@@ -13,12 +13,19 @@ const toneClasses: Record<BadgeTone, string> = {
   dark: "border-primary-800 bg-primary-900 text-white",
 };
 
-export function Badge({ tone = "primary", className = "", children, ...rest }: BadgeProps) {
+export function Badge({
+  tone = "primary",
+  className = "",
+  children,
+  ...rest
+}: BadgeProps) {
   const classes = [
     "inline-flex items-center border px-2 py-1 text-xs font-semibold uppercase tracking-wide",
     toneClasses[tone],
     className,
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <span className={classes} {...rest}>

@@ -1,11 +1,7 @@
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/config/seo";
 import { getPublishedNews, normalizeNewsCategory } from "@/lib/data";
-import {
-  Container,
-  PageBreadcrumb,
-  Section,
-} from "@/components/ui";
+import { Container, PageBreadcrumb, Section } from "@/components/ui";
 import {
   CategoryWidget,
   FeaturedNews,
@@ -19,11 +15,13 @@ interface BeritaPageProps {
   }>;
 }
 
-export const metadata = publicMetadata("Berita PSI Surabaya", "Berita organisasi, kegiatan ilmiah, dan informasi terbaru Physical Society of Indonesia Cabang Surabaya.", "/news");
+export const metadata = publicMetadata(
+  "Berita PSI Surabaya",
+  "Berita organisasi, kegiatan ilmiah, dan informasi terbaru Physical Society of Indonesia Cabang Surabaya.",
+  "/news",
+);
 
-export default async function BeritaPage({
-  searchParams,
-}: BeritaPageProps) {
+export default async function BeritaPage({ searchParams }: BeritaPageProps) {
   const kategori = normalizeNewsCategory((await searchParams).kategori);
   const newsItems = await getPublishedNews(kategori);
 
@@ -34,14 +32,16 @@ export default async function BeritaPage({
 
   return (
     <Section className="pt-10 lg:pt-12">
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Berita", path: "/news" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Berita", path: "/news" },
+        ]}
+      />
       <Container>
         <div className="flex flex-col gap-8">
           <PageBreadcrumb
-            items={[
-              { label: "Beranda", href: "/" },
-              { label: "Berita" },
-            ]}
+            items={[{ label: "Beranda", href: "/" }, { label: "Berita" }]}
           />
 
           {featuredNews && <FeaturedNews item={featuredNews} />}

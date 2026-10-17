@@ -1,19 +1,36 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { lstat, mkdir, readFile, readdir, rmdir, unlink, writeFile } from "node:fs/promises";
+import {
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  rmdir,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import path from "node:path";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const PREFIX = "/uploads/news/";
-const FILE_NAME = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\.(png|jpe?g|webp)$/;
+const FILE_NAME =
+  /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\.(png|jpe?g|webp)$/;
 const RELEASE_TTL = 24 * 60 * 60 * 1000;
 
 // Media and ownership metadata are runtime storage, not build dependencies.
-const metadataDir = path.join(/* turbopackIgnore: true */ process.cwd(), ".media-lifecycle");
-const uploadDir = path.join(/* turbopackIgnore: true */ process.cwd(), "public", "uploads", "news");
+const metadataDir = path.join(
+  /* turbopackIgnore: true */ process.cwd(),
+  ".media-lifecycle",
+);
+const uploadDir = path.join(
+  /* turbopackIgnore: true */ process.cwd(),
+  "public",
+  "uploads",
+  "news",
+);
 
 type Metadata = {
   owner: string;
@@ -29,13 +46,21 @@ type CleanupResult = {
 };
 
 function isMissing(error: unknown): boolean {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
 }
 
 // Check every directory component, including public, before touching a file.
 // Storage directories must be controlled by the application, never by upload input.
 async function safeDirectory(directory: string, create = false): Promise<void> {
-  const relative = path.relative(/* turbopackIgnore: true */ process.cwd(), directory);
+  const relative = path.relative(
+    /* turbopackIgnore: true */ process.cwd(),
+    directory,
+  );
 
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
     throw new Error("Unsafe media directory");
@@ -52,7 +77,14 @@ async function safeDirectory(directory: string, create = false): Promise<void> {
       try {
         await mkdir(/* turbopackIgnore: true */ current);
       } catch (error) {
-        if (!(typeof error === "object" && error !== null && "code" in error && error.code === "EEXIST")) {
+        if (
+          !(
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            error.code === "EEXIST"
+          )
+        ) {
           throw error;
         }
       }
@@ -80,12 +112,21 @@ async function withStorageLock<T>(operation: () => Promise<T>): Promise<T> {
       await mkdir(lock);
       break;
     } catch (error) {
-      if (!(typeof error === "object" && error !== null && "code" in error && error.code === "EEXIST")) {
+      if (
+        !(
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          error.code === "EEXIST"
+        )
+      ) {
         throw error;
       }
 
       if (Date.now() >= deadline) {
-        console.error("[media] Storage lock busy or stale; mutation has not started.");
+        console.error(
+          "[media] Storage lock busy or stale; mutation has not started.",
+        );
         throw new Error("Media storage is busy");
       }
 
@@ -99,7 +140,10 @@ async function withStorageLock<T>(operation: () => Promise<T>): Promise<T> {
     try {
       await rmdir(lock);
     } catch (error) {
-      console.error("[media] Failed to release storage lock; inspect before removing:", error);
+      console.error(
+        "[media] Failed to release storage lock; inspect before removing:",
+        error,
+      );
     }
   }
 }
@@ -116,7 +160,9 @@ function managedFiles(value: unknown): Set<string> {
     if (typeof item === "string") {
       // Match canonical local URLs, including HTML attributes; external URLs,
       // encoded paths and static assets are never deletion candidates.
-      for (const match of item.matchAll(/(?:^|[\s"'(=>])(\/uploads\/news\/[^\s"'<>?#)]+)/g)) {
+      for (const match of item.matchAll(
+        /(?:^|[\s"'(=>])(\/uploads\/news\/[^\s"'<>?#)]+)/g,
+      )) {
         const filename = match[1].slice(PREFIX.length);
 
         if (FILE_NAME.test(filename)) {
@@ -145,7 +191,7 @@ async function metadata(filename: string): Promise<Metadata | null> {
     }
 
     const value: unknown = JSON.parse(
-      await readFile(/* turbopackIgnore: true */ target, "utf8")
+      await readFile(/* turbopackIgnore: true */ target, "utf8"),
     );
 
     if (
@@ -154,11 +200,17 @@ async function metadata(filename: string): Promise<Metadata | null> {
       !("owner" in value) ||
       typeof value.owner !== "string" ||
       !("releasedAt" in value) ||
-      !(value.releasedAt === null ||
-        (typeof value.releasedAt === "number" && Number.isFinite(value.releasedAt))) ||
+      !(
+        value.releasedAt === null ||
+        (typeof value.releasedAt === "number" &&
+          Number.isFinite(value.releasedAt))
+      ) ||
       !("deletedAt" in value) ||
-      !(value.deletedAt === null ||
-        (typeof value.deletedAt === "number" && Number.isFinite(value.deletedAt)))
+      !(
+        value.deletedAt === null ||
+        (typeof value.deletedAt === "number" &&
+          Number.isFinite(value.deletedAt))
+      )
     ) {
       throw new Error("Invalid media metadata");
     }
@@ -166,7 +218,7 @@ async function metadata(filename: string): Promise<Metadata | null> {
     return {
       owner: value.owner,
       releasedAt: value.releasedAt,
-      deletedAt: value.deletedAt
+      deletedAt: value.deletedAt,
     };
   } catch (error) {
     if (isMissing(error)) {
@@ -193,7 +245,7 @@ async function validateIncoming(value: unknown): Promise<void> {
     await safeDirectory(uploadDir);
 
     const stat = await lstat(
-      /* turbopackIgnore: true */ path.join(uploadDir, filename)
+      /* turbopackIgnore: true */ path.join(uploadDir, filename),
     );
 
     if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1) {
@@ -202,17 +254,27 @@ async function validateIncoming(value: unknown): Promise<void> {
   }
 }
 
-async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>> {
+async function referencedIds(
+  tx: Prisma.TransactionClient,
+): Promise<Set<string>> {
   const ids = new Set<string>();
 
   // Only media-bearing URL/rich-text columns and approval snapshots can keep
   // managed uploads alive. Do not serialize unrelated tables or account data.
-  const [state] = await tx.$queryRaw<Array<{ present: boolean }>>`SELECT to_regclass('public."ContentChange"') IS NOT NULL AS present`;
+  const [state] = await tx.$queryRaw<
+    Array<{ present: boolean }>
+  >`SELECT to_regclass('public."ContentChange"') IS NOT NULL AS present`;
   if (!state?.present) return new Set(["*"]);
   const sources: Record<string, string[]> = {
     News: ["imageUrl", "content", "excerpt", "pendingRevision"],
     Event: ["imageUrl", "description", "linkUrl"],
-    MemberProfile: ["photoUrl", "detailUrl", "googleScholarUrl", "scopusUrl", "orcidUrl"],
+    MemberProfile: [
+      "photoUrl",
+      "detailUrl",
+      "googleScholarUrl",
+      "scopusUrl",
+      "orcidUrl",
+    ],
     University: ["logoUrl", "description", "deptUrl", "websiteUrl"],
     Publication: ["fileUrl", "externalUrl", "description"],
     Gallery: ["mediaUrl", "description"],
@@ -220,10 +282,12 @@ async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>>
   };
   for (const [model, columns] of Object.entries(sources)) {
     // Identifiers are the fixed schema allowlist above, never request input.
-    const fields = Prisma.join(columns.map(column => Prisma.raw(`"${column}"`)));
+    const fields = Prisma.join(
+      columns.map((column) => Prisma.raw(`"${column}"`)),
+    );
     const table = Prisma.raw(`"${model}"`);
     const rows = await tx.$queryRaw<Array<{ value: string }>>(
-      Prisma.sql`SELECT jsonb_build_array(${fields})::text AS value FROM ${table}`
+      Prisma.sql`SELECT jsonb_build_array(${fields})::text AS value FROM ${table}`,
     );
 
     for (const row of rows) {
@@ -231,16 +295,16 @@ async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>>
 
       for (let pass = 0; pass < 8; pass++) {
         const decoded = normalized
-          .replace(
-            /%([a-f0-9]{2})/gi,
-            (_, hex: string) => String.fromCharCode(parseInt(hex, 16))
+          .replace(/%([a-f0-9]{2})/gi, (_, hex: string) =>
+            String.fromCharCode(parseInt(hex, 16)),
           )
           .replace(/&amp;/gi, "&")
           .replace(/&(?:hyphen|dash);/gi, "-")
           .replace(/&#(x[a-f0-9]+|[0-9]+);?/gi, (_, code: string) => {
-            const number = code[0].toLowerCase() === "x"
-              ? parseInt(code.slice(1), 16)
-              : parseInt(code, 10);
+            const number =
+              code[0].toLowerCase() === "x"
+                ? parseInt(code.slice(1), 16)
+                : parseInt(code, 10);
 
             return number <= 0x10ffff ? String.fromCodePoint(number) : "";
           });
@@ -257,7 +321,9 @@ async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>>
         ids.add("*");
       }
 
-      for (const match of normalized.matchAll(/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/gi)) {
+      for (const match of normalized.matchAll(
+        /[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/gi,
+      )) {
         ids.add(match[0].toLowerCase());
       }
     }
@@ -269,13 +335,15 @@ async function referencedIds(tx: Prisma.TransactionClient): Promise<Set<string>>
 async function cleanupLocked(files: Iterable<string>): Promise<CleanupResult> {
   // Production must explicitly confirm that every writer uses this same volume
   // and lifecycle helper. Independent instance disks cannot safely delete media.
-  const enabled = process.env.NODE_ENV === "development" || process.env.MEDIA_SHARED_STORAGE === "true";
+  const enabled =
+    process.env.NODE_ENV === "development" ||
+    process.env.MEDIA_SHARED_STORAGE === "true";
 
   const result = {
     enabled,
     deleted: 0,
     retained: 0,
-    failed: 0
+    failed: 0,
   };
 
   const candidates = new Set(files);
@@ -284,69 +352,81 @@ async function cleanupLocked(files: Iterable<string>): Promise<CleanupResult> {
     return result;
   }
 
-  await prisma.$transaction(async (tx) => {
-    await databaseLock(tx);
+  await prisma.$transaction(
+    async (tx) => {
+      await databaseLock(tx);
 
-    const references = enabled
-      ? await referencedIds(tx)
-      : new Set<string>();
+      const references = enabled ? await referencedIds(tx) : new Set<string>();
 
-    for (const filename of candidates) {
-      if (!FILE_NAME.test(filename)) {
-        continue;
-      }
-
-      try {
-        const entry = await metadata(filename);
-
-        if (!enabled || references.has("*") || references.has(filename.split(".")[0]) || !entry) {
-          result.retained++;
+      for (const filename of candidates) {
+        if (!FILE_NAME.test(filename)) {
           continue;
         }
-
-        if (entry.deletedAt !== null) {
-          continue;
-        }
-
-        await safeDirectory(uploadDir);
-
-        const target = path.join(uploadDir, filename);
-        let deleted = false;
 
         try {
-          const stat = await lstat(/* turbopackIgnore: true */ target);
+          const entry = await metadata(filename);
 
-          if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1) {
-            throw new Error("Unsafe media file");
+          if (
+            !enabled ||
+            references.has("*") ||
+            references.has(filename.split(".")[0]) ||
+            !entry
+          ) {
+            result.retained++;
+            continue;
           }
 
-          await unlink(target);
-          deleted = true;
+          if (entry.deletedAt !== null) {
+            continue;
+          }
+
+          await safeDirectory(uploadDir);
+
+          const target = path.join(uploadDir, filename);
+          let deleted = false;
+
+          try {
+            const stat = await lstat(/* turbopackIgnore: true */ target);
+
+            if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1) {
+              throw new Error("Unsafe media file");
+            }
+
+            await unlink(target);
+            deleted = true;
+          } catch (error) {
+            if (!isMissing(error)) {
+              throw error;
+            }
+          }
+
+          // Keep ownership tombstones: saving a URL after cleanup must fail,
+          // rather than silently accepting a dangling managed reference.
+          await writeFile(
+            path.join(metadataDir, `${filename}.json`),
+            JSON.stringify({ ...entry, deletedAt: Date.now() }),
+          );
+
+          if (deleted) {
+            result.deleted++;
+          }
         } catch (error) {
-          if (!isMissing(error)) {
-            throw error;
-          }
+          result.failed++;
+          console.error(
+            "[media] Cleanup failed; file retained where possible:",
+            filename,
+            error,
+          );
         }
-
-        // Keep ownership tombstones: saving a URL after cleanup must fail,
-        // rather than silently accepting a dangling managed reference.
-        await writeFile(
-          path.join(metadataDir, `${filename}.json`),
-          JSON.stringify({ ...entry, deletedAt: Date.now() })
-        );
-
-        if (deleted) {
-          result.deleted++;
-        }
-      } catch (error) {
-        result.failed++;
-        console.error("[media] Cleanup failed; file retained where possible:", filename, error);
       }
-    }
-  }, { timeout: 30000 });
+    },
+    { timeout: 30000 },
+  );
 
   if (!enabled && result.retained) {
-    console.warn("[media] Physical cleanup disabled: shared persistent storage has not been confirmed.");
+    console.warn(
+      "[media] Physical cleanup disabled: shared persistent storage has not been confirmed.",
+    );
   }
 
   return result;
@@ -356,7 +436,9 @@ export async function mutateWithMedia<T>(
   incoming: unknown,
   mutation: (tx: Prisma.TransactionClient) => Promise<T>,
   previous?: (tx: Prisma.TransactionClient) => Promise<unknown>,
-  transactionOptions: { isolationLevel?: Prisma.TransactionIsolationLevel } = {},
+  transactionOptions: {
+    isolationLevel?: Prisma.TransactionIsolationLevel;
+  } = {},
 ): Promise<T> {
   return withStorageLock(async () => {
     const committed = await prisma.$transaction(async (tx) => {
@@ -379,7 +461,7 @@ export async function mutateWithMedia<T>(
         if (entry && entry.deletedAt === null && entry.releasedAt === null) {
           await writeFile(
             path.join(metadataDir, `${filename}.json`),
-            JSON.stringify({ ...entry, releasedAt: Date.now() })
+            JSON.stringify({ ...entry, releasedAt: Date.now() }),
           );
         }
       }
@@ -396,7 +478,7 @@ export async function mutateWithMedia<T>(
 export async function storeManagedUpload(
   buffer: Buffer,
   extension: string,
-  owner: string
+  owner: string,
 ): Promise<string> {
   if (!/^(png|jpe?g|webp)$/.test(extension)) {
     throw new Error("Invalid media extension");
@@ -410,16 +492,12 @@ export async function storeManagedUpload(
     // Claim ownership only after an exclusive successful write. Even a UUID
     // collision must never adopt an existing static/unmanaged file for deletion.
     // Failed/partial writes or failed metadata writes remain unowned and retained.
-    await writeFile(
-      path.join(uploadDir, filename),
-      buffer,
-      { flag: "wx" }
-    );
+    await writeFile(path.join(uploadDir, filename), buffer, { flag: "wx" });
 
     await writeFile(
       path.join(metadataDir, `${filename}.json`),
       JSON.stringify({ owner, releasedAt: null, deletedAt: null }),
-      { flag: "wx" }
+      { flag: "wx" },
     );
 
     return `${PREFIX}${filename}`;
@@ -428,13 +506,11 @@ export async function storeManagedUpload(
 
 export async function releaseManagedUploads(
   urls: string[],
-  owner: string
+  owner: string,
 ): Promise<void> {
   await withStorageLock(async () => {
     for (const url of urls) {
-      const filename = url.startsWith(PREFIX)
-        ? url.slice(PREFIX.length)
-        : "";
+      const filename = url.startsWith(PREFIX) ? url.slice(PREFIX.length) : "";
 
       if (!FILE_NAME.test(filename)) {
         continue;
@@ -442,13 +518,18 @@ export async function releaseManagedUploads(
 
       const entry = await metadata(filename);
 
-      if (!entry || entry.owner !== owner || entry.releasedAt !== null || entry.deletedAt !== null) {
+      if (
+        !entry ||
+        entry.owner !== owner ||
+        entry.releasedAt !== null ||
+        entry.deletedAt !== null
+      ) {
         continue;
       }
 
       await writeFile(
         path.join(metadataDir, `${filename}.json`),
-        JSON.stringify({ ...entry, releasedAt: Date.now() })
+        JSON.stringify({ ...entry, releasedAt: Date.now() }),
       );
     }
   });
@@ -459,9 +540,7 @@ export async function cleanupReleasedUploads(): Promise<CleanupResult> {
     const files: string[] = [];
 
     for (const name of await readdir(/* turbopackIgnore: true */ metadataDir)) {
-      const filename = name.endsWith(".json")
-        ? name.slice(0, -5)
-        : "";
+      const filename = name.endsWith(".json") ? name.slice(0, -5) : "";
 
       if (!FILE_NAME.test(filename)) {
         continue;

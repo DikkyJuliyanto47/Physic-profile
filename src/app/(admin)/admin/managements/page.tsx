@@ -1,5 +1,9 @@
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -17,17 +21,32 @@ function formatDate(date: Date): string {
   }).format(new Date(date));
 }
 
-export default async function ManagementPage({ searchParams }: {
-  searchParams: Promise<{ result?: string; page?: string; positionsPage?: string }>;
+export default async function ManagementPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    result?: string;
+    page?: string;
+    positionsPage?: string;
+  }>;
 }) {
   const params = await searchParams;
   const session = await requireAdmin();
   if (!session) redirect("/login");
-  const versions = await contentVersions(["managementPeriod", "managementPosition"]);
+  const versions = await contentVersions([
+    "managementPeriod",
+    "managementPosition",
+  ]);
   const scope = await ownedContentWhere("managementPeriod", session.user);
-  const positionScope = await ownedContentWhere("managementPosition", session.user);
+  const positionScope = await ownedContentWhere(
+    "managementPosition",
+    session.user,
+  );
   const total = await prisma.managementPeriod.count({ where: scope });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
   const [periods, activePeriod] = await Promise.all([
     prisma.managementPeriod.findMany({
       where: scope,
@@ -44,25 +63,46 @@ export default async function ManagementPage({ searchParams }: {
     }),
   ]);
   const selectedPeriod = activePeriod ?? periods[0] ?? null;
-  const positionWhere = { ...positionScope, periodId: selectedPeriod?.id ?? "" };
-  const positionsTotal = await prisma.managementPosition.count({ where: positionWhere });
-  const positionsPage = Math.min(adminPage(params.positionsPage), Math.max(1, Math.ceil(positionsTotal / ADMIN_PAGE_SIZE)));
-  const positions = selectedPeriod ? await prisma.managementPosition.findMany({
+  const positionWhere = {
+    ...positionScope,
+    periodId: selectedPeriod?.id ?? "",
+  };
+  const positionsTotal = await prisma.managementPosition.count({
     where: positionWhere,
-    take: ADMIN_PAGE_SIZE,
-    skip: (positionsPage - 1) * ADMIN_PAGE_SIZE,
-    orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
-    include: { memberProfile: { include: { institution: { select: { id: true, name: true, shortName: true } } } } },
-  }) : [];
+  });
+  const positionsPage = Math.min(
+    adminPage(params.positionsPage),
+    Math.max(1, Math.ceil(positionsTotal / ADMIN_PAGE_SIZE)),
+  );
+  const positions = selectedPeriod
+    ? await prisma.managementPosition.findMany({
+        where: positionWhere,
+        take: ADMIN_PAGE_SIZE,
+        skip: (positionsPage - 1) * ADMIN_PAGE_SIZE,
+        orderBy: [{ order: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+        include: {
+          memberProfile: {
+            include: {
+              institution: {
+                select: { id: true, name: true, shortName: true },
+              },
+            },
+          },
+        },
+      })
+    : [];
 
   return (
     <div className="space-y-6">
       <ContentFeedback result={params.result} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kepengurusan</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            Kepengurusan
+          </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola periode dan struktur kepengurusan Physical Society of Indonesia Cabang Surabaya.
+            Kelola periode dan struktur kepengurusan Physical Society of
+            Indonesia Cabang Surabaya.
           </p>
         </div>
 
@@ -70,8 +110,18 @@ export default async function ManagementPage({ searchParams }: {
           href="/admin/managements/create"
           className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-600 px-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           Tambah Periode
         </Link>
@@ -102,8 +152,12 @@ export default async function ManagementPage({ searchParams }: {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
         <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
           <div className="border-b border-neutral-200 px-5 py-4">
-            <h2 className="text-base font-semibold text-neutral-900">Daftar Periode</h2>
-            <p className="mt-0.5 text-xs text-neutral-500">Riwayat periode kepengurusan.</p>
+            <h2 className="text-base font-semibold text-neutral-900">
+              Daftar Periode
+            </h2>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Riwayat periode kepengurusan.
+            </p>
           </div>
 
           {periods.length === 0 ? (
@@ -116,7 +170,9 @@ export default async function ManagementPage({ searchParams }: {
                 <div
                   key={period.id}
                   className={`px-5 py-4 transition-colors ${
-                    period.isActive ? "bg-primary-50/40" : "hover:bg-neutral-50/70"
+                    period.isActive
+                      ? "bg-primary-50/40"
+                      : "hover:bg-neutral-50/70"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -134,12 +190,17 @@ export default async function ManagementPage({ searchParams }: {
                       </div>
 
                       <p className="mt-1 text-xs text-neutral-500">
-                        {period.positions.length} posisi · {formatDate(period.createdAt)}
+                        {period.positions.length} posisi ·{" "}
+                        {formatDate(period.createdAt)}
                       </p>
                     </div>
 
                     <ManagementActions
-                      expectedVersion={contentVersion("managementPeriod", period, versions)}
+                      expectedVersion={contentVersion(
+                        "managementPeriod",
+                        period,
+                        versions,
+                      )}
                       periodId={period.id}
                       periodName={period.period}
                       isActive={period.isActive}
@@ -150,15 +211,24 @@ export default async function ManagementPage({ searchParams }: {
               ))}
             </div>
           )}
-          <AdminPagination page={page} total={total} params={{ ...params, positionsPage: undefined }} label="Periode" />
+          <AdminPagination
+            page={page}
+            total={total}
+            params={{ ...params, positionsPage: undefined }}
+            label="Periode"
+          />
         </section>
 
         <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
           <div className="flex flex-col gap-3 border-b border-neutral-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-base font-semibold text-neutral-900">Struktur Kepengurusan</h2>
+              <h2 className="text-base font-semibold text-neutral-900">
+                Struktur Kepengurusan
+              </h2>
               <p className="mt-0.5 text-xs text-neutral-500">
-                {selectedPeriod ? selectedPeriod.period : "Belum ada periode dipilih"}
+                {selectedPeriod
+                  ? selectedPeriod.period
+                  : "Belum ada periode dipilih"}
               </p>
             </div>
 
@@ -190,9 +260,15 @@ export default async function ManagementPage({ searchParams }: {
               <table className="w-full min-w-180 text-left text-sm">
                 <thead>
                   <tr className="border-b border-neutral-200 bg-neutral-50/70">
-                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Anggota</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Jabatan</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">Departemen</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">
+                      Anggota
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">
+                      Jabatan
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-neutral-600">
+                      Departemen
+                    </th>
                     <th className="w-20 px-5 py-3 text-center text-xs font-semibold text-neutral-600">
                       Urutan
                     </th>
@@ -221,7 +297,9 @@ export default async function ManagementPage({ searchParams }: {
                             </p>
                           </div>
                         ) : (
-                          <span className="text-neutral-400">Belum ditentukan</span>
+                          <span className="text-neutral-400">
+                            Belum ditentukan
+                          </span>
                         )}
                       </td>
 
@@ -239,7 +317,11 @@ export default async function ManagementPage({ searchParams }: {
 
                       <td className="px-5 py-3.5 text-right">
                         <ManagementPositionActions
-                          expectedVersion={contentVersion("managementPosition", position, versions)}
+                          expectedVersion={contentVersion(
+                            "managementPosition",
+                            position,
+                            versions,
+                          )}
                           positionId={position.id}
                           positionTitle={position.title}
                         />
@@ -250,7 +332,13 @@ export default async function ManagementPage({ searchParams }: {
               </table>
             </div>
           )}
-          <AdminPagination page={positionsPage} total={positionsTotal} params={params} pageKey="positionsPage" label="Posisi" />
+          <AdminPagination
+            page={positionsPage}
+            total={positionsTotal}
+            params={params}
+            pageKey="positionsPage"
+            label="Posisi"
+          />
         </section>
       </div>
     </div>

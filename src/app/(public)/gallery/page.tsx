@@ -8,20 +8,26 @@ import {
   GalleryContributionCta,
 } from "@/components/features/gallery";
 
-export const metadata = publicMetadata("Galeri PSI Surabaya", "Dokumentasi foto dan video kegiatan Physical Society of Indonesia Cabang Surabaya.", "/gallery");
+export const metadata = publicMetadata(
+  "Galeri PSI Surabaya",
+  "Dokumentasi foto dan video kegiatan Physical Society of Indonesia Cabang Surabaya.",
+  "/gallery",
+);
 
 export default async function GaleriPage() {
   const documentationItems = await getGallery();
 
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Galeri", path: "/gallery" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Galeri", path: "/gallery" },
+        ]}
+      />
       <PublicPageShell
         title="Dokumentasi Kegiatan Physical Society of Indonesia Cabang Surabaya"
-        breadcrumbs={[
-          { label: "Beranda", href: "/" },
-          { label: "Galeri" },
-        ]}
+        breadcrumbs={[{ label: "Beranda", href: "/" }, { label: "Galeri" }]}
         navItems={[
           { label: "Semua", href: "#semua" },
           { label: "Foto", href: "#foto" },

@@ -18,7 +18,9 @@ export function isMockAuthEnabled(): boolean {
   );
 }
 
-export function getMockAuthCookieValue(cookieHeader?: string | null): string | undefined {
+export function getMockAuthCookieValue(
+  cookieHeader?: string | null,
+): string | undefined {
   if (!cookieHeader) {
     return undefined;
   }
@@ -37,9 +39,9 @@ export function hasMockAuthCookieValue(cookieValue?: string | null): boolean {
   return getMockAuthCookieValue(cookieValue) === "true";
 }
 
-export function hasMockAuthCookieStore(
-  cookiesLike?: { get?: (name: string) => { value?: string } | undefined },
-): boolean {
+export function hasMockAuthCookieStore(cookiesLike?: {
+  get?: (name: string) => { value?: string } | undefined;
+}): boolean {
   const value = cookiesLike?.get?.(MOCK_AUTH_COOKIE_NAME)?.value;
   return value === "true";
 }

@@ -9,7 +9,11 @@ function normalizeSearch(value: string): string {
   return value.trim().replace(/\s+/g, " ");
 }
 
-export const metadata = publicMetadata("Kepengurusan PSI Surabaya", "Struktur kepengurusan dan jabatan pengurus Physical Society of Indonesia Cabang Surabaya pada periode aktif.", "/managements");
+export const metadata = publicMetadata(
+  "Kepengurusan PSI Surabaya",
+  "Struktur kepengurusan dan jabatan pengurus Physical Society of Indonesia Cabang Surabaya pada periode aktif.",
+  "/managements",
+);
 
 export default async function Page({
   searchParams,
@@ -22,19 +26,26 @@ export default async function Page({
   const keyword = query.toLowerCase();
   const groups = await getActiveManagement();
   const managementGroups = keyword
-    ? groups.map((group) => ({
-        ...group,
-        members: group.members.filter((member) =>
-          [member.name, member.role].some((value) =>
-            normalizeSearch(value).toLowerCase().includes(keyword),
+    ? groups
+        .map((group) => ({
+          ...group,
+          members: group.members.filter((member) =>
+            [member.name, member.role].some((value) =>
+              normalizeSearch(value).toLowerCase().includes(keyword),
+            ),
           ),
-        ),
-      })).filter((group) => group.members.length > 0)
+        }))
+        .filter((group) => group.members.length > 0)
     : groups;
 
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Kepengurusan", path: "/managements" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Kepengurusan", path: "/managements" },
+        ]}
+      />
       <PublicPageShell
         title="Kepengurusan Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[

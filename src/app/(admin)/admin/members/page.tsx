@@ -1,5 +1,9 @@
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,7 +17,12 @@ import { ownedContentWhere } from "@/lib/content-approval";
 export default async function MembersListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ result?: string; page?: string; q?: string; universityId?: string }>;
+  searchParams: Promise<{
+    result?: string;
+    page?: string;
+    q?: string;
+    universityId?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { q, universityId } = params;
@@ -21,7 +30,10 @@ export default async function MembersListPage({
   if (!session) redirect("/login");
   const versions = await contentVersions(["member"]);
 
-  const where: Prisma.MemberProfileWhereInput = await ownedContentWhere("member", session.user);
+  const where: Prisma.MemberProfileWhereInput = await ownedContentWhere(
+    "member",
+    session.user,
+  );
 
   if (q) {
     where.OR = [
@@ -36,7 +48,10 @@ export default async function MembersListPage({
   }
 
   const total = await prisma.memberProfile.count({ where });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
 
   const [members, universities] = await Promise.all([
     prisma.memberProfile.findMany({
@@ -178,7 +193,7 @@ export default async function MembersListPage({
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                        <td
+                    <td
                       colSpan={4}
                       className="px-5 py-14 text-center text-sm text-neutral-500"
                     >
@@ -251,11 +266,13 @@ export default async function MembersListPage({
                           )}
                         </td>
 
-
-
                         <td className="px-5 py-3.5 text-right">
                           <MemberActions
-                            expectedVersion={contentVersion("member", member, versions)}
+                            expectedVersion={contentVersion(
+                              "member",
+                              member,
+                              versions,
+                            )}
                             memberId={member.id}
                             memberName={member.name}
                           />

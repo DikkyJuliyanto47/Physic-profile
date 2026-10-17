@@ -5,11 +5,7 @@ import { useState } from "react";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { AdminTopbar } from "@/components/layout/AdminTopbar";
 
-export function AdminLayoutClient({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarPinned, setSidebarPinned] = useState(true);
 

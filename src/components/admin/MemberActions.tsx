@@ -24,7 +24,14 @@ export function MemberActions({
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
-  const confirmRef = useDialogAccessibility(showConfirm, () => { setShowConfirm(false); setError(""); }, isPending);
+  const confirmRef = useDialogAccessibility(
+    showConfirm,
+    () => {
+      setShowConfirm(false);
+      setError("");
+    },
+    isPending,
+  );
 
   function handleDelete() {
     setError("");
@@ -33,18 +40,29 @@ export function MemberActions({
       let result: Awaited<ReturnType<typeof deleteMember>>;
       try {
         result = await deleteMember(memberId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         setShowConfirm(false);
         const url = new URL(window.location.href);
         url.searchParams.set("result", "deleted");
@@ -80,7 +98,14 @@ export function MemberActions({
       </div>
 
       {showConfirm && (
-        <dialog ref={confirmRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-delete`} tabIndex={-1} className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+        <dialog
+          ref={confirmRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${dialogId}-delete`}
+          tabIndex={-1}
+          className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+        >
           <div className="w-full max-w-md overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
             <div className="border-b border-neutral-100 px-5 py-4 sm:px-6">
               <div className="flex items-start justify-between gap-4">
@@ -88,7 +113,10 @@ export function MemberActions({
                   <p className="text-xs font-semibold uppercase tracking-wide text-red-600">
                     Konfirmasi
                   </p>
-                  <h2 id={`${dialogId}-delete`} className="mt-1 text-lg font-bold tracking-tight text-neutral-900">
+                  <h2
+                    id={`${dialogId}-delete`}
+                    className="mt-1 text-lg font-bold tracking-tight text-neutral-900"
+                  >
                     Hapus Anggota?
                   </h2>
                 </div>

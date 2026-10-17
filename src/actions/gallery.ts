@@ -15,15 +15,24 @@ export type GalleryInput = {
 
 export type ActionResponse = ContentResult;
 
-export async function createGallery(data: GalleryInput): Promise<ActionResponse> {
+export async function createGallery(
+  data: GalleryInput,
+): Promise<ActionResponse> {
   return submitContent("gallery", "CREATE", null, data);
 }
 
-export async function updateGallery(id: string, data: GalleryInput, version: ContentVersion): Promise<ActionResponse> {
+export async function updateGallery(
+  id: string,
+  data: GalleryInput,
+  version: ContentVersion,
+): Promise<ActionResponse> {
   return submitContent("gallery", "UPDATE", id, data, false, version);
 }
 
-export async function deleteGallery(id: string, version: ContentVersion): Promise<ActionResponse> {
+export async function deleteGallery(
+  id: string,
+  version: ContentVersion,
+): Promise<ActionResponse> {
   return submitContent("gallery", "DELETE", id, {}, false, version);
 }
 export const createGalleryItem = createGallery;

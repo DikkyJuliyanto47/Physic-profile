@@ -37,18 +37,29 @@ export function ManagementActions({
       let result: Awaited<ReturnType<typeof setActiveManagementPeriod>>;
       try {
         result = await setActiveManagementPeriod(periodId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         const url = new URL(window.location.href);
         url.searchParams.set("result", "status-updated");
         router.replace(url.pathname + url.search, { scroll: false });
@@ -66,18 +77,29 @@ export function ManagementActions({
       let result: Awaited<ReturnType<typeof deleteManagementPeriod>>;
       try {
         result = await deleteManagementPeriod(periodId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         setConfirmDelete(false);
         const url = new URL(window.location.href);
         url.searchParams.set("result", "deleted");
@@ -120,7 +142,10 @@ export function ManagementActions({
       </div>
 
       {error && !confirmDelete && (
-        <div role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {error}
         </div>
       )}
@@ -128,12 +153,14 @@ export function ManagementActions({
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
           <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
-            <h3 className="text-lg font-semibold text-neutral-900">Hapus Periode?</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">
+              Hapus Periode?
+            </h3>
 
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              Apakah Anda yakin ingin menghapus <strong>{periodName}</strong>? Semua posisi
-              yang terkait juga akan ikut terhapus. Sebanyak {positionCount} posisi akan
-              dihapus.
+              Apakah Anda yakin ingin menghapus <strong>{periodName}</strong>?
+              Semua posisi yang terkait juga akan ikut terhapus. Sebanyak{" "}
+              {positionCount} posisi akan dihapus.
             </p>
 
             {error && (

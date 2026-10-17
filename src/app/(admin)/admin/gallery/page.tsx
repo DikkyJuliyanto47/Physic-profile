@@ -1,5 +1,9 @@
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,15 +26,18 @@ function getYouTubeThumbnail(url: string): string | null {
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
   );
 
-  return match
-    ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
-    : null;
+  return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : null;
 }
 
 export default async function GalleryListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ result?: string; page?: string; q?: string; category?: string }>;
+  searchParams: Promise<{
+    result?: string;
+    page?: string;
+    q?: string;
+    category?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { q, category } = params;
@@ -53,7 +60,10 @@ export default async function GalleryListPage({
   }
 
   const total = await prisma.gallery.count({ where });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
 
   const [items, categories] = await Promise.all([
     prisma.gallery.findMany({
@@ -75,11 +85,10 @@ export default async function GalleryListPage({
       <ContentFeedback result={params.result} />
       <div className="flex flex-col gap-4 border-b border-neutral-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">
-            Galeri
-          </h1>
+          <h1 className="text-2xl font-bold text-neutral-900">Galeri</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola foto dan video dokumentasi Physical Society of Indonesia Cabang Surabaya.
+            Kelola foto dan video dokumentasi Physical Society of Indonesia
+            Cabang Surabaya.
           </p>
         </div>
 
@@ -214,7 +223,11 @@ export default async function GalleryListPage({
 
                     <div className="absolute inset-x-0 bottom-0 flex justify-end bg-linear-to-t from-black/55 to-transparent px-2 pb-2 pt-8 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                       <GalleryActions
-                        expectedVersion={contentVersion("gallery", item, versions)}
+                        expectedVersion={contentVersion(
+                          "gallery",
+                          item,
+                          versions,
+                        )}
                         itemId={item.id}
                         itemTitle={item.title}
                         mediaType={item.mediaType}

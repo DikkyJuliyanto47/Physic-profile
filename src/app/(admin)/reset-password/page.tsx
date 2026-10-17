@@ -69,7 +69,8 @@ export default function ResetPasswordPage() {
               Pemulihan mandiri belum tersedia
             </h1>
             <p className="mt-2 text-sm leading-6 text-neutral-500">
-              Untuk memulihkan akses akun admin, hubungi pengelola sistem yang berwenang melalui prosedur pemulihan manual.
+              Untuk memulihkan akses akun admin, hubungi pengelola sistem yang
+              berwenang melalui prosedur pemulihan manual.
             </p>
           </header>
 

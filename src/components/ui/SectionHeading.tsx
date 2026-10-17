@@ -1,4 +1,3 @@
-
 import type { ReactNode } from "react";
 
 type SectionHeadingAlign = "left" | "center";
@@ -25,7 +24,7 @@ export function SectionHeading({
   const alignClasses =
     align === "center" ? "text-center items-center" : "text-left items-start";
 
-  const titleSizeClasses = 
+  const titleSizeClasses =
     size === "large" ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl";
 
   return (

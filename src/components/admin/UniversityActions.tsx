@@ -28,7 +28,14 @@ export function UniversityActions({
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
-  const confirmRef = useDialogAccessibility(showConfirm, () => { setShowConfirm(false); setError(""); }, isPending);
+  const confirmRef = useDialogAccessibility(
+    showConfirm,
+    () => {
+      setShowConfirm(false);
+      setError("");
+    },
+    isPending,
+  );
 
   function handleDelete() {
     setError("");
@@ -37,18 +44,29 @@ export function UniversityActions({
       let result: Awaited<ReturnType<typeof deleteUniversity>>;
       try {
         result = await deleteUniversity(universityId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         setShowConfirm(false);
         const url = new URL(window.location.href);
         url.searchParams.set("result", "deleted");
@@ -61,79 +79,87 @@ export function UniversityActions({
   }
 
   return (
-  <>
-    <div className="inline-flex items-center justify-end text-xs">
-      <Link
-        href={`/admin/universities/${universityId}/edit`}
-        className="font-medium text-neutral-600 transition-colors hover:text-primary-600"
-      >
-        Edit
-      </Link>
+    <>
+      <div className="inline-flex items-center justify-end text-xs">
+        <Link
+          href={`/admin/universities/${universityId}/edit`}
+          className="font-medium text-neutral-600 transition-colors hover:text-primary-600"
+        >
+          Edit
+        </Link>
 
-      <span className="mx-2 h-3.5 w-px bg-neutral-200" aria-hidden="true" />
+        <span className="mx-2 h-3.5 w-px bg-neutral-200" aria-hidden="true" />
 
-      <button
-        type="button"
-        onClick={() => setShowConfirm(true)}
-        disabled={memberCount > 0}
-        className="font-medium text-red-600 transition-colors hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-40"
-        title={
-          memberCount > 0
-            ? "Hapus anggota terlebih dahulu"
-            : "Hapus kampus"
-        }
-      >
-        Hapus
-      </button>
-    </div>
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          disabled={memberCount > 0}
+          className="font-medium text-red-600 transition-colors hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-40"
+          title={
+            memberCount > 0 ? "Hapus anggota terlebih dahulu" : "Hapus kampus"
+          }
+        >
+          Hapus
+        </button>
+      </div>
 
-    {showConfirm && (
-      <dialog ref={confirmRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-delete`} tabIndex={-1} className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-        <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
-          <h3 id={`${dialogId}-delete`} className="text-lg font-semibold text-neutral-900">
-            Hapus Kampus?
-          </h3>
+      {showConfirm && (
+        <dialog
+          ref={confirmRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${dialogId}-delete`}
+          tabIndex={-1}
+          className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+        >
+          <div className="w-full max-w-md rounded-lg border border-neutral-200 bg-white p-6 shadow-elevated">
+            <h3
+              id={`${dialogId}-delete`}
+              className="text-lg font-semibold text-neutral-900"
+            >
+              Hapus Kampus?
+            </h3>
 
-          <p className="mt-2 text-sm leading-6 text-neutral-600">
-            Apakah Anda yakin ingin menghapus{" "}
-            <strong className="font-semibold text-neutral-900">
-              {universityName}
-            </strong>
-            ? Tindakan ini tidak dapat dibatalkan.
-          </p>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">
+              Apakah Anda yakin ingin menghapus{" "}
+              <strong className="font-semibold text-neutral-900">
+                {universityName}
+              </strong>
+              ? Tindakan ini tidak dapat dibatalkan.
+            </p>
 
-          {error && (
-            <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
+            {error && (
+              <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                data-dialog-initial-focus
+                onClick={() => {
+                  setShowConfirm(false);
+                  setError("");
+                }}
+                disabled={isPending}
+                className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isPending}
+                className="h-10 rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isPending ? "Menghapus..." : "Ya, Hapus"}
+              </button>
             </div>
-          )}
-
-          <div className="mt-6 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              data-dialog-initial-focus
-              onClick={() => {
-                setShowConfirm(false);
-                setError("");
-              }}
-              disabled={isPending}
-              className="h-10 rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-            >
-              Batal
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isPending}
-              className="h-10 rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isPending ? "Menghapus..." : "Ya, Hapus"}
-            </button>
           </div>
-        </div>
-      </dialog>
-    )}
-  </>
-);
+        </dialog>
+      )}
+    </>
+  );
 }

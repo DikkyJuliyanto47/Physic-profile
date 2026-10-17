@@ -59,7 +59,7 @@ export function ManagementPositionForm({
 
     try {
       const orderNumber = Number(form.order);
-      
+
       const payload = {
         periodId,
         memberProfileId: form.memberProfileId || null,
@@ -71,23 +71,30 @@ export function ManagementPositionForm({
       const result: ActionResponse =
         mode === "create"
           ? await createManagementPosition(payload)
-          : await updateManagementPosition(initialData!.id, payload, draftVersion!);
+          : await updateManagementPosition(
+              initialData!.id,
+              payload,
+              draftVersion!,
+            );
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : `/admin/managements/${periodId}/edit?result=saved`);
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : `/admin/managements/${periodId}/edit?result=saved`,
+      );
       router.refresh();
     } catch (error) {
       console.error("[ManagementPositionForm] Submit gagal:", error);
       setError(
-      "Koneksi atau layanan bermasalah. Periksa daftar jabatan sebelum mencoba menyimpan kembali."
-    );
-
-      } finally {
-        setIsSubmitting(false);
+        "Koneksi atau layanan bermasalah. Periksa daftar jabatan sebelum mencoba menyimpan kembali.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -101,7 +108,10 @@ export function ManagementPositionForm({
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label htmlFor={`${formId}-memberProfileId`} className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-memberProfileId`}
+            className="mb-1.5 block text-sm font-medium text-neutral-700"
+          >
             Anggota <span className="text-neutral-400">(opsional)</span>
           </label>
 
@@ -126,14 +136,19 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label htmlFor={`${formId}-title`} className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-title`}
+            className="mb-1.5 block text-sm font-medium text-neutral-700"
+          >
             Jabatan <span className="text-red-500">*</span>
           </label>
 
           <input
             id={`${formId}-title`}
             value={form.title}
-            onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, title: e.target.value }))
+            }
             required
             placeholder="Ketua Umum"
             className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
@@ -141,7 +156,10 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label htmlFor={`${formId}-department`} className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-department`}
+            className="mb-1.5 block text-sm font-medium text-neutral-700"
+          >
             Departemen
           </label>
 
@@ -157,7 +175,10 @@ export function ManagementPositionForm({
         </div>
 
         <div>
-          <label htmlFor={`${formId}-order`} className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-order`}
+            className="mb-1.5 block text-sm font-medium text-neutral-700"
+          >
             Urutan <span className="text-red-500">*</span>
           </label>
 
@@ -165,7 +186,9 @@ export function ManagementPositionForm({
             id={`${formId}-order`}
             type="number"
             value={form.order}
-            onChange={(e) => setForm((prev) => ({ ...prev, order: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, order: e.target.value }))
+            }
             min={0}
             required
             className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"

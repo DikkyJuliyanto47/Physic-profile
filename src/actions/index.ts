@@ -1,6 +1,15 @@
-export { createUniversity, updateUniversity, deleteUniversity } from "./university";
+export {
+  createUniversity,
+  updateUniversity,
+  deleteUniversity,
+} from "./university";
 export { createNews, updateNews, deleteNews, toggleNewsStatus } from "./news";
-export { createEvent, updateEvent, deleteEvent, toggleEventStatus } from "./event";
+export {
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  toggleEventStatus,
+} from "./event";
 export { createMember, updateMember, deleteMember } from "./member";
 export {
   createGallery,
@@ -10,7 +19,11 @@ export {
   updateGalleryItem,
   deleteGalleryItem,
 } from "./gallery";
-export { createPublication, updatePublication, deletePublication } from "./publication";
+export {
+  createPublication,
+  updatePublication,
+  deletePublication,
+} from "./publication";
 export {
   createManagementPeriod,
   updateManagementPeriod,
