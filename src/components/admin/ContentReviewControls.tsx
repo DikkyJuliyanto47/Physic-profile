@@ -47,7 +47,7 @@ export function ContentReviewControls({
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<ContentPayload>(payload);
+  const [draft] = useState<ContentPayload>(payload);
   const permissions = contentPermissions(actor, state);
   const open =
     state.reviewStatus === "PENDING_REVIEW" ||
@@ -60,14 +60,6 @@ export function ContentReviewControls({
     return (
       choices(key).find((option) => option.id === value)?.label ?? String(value)
     );
-  }
-  function dateInput(value: unknown) {
-    if (!value) return "";
-    if (!/(?:Z|[+-]\d{2}:\d{2})$/.test(String(value))) return String(value);
-    const date = new Date(String(value));
-    return Number.isNaN(date.getTime())
-      ? String(value)
-      : new Date(date.getTime() + 7 * 3600000).toISOString().slice(0, -1);
   }
   async function run(
     decision: "approve" | "revision" | "resubmit",
@@ -151,14 +143,14 @@ export function ContentReviewControls({
             <tbody>
               {Object.entries(fields).map(([key, field]) => (
                 <tr key={key} className="border-t border-neutral-100 align-top">
-                  <th className="break-words p-3 font-medium text-neutral-700">
+                  <th className="wrap-break-word p-3 font-medium text-neutral-700">
                     {field.label}
                   </th>
-                  <td className="whitespace-pre-wrap break-words p-3 text-neutral-500">
+                  <td className="whitespace-pre-wrap wrap-break-word p-3 text-neutral-500">
                     {display(key, before?.[key])}
                   </td>
                   {operation !== "DELETE" && (
-                    <td className="whitespace-pre-wrap break-words p-3 text-neutral-900">
+                    <td className="whitespace-pre-wrap wrap-break-word p-3 text-neutral-900">
                       {display(key, payload[key])}
                     </td>
                   )}
@@ -191,11 +183,9 @@ export function ContentReviewControls({
         >
           <fieldset disabled={busy} className="grid gap-4 sm:grid-cols-2">
             {operation !== "DELETE" &&
-              Object.entries(fields).map(([key, field]) => {
+              Object.entries(fields).map(([key]) => {
                 if (key === "status" && actor.role !== "SUPER_ADMIN")
                   return null;
-                const inputId = `${fieldId}-${key}`;
-                const value = draft[key];
 
                 return;
 
