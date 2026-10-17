@@ -10,9 +10,14 @@ function releaseUploads(urls: string[]) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ urls: urls.slice(offset, offset + 50) }),
       keepalive: true,
-    }).then((response) => {
-      if (!response.ok) console.error("[media] Upload release failed:", response.status);
-    }).catch((error: unknown) => console.error("[media] Upload release failed:", error));
+    })
+      .then((response) => {
+        if (!response.ok)
+          console.error("[media] Upload release failed:", response.status);
+      })
+      .catch((error: unknown) =>
+        console.error("[media] Upload release failed:", error),
+      );
   }
 }
 

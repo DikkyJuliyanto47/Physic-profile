@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import { requireAdmin } from "@/lib/auth-utils";
-import { cleanupReleasedUploads, releaseManagedUploads, storeManagedUpload } from "@/lib/media-lifecycle";
+import {
+  cleanupReleasedUploads,
+  releaseManagedUploads,
+  storeManagedUpload,
+} from "@/lib/media-lifecycle";
 
 import { MAX_FILE_SIZE, ALLOWED_UPLOAD_TYPES } from "@/lib/upload-constraints";
 
@@ -11,7 +15,12 @@ function hasValidImageSignature(buffer: Buffer, mimeType: string): boolean {
   }
 
   if (mimeType === "image/jpeg") {
-    return buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+    return (
+      buffer.length >= 3 &&
+      buffer[0] === 0xff &&
+      buffer[1] === 0xd8 &&
+      buffer[2] === 0xff
+    );
   }
 
   return (
@@ -35,7 +44,7 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json(
         { error: "Permintaan upload tidak valid." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,7 +53,7 @@ export async function POST(req: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json(
         { error: "File tidak ditemukan." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,12 +64,15 @@ export async function POST(req: Request) {
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "Ukuran file maksimal 1 MB." },
-        { status: 413 }
+        { status: 413 },
       );
     }
 
     if (!file.name || /[\\/\u0000-\u001f\u007f]/.test(file.name)) {
-      return NextResponse.json({ error: "Nama file tidak valid." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Nama file tidak valid." },
+        { status: 400 },
+      );
     }
 
     const extension = path.extname(file.name).slice(1).toLowerCase();
@@ -68,7 +80,7 @@ export async function POST(req: Request) {
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       return NextResponse.json(
         { error: "Format file tidak didukung." },
-        { status: 415 }
+        { status: 415 },
       );
     }
 
@@ -77,7 +89,7 @@ export async function POST(req: Request) {
     if (!hasValidImageSignature(buffer, file.type)) {
       return NextResponse.json(
         { error: "Isi file tidak sesuai dengan format gambar." },
-        { status: 415 }
+        { status: 415 },
       );
     }
 
@@ -86,23 +98,19 @@ export async function POST(req: Request) {
       url = await storeManagedUpload(buffer, extension, session.user.id);
     } catch (error) {
       console.error("[upload] Failed to store media file:", error);
-      return NextResponse.json(
-        { error: "Upload gagal." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Upload gagal." }, { status: 500 });
     }
 
     // Opportunistic cleanup; its failure does not invalidate a completed upload.
-    try { await cleanupReleasedUploads(); } catch (error) {
+    try {
+      await cleanupReleasedUploads();
+    } catch (error) {
       console.error("[upload] Released upload cleanup deferred:", error);
     }
     return NextResponse.json({ url });
   } catch (error) {
     console.error("[upload] Upload failed:", error);
-    return NextResponse.json(
-      { error: "Upload gagal." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Upload gagal." }, { status: 500 });
   }
 }
 
@@ -110,12 +118,23 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await requireAdmin();
-    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    if (!session?.user?.id)
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     const body: unknown = await req.json();
-    if (!body || typeof body !== "object" || !("urls" in body) ||
-      !Array.isArray(body.urls) || body.urls.length > 50 ||
-      !body.urls.every((url: unknown) => typeof url === "string" && url.length <= 200)) {
-      return NextResponse.json({ error: "Permintaan cleanup tidak valid." }, { status: 400 });
+    if (
+      !body ||
+      typeof body !== "object" ||
+      !("urls" in body) ||
+      !Array.isArray(body.urls) ||
+      body.urls.length > 50 ||
+      !body.urls.every(
+        (url: unknown) => typeof url === "string" && url.length <= 200,
+      )
+    ) {
+      return NextResponse.json(
+        { error: "Permintaan cleanup tidak valid." },
+        { status: 400 },
+      );
     }
     await releaseManagedUploads(body.urls, session.user.id);
     return NextResponse.json({ success: true });

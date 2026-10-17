@@ -37,13 +37,19 @@ export function EventActions({
       try {
         const result = await toggleEventStatus(eventId, expectedVersion);
         if (result.success === true) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          if (result.pending) {
+            router.push("/admin/submissions?result=submitted");
+            router.refresh();
+            return;
+          }
           const url = new URL(window.location.href);
           url.searchParams.set("result", "status-updated");
           router.replace(url.pathname + url.search, { scroll: false });
           router.refresh();
         } else {
-          setToggleError(result.error || "Gagal mengubah status agenda. Silakan coba lagi.");
+          setToggleError(
+            result.error || "Gagal mengubah status agenda. Silakan coba lagi.",
+          );
         }
       } catch {
         setToggleError("Gagal mengubah status agenda. Silakan coba lagi.");
@@ -61,7 +67,11 @@ export function EventActions({
       try {
         const result = await deleteEvent(eventId, expectedVersion);
         if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          if (result.pending) {
+            router.push("/admin/submissions?result=submitted");
+            router.refresh();
+            return;
+          }
           setShowConfirm(false);
           router.push("/admin/events?result=deleted");
           router.refresh();
@@ -84,9 +94,7 @@ export function EventActions({
           onClick={handleToggle}
           disabled={isPending}
           title={
-            currentStatus === "PUBLISHED"
-              ? "Kembalikan ke draf"
-              : "Terbitkan"
+            currentStatus === "PUBLISHED" ? "Kembalikan ke draf" : "Terbitkan"
           }
           className="inline-flex h-8 w-8 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-800 disabled:opacity-50"
         >
@@ -138,7 +146,10 @@ export function EventActions({
       </div>
 
       {toggleError && (
-        <div role="alert" className="mt-4 border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mt-4 border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {toggleError}
         </div>
       )}

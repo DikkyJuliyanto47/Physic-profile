@@ -2,7 +2,11 @@
 
 import { useEffect, useRef } from "react";
 
-export function useDialogAccessibility(open: boolean, onClose: () => void, locked = false) {
+export function useDialogAccessibility(
+  open: boolean,
+  onClose: () => void,
+  locked = false,
+) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const latest = useRef({ onClose, locked });
 
@@ -14,14 +18,19 @@ export function useDialogAccessibility(open: boolean, onClose: () => void, locke
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!open || !dialog) return;
-    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const trigger =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     const cancel = (event: Event) => {
       event.preventDefault();
       if (!latest.current.locked) latest.current.onClose();
     };
     dialog.addEventListener("cancel", cancel);
     dialog.showModal();
-    (dialog.querySelector<HTMLElement>("[data-dialog-initial-focus]") ?? dialog).focus();
+    (
+      dialog.querySelector<HTMLElement>("[data-dialog-initial-focus]") ?? dialog
+    ).focus();
     return () => {
       dialog.removeEventListener("cancel", cancel);
       dialog.close();

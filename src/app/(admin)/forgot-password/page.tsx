@@ -69,7 +69,8 @@ export default function ForgotPasswordPage() {
               Pemulihan akun manual
             </h1>
             <p className="mt-2 text-sm leading-6 text-neutral-500">
-              Pemulihan kata sandi dilakukan secara manual melalui pengelola sistem yang berwenang.
+              Pemulihan kata sandi dilakukan secara manual melalui pengelola
+              sistem yang berwenang.
             </p>
           </header>
 

@@ -91,9 +91,7 @@ export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
   });
 
   function handleChange(
-    e: ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) {
     const { name, value, type } = e.target;
 
@@ -142,7 +140,8 @@ export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
     }
 
     const dotIndex = file.name.lastIndexOf(".");
-    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const extension =
+      dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
     const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setError("Format file tidak didukung.");
@@ -192,7 +191,7 @@ export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
     setIsSubmitting(true);
 
     try {
-      const result: ActionResponse = 
+      const result: ActionResponse =
         mode === "create"
           ? await createGalleryItem(form)
           : await updateGalleryItem(initialData!.id, form, draftVersion!);
@@ -202,7 +201,11 @@ export function GalleryForm({ expectedVersion, mode, initialData }: Props) {
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/gallery?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/gallery?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error("[GalleryForm] Submit gagal:", error);

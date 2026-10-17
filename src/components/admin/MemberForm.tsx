@@ -45,14 +45,20 @@ type Props = { expectedVersion?: ContentVersion } & (
       mode: "edit";
       universities: UniversityOption[];
       initialData: MemberInitialData;
-    });
+    }
+);
 
 const inputClass =
   "h-10 w-full rounded-md border border-neutral-300 bg-white px-4 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-neutral-700";
 
-export function MemberForm({ expectedVersion, mode, universities, initialData }: Props) {
+export function MemberForm({
+  expectedVersion,
+  mode,
+  universities,
+  initialData,
+}: Props) {
   const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const trackUpload = useUploadLifecycle();
@@ -70,7 +76,9 @@ export function MemberForm({ expectedVersion, mode, universities, initialData }:
     detailUrl: initialData?.detailUrl ?? "",
   });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) {
     const { name, value } = e.target;
 
     setForm((prev) => ({
@@ -104,7 +112,8 @@ export function MemberForm({ expectedVersion, mode, universities, initialData }:
     }
 
     const dotIndex = file.name.lastIndexOf(".");
-    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const extension =
+      dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
     const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setError("Format file tidak didukung.");
@@ -146,28 +155,32 @@ export function MemberForm({ expectedVersion, mode, universities, initialData }:
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isSubmitting || uploading) return;
-    
+
     setError("");
     setIsSubmitting(true);
 
     try {
-      const result: ActionResponse = 
-       mode === "create"
-        ? await createMember(form)
-        : await updateMember(initialData.id, form, draftVersion!);
+      const result: ActionResponse =
+        mode === "create"
+          ? await createMember(form)
+          : await updateMember(initialData.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/members?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/members?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error("[MemberForm] Submit gagal:", error);
       setError(
-        "Koneksi atau layanan bermasalah. Periksa daftar anggota sebelum mencoba menyimpan kembali."
-    );
+        "Koneksi atau layanan bermasalah. Periksa daftar anggota sebelum mencoba menyimpan kembali.",
+      );
     } finally {
       setIsSubmitting(false);
     }

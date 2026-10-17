@@ -13,7 +13,11 @@ function getInstitutionId(institution: string) {
     .replace(/^-|-$/g, "");
 }
 
-export const metadata = publicMetadata("Perguruan Tinggi", "Direktori perguruan tinggi dan anggota komunitas fisika PSI Cabang Surabaya.", "/universities");
+export const metadata = publicMetadata(
+  "Perguruan Tinggi",
+  "Direktori perguruan tinggi dan anggota komunitas fisika PSI Cabang Surabaya.",
+  "/universities",
+);
 
 export default async function Page() {
   const members = await getMembers();
@@ -35,16 +39,20 @@ export default async function Page() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Perguruan Tinggi", path: "/universities" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Perguruan Tinggi", path: "/universities" },
+        ]}
+      />
       <PublicPageShell
         title="Anggota Physical Society of Indonesia Cabang Surabaya"
-        breadcrumbs={[
-          { label: "Beranda", href: "/" },
-          { label: "Anggota" },
-        ]}
+        breadcrumbs={[{ label: "Beranda", href: "/" }, { label: "Anggota" }]}
         navItems={navItems}
         defaultActiveHref={
-          institutions[0] ? `#${getInstitutionId(institutions[0])}` : "#perguruan-tinggi"
+          institutions[0]
+            ? `#${getInstitutionId(institutions[0])}`
+            : "#perguruan-tinggi"
         }
       >
         <MembersSection members={members} universityDirectory={false} />

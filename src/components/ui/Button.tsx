@@ -34,7 +34,8 @@ const baseClasses =
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-primary-600 text-white hover:bg-primary-700",
   secondary: "bg-primary-950 text-white hover:bg-primary-900",
-  outline: "border border-border bg-transparent text-foreground hover:bg-background-muted",
+  outline:
+    "border border-border bg-transparent text-foreground hover:bg-background-muted",
   ghost: "text-primary-600 hover:bg-primary-50",
   white: "bg-white text-primary-600 hover:bg-neutral-100",
 };
@@ -51,7 +52,13 @@ function buildClassName(
   fullWidth: boolean,
   className?: string,
 ): string {
-  return [baseClasses, variantClasses[variant], sizeClasses[size], fullWidth ? "w-full" : "", className || ""]
+  return [
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    fullWidth ? "w-full" : "",
+    className || "",
+  ]
     .filter(Boolean)
     .join(" ");
 }
@@ -82,16 +89,27 @@ export function Button(props: ButtonProps) {
   );
 
   if (isLinkButton(props)) {
-    const { target, rel, ...anchorRest } = rest as AnchorHTMLAttributes<HTMLAnchorElement>;
+    const { target, rel, ...anchorRest } =
+      rest as AnchorHTMLAttributes<HTMLAnchorElement>;
 
     return (
-      <Link href={props.href} target={target} rel={rel} className={classes} {...anchorRest}>
+      <Link
+        href={props.href}
+        target={target}
+        rel={rel}
+        className={classes}
+        {...anchorRest}
+      >
         {content}
       </Link>
     );
   }
 
-  const { type = "button", disabled, ...buttonRest } = rest as ButtonHTMLAttributes<HTMLButtonElement>;
+  const {
+    type = "button",
+    disabled,
+    ...buttonRest
+  } = rest as ButtonHTMLAttributes<HTMLButtonElement>;
 
   return (
     <button type={type} disabled={disabled} className={classes} {...buttonRest}>

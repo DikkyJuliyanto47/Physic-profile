@@ -1,4 +1,8 @@
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import { requireAdmin } from "@/lib/auth-utils";
 import { ownedContentWhere } from "@/lib/content-approval";
@@ -87,7 +91,12 @@ function getStatusClassName(status: ContentStatus): string {
 export default async function EventsListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; status?: string; result?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    status?: string;
+    result?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { q, status, result } = params;
@@ -95,7 +104,10 @@ export default async function EventsListPage({
   const session = await requireAdmin();
   if (!session) redirect("/login");
   const versions = await contentVersions(["event"]);
-  const where: Record<string, unknown> = await ownedContentWhere("event", session.user);
+  const where: Record<string, unknown> = await ownedContentWhere(
+    "event",
+    session.user,
+  );
 
   if (q) {
     where.OR = [
@@ -109,7 +121,10 @@ export default async function EventsListPage({
   }
 
   const total = await prisma.event.count({ where });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
 
   const events = await prisma.event.findMany({
     take: ADMIN_PAGE_SIZE,
@@ -222,10 +237,7 @@ export default async function EventsListPage({
             <tbody>
               {events.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-16 text-center"
-                  >
+                  <td colSpan={5} className="px-5 py-16 text-center">
                     <p className="text-sm font-medium text-neutral-700">
                       {q || status
                         ? "Tidak ada event yang cocok."
@@ -277,7 +289,11 @@ export default async function EventsListPage({
 
                     <td className="px-5 py-4 text-right">
                       <EventActions
-                        expectedVersion={contentVersion("event", event, versions)}
+                        expectedVersion={contentVersion(
+                          "event",
+                          event,
+                          versions,
+                        )}
                         eventId={event.id}
                         eventTitle={event.title}
                         currentStatus={event.status}

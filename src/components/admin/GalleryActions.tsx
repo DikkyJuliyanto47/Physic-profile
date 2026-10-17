@@ -40,11 +40,21 @@ export function GalleryActions({
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState("");
-  const confirmRef = useDialogAccessibility(showConfirm, () => { setShowConfirm(false); setError(""); }, isPending);
-  const previewRef = useDialogAccessibility(showPreview, () => setShowPreview(false), isPending);
+  const confirmRef = useDialogAccessibility(
+    showConfirm,
+    () => {
+      setShowConfirm(false);
+      setError("");
+    },
+    isPending,
+  );
+  const previewRef = useDialogAccessibility(
+    showPreview,
+    () => setShowPreview(false),
+    isPending,
+  );
 
-  const embedUrl =
-    mediaType === "VIDEO" ? getYouTubeEmbedUrl(mediaUrl) : null;
+  const embedUrl = mediaType === "VIDEO" ? getYouTubeEmbedUrl(mediaUrl) : null;
 
   function handleDelete() {
     setError("");
@@ -53,18 +63,29 @@ export function GalleryActions({
       let result: Awaited<ReturnType<typeof deleteGalleryItem>>;
       try {
         result = await deleteGalleryItem(itemId, expectedVersion);
-        if (!result || typeof result !== "object" || typeof result.success !== "boolean" ||
-          (result.pending !== undefined && typeof result.pending !== "boolean") ||
-          (result.error !== undefined && typeof result.error !== "string")) {
+        if (
+          !result ||
+          typeof result !== "object" ||
+          typeof result.success !== "boolean" ||
+          (result.pending !== undefined &&
+            typeof result.pending !== "boolean") ||
+          (result.error !== undefined && typeof result.error !== "string")
+        ) {
           throw new Error("Invalid mutation response");
         }
       } catch {
-        setError("Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.");
+        setError(
+          "Hasil tindakan belum dapat dipastikan karena koneksi atau respons bermasalah. Periksa data terbaru sebelum mencoba ulang.",
+        );
         return;
       }
 
       if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+        if (result.pending) {
+          router.push("/admin/submissions?result=submitted");
+          router.refresh();
+          return;
+        }
         setShowConfirm(false);
         const url = new URL(window.location.href);
         url.searchParams.set("result", "deleted");
@@ -104,9 +125,16 @@ export function GalleryActions({
       </div>
 
       {showPreview && (
-        <dialog ref={previewRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-preview`} tabIndex={-1}
+        <dialog
+          ref={previewRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${dialogId}-preview`}
+          tabIndex={-1}
           className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 sm:p-8"
-          onClick={() => { if (!isPending) setShowPreview(false); }}
+          onClick={() => {
+            if (!isPending) setShowPreview(false);
+          }}
         >
           <div
             className="w-full max-w-5xl overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-elevated"
@@ -114,7 +142,10 @@ export function GalleryActions({
           >
             <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
               <div className="min-w-0">
-                <h3 id={`${dialogId}-preview`} className="truncate text-sm font-semibold text-neutral-900">
+                <h3
+                  id={`${dialogId}-preview`}
+                  className="truncate text-sm font-semibold text-neutral-900"
+                >
                   {itemTitle}
                 </h3>
                 <p className="mt-0.5 text-xs text-neutral-500">
@@ -161,7 +192,12 @@ export function GalleryActions({
       )}
 
       {showConfirm && (
-        <dialog ref={confirmRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-delete`} tabIndex={-1}
+        <dialog
+          ref={confirmRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${dialogId}-delete`}
+          tabIndex={-1}
           className="m-0 h-full w-full max-h-none max-w-none border-0 backdrop:bg-transparent fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
           onClick={() => {
             if (!isPending) {
@@ -175,7 +211,10 @@ export function GalleryActions({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="border-b border-neutral-200 px-5 py-4">
-              <h3 id={`${dialogId}-delete`} className="text-base font-semibold text-neutral-900">
+              <h3
+                id={`${dialogId}-delete`}
+                className="text-base font-semibold text-neutral-900"
+              >
                 Hapus Media?
               </h3>
             </div>

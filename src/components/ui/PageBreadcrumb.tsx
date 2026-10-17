@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { Fragment } from "react";
 
@@ -21,10 +20,7 @@ export function PageBreadcrumb({ items }: PageBreadcrumbProps) {
           return (
             <Fragment key={`${item.label}-${index}`}>
               {index > 0 && (
-                <li
-                  aria-hidden="true"
-                  className="text-neutral-400"
-                >
+                <li aria-hidden="true" className="text-neutral-400">
                   /
                 </li>
               )}

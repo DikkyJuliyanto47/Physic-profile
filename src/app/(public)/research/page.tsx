@@ -5,14 +5,23 @@ import { ResearchPublicationSection } from "@/components/features/research";
 import { JoinCtaSection } from "@/components/features/home";
 import { getPublishedPublications } from "@/components/features/research/data";
 
-export const metadata = publicMetadata("Riset & Publikasi", "Koleksi jurnal, prosiding, buku, dan HKI komunitas Physical Society of Indonesia Cabang Surabaya.", "/research");
+export const metadata = publicMetadata(
+  "Riset & Publikasi",
+  "Koleksi jurnal, prosiding, buku, dan HKI komunitas Physical Society of Indonesia Cabang Surabaya.",
+  "/research",
+);
 
 export default async function RisetPublikasiPage() {
   const publications = await getPublishedPublications();
 
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Beranda", path: "/" }, { name: "Riset & Publikasi", path: "/research" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Beranda", path: "/" },
+          { name: "Riset & Publikasi", path: "/research" },
+        ]}
+      />
       <PublicPageShell
         title="Penelitian & Publikasi Physical Society of Indonesia Cabang Surabaya"
         breadcrumbs={[

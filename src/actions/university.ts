@@ -14,14 +14,23 @@ export type UniversityInput = {
 
 export type ActionResponse = ContentResult;
 
-export async function createUniversity(data: UniversityInput): Promise<ActionResponse> {
+export async function createUniversity(
+  data: UniversityInput,
+): Promise<ActionResponse> {
   return submitContent("university", "CREATE", null, data);
 }
 
-export async function updateUniversity(id: string, data: UniversityInput, version: ContentVersion): Promise<ActionResponse> {
+export async function updateUniversity(
+  id: string,
+  data: UniversityInput,
+  version: ContentVersion,
+): Promise<ActionResponse> {
   return submitContent("university", "UPDATE", id, data, false, version);
 }
 
-export async function deleteUniversity(id: string, version: ContentVersion): Promise<ActionResponse> {
+export async function deleteUniversity(
+  id: string,
+  version: ContentVersion,
+): Promise<ActionResponse> {
   return submitContent("university", "DELETE", id, {}, false, version);
 }

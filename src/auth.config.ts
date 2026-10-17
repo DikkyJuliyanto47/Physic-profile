@@ -40,7 +40,9 @@ export const authConfig = {
 
         const userRole = auth?.user
           ? auth.user.role
-          : isMockAuthenticated ? MOCK_AUTH_USER.role : undefined;
+          : isMockAuthenticated
+            ? MOCK_AUTH_USER.role
+            : undefined;
         if (!isAdminRole(userRole)) {
           return Response.redirect(new URL("/login", nextUrl));
         }

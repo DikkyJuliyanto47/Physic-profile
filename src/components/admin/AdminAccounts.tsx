@@ -78,21 +78,66 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
     <div className="space-y-6">
       <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card">
         <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-4">
-          <p className="text-sm font-semibold text-neutral-900">Daftar akun ({accounts.length})</p>
-          <button type="button" disabled={busy || confirmation !== null} className={buttonClass} onClick={() => edit()}>Tambah Admin</button>
+          <p className="text-sm font-semibold text-neutral-900">
+            Daftar akun 
+            ({accounts.length})
+          </p>
+          <button 
+            type="button" 
+            disabled={busy || confirmation !== null} 
+            className={buttonClass} 
+            onClick={() => edit()}
+          >
+            Tambah Admin
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-neutral-100 bg-neutral-50/70 text-neutral-500">
-              <tr>{["Nama", "Email", "Role", "Status", "Aksi"].map((label) => <th key={label} className="px-5 py-3 font-medium">{label}</th>)}</tr>
+              <tr>
+                {["Nama", "Email", "Role", "Status", "Aksi"].map((label) => 
+                  <th 
+                    key={label} 
+                    className="px-5 py-3 font-medium">
+                    {label}
+                  </th>
+                )}
+              </tr>
             </thead>
             <tbody>{accounts.map((account) => (
               <tr key={account.id} className="border-b border-neutral-100 last:border-0">
-                <td className="px-5 py-4 text-neutral-900">{account.name?.trim() || "User"}</td>
-                <td className="px-5 py-4 text-neutral-600">{account.email}</td>
-                <td className="px-5 py-4">{account.role === "SUPER_ADMIN" ? "Admin PSI Surabaya" : "Admin"}</td>
-                <td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-medium ${account.isActive ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-600"}`}>{account.isActive ? "Aktif" : "Nonaktif"}</span></td>
-                <td className="px-5 py-4"><button type="button" disabled={busy || confirmation !== null} className={buttonClass} onClick={() => edit(account)}>Kelola<span className="sr-only"> {account.email}</span></button></td>
+                <td className="px-5 py-4 text-neutral-900">
+                  {account.name?.trim() || "User"}
+                </td>
+                <td className="px-5 py-4 text-neutral-600">
+                  {account.email}
+                </td>
+                <td className="px-5 py-4">
+                  {account.role === "SUPER_ADMIN" 
+                  ? "Admin PSI Surabaya" 
+                  : "Admin"}
+                  </td>
+                <td className="px-5 py-4">
+                  <span 
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium 
+                      ${account.isActive 
+                      ? "bg-green-50 text-green-700" 
+                      : "bg-neutral-100 text-neutral-600"}`}
+                  >
+                      {account.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+                </td>
+                <td className="px-5 py-4">
+                  <button 
+                    type="button" 
+                    disabled={busy || confirmation !== null} 
+                    className={buttonClass} onClick={() => edit(account)}>
+                      Kelola
+                    <span className="sr-only"> 
+                      {account.email}
+                    </span>
+                  </button>
+                </td>
               </tr>
             ))}</tbody>
           </table>
@@ -103,10 +148,73 @@ export function AdminAccounts({ accounts }: { accounts: Account[] }) {
         <h2 className="text-base font-semibold text-neutral-900">{selected ? "Ubah Akun Admin" : "Tambah Akun Admin"}</h2>
         {feedback && <p role={feedback.error ? "alert" : "status"} className={`rounded-md p-3 text-sm ${feedback.error ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>{feedback.text}</p>}
         <fieldset disabled={busy || confirmation !== null} className="grid gap-5 sm:grid-cols-2">
-          <div><label htmlFor="admin-name" className="mb-1.5 block text-sm font-medium text-neutral-700">Nama</label><input id="admin-name" required maxLength={100} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} /></div>
-          <div><label htmlFor="admin-email" className="mb-1.5 block text-sm font-medium text-neutral-700">Email</label><input id="admin-email" type="email" required maxLength={254} autoComplete="off" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClass} /></div>
-          <div><label htmlFor="admin-role" className="mb-1.5 block text-sm font-medium text-neutral-700">Role</label><select id="admin-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN" })} className={inputClass}><option value="ADMIN">Admin</option><option value="SUPER_ADMIN">Admin PSI Surabaya</option></select></div>
-          <div><label htmlFor="admin-status" className="mb-1.5 block text-sm font-medium text-neutral-700">Status</label><select id="admin-status" value={String(form.isActive)} onChange={(e) => setForm({ ...form, isActive: e.target.value === "true" })} className={inputClass}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+          <div>
+            <label 
+              htmlFor="admin-name" 
+              className="mb-1.5 block text-sm font-medium text-neutral-700">
+                Nama
+            </label>
+            <input 
+              id="admin-name" 
+              required maxLength={100} 
+              autoComplete="name" 
+              value={form.name} 
+              onChange={(e) => setForm({ ...form, name: e.target.value })} 
+              className={inputClass} 
+            />
+          </div>
+
+          <div>
+            <label 
+              htmlFor="admin-email" 
+              className="mb-1.5 block text-sm font-medium text-neutral-700">
+                Email
+            </label>
+            <input 
+              id="admin-email" 
+              type="email" 
+              required maxLength={254} autoComplete="off" 
+              value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} 
+              className={inputClass} 
+            />
+          </div>
+
+          <div>
+            <label 
+              htmlFor="admin-role" 
+              className="mb-1.5 block text-sm font-medium text-neutral-700">
+                Role
+            </label>
+            
+            <select 
+              id="admin-role" 
+              value={form.role} 
+              onChange={(e) => setForm({ ...form, role: e.target.value === "SUPER_ADMIN" 
+                ? "SUPER_ADMIN" 
+                : "ADMIN" })} 
+              className={inputClass}
+            >
+              <option value="ADMIN">Admin</option>
+              <option value="SUPER_ADMIN">Admin PSI Surabaya</option>
+            </select>
+          </div>
+
+          <div>
+            <label 
+              htmlFor="admin-status" 
+              className="mb-1.5 block text-sm font-medium text-neutral-700">
+                Status
+            </label>
+            <select 
+              id="admin-status" 
+              value={String(form.isActive)} onChange={(e) => setForm({ ...form, isActive: e.target.value === "true" })} 
+              className={inputClass}>
+              
+              <option value="true">Aktif</option>
+              <option value="false">Nonaktif</option>
+            </select>
+          </div>
+          
           <div className="sm:col-span-2">
             <label 
               htmlFor="admin-password" 

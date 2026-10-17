@@ -29,20 +29,27 @@ export function NewsActions({
   const toggleInFlight = useRef(false);
 
   function handleToggle() {
-    if (isPending || toggleInFlight.current || currentStatus === "ARCHIVED") return;
+    if (isPending || toggleInFlight.current || currentStatus === "ARCHIVED")
+      return;
     toggleInFlight.current = true;
     setToggleError("");
     startTransition(async () => {
       try {
         const result = await toggleNewsStatus(newsId, expectedVersion);
         if (result.success === true) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          if (result.pending) {
+            router.push("/admin/submissions?result=submitted");
+            router.refresh();
+            return;
+          }
           const url = new URL(window.location.href);
           url.searchParams.set("result", "status-updated");
           router.replace(url.pathname + url.search, { scroll: false });
           router.refresh();
         } else {
-          setToggleError(result.error || "Gagal mengubah status berita. Silakan coba lagi.");
+          setToggleError(
+            result.error || "Gagal mengubah status berita. Silakan coba lagi.",
+          );
         }
       } catch {
         setToggleError("Gagal mengubah status berita. Silakan coba lagi.");
@@ -60,7 +67,11 @@ export function NewsActions({
       try {
         const result = await deleteNews(newsId, expectedVersion);
         if (result.success) {
-          if (result.pending) { router.push("/admin/submissions?result=submitted"); router.refresh(); return; }
+          if (result.pending) {
+            router.push("/admin/submissions?result=submitted");
+            router.refresh();
+            return;
+          }
           setShowConfirm(false);
           router.push("/admin/news?result=deleted");
           router.refresh();
@@ -81,44 +92,44 @@ export function NewsActions({
     <>
       <div className="inline-flex items-center gap-1">
         {currentStatus !== "ARCHIVED" && (
-        <button
-          type="button"
-          onClick={handleToggle}
-          disabled={isPending}
-          title={isPublished ? "Kembalikan ke draf" : "Terbitkan"}
-          aria-label={isPublished ? "Kembalikan ke draf" : "Terbitkan"}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isPublished ? (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 12.75l6 6 9-13.5"
-              />
-            </svg>
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={handleToggle}
+            disabled={isPending}
+            title={isPublished ? "Kembalikan ke draf" : "Terbitkan"}
+            aria-label={isPublished ? "Kembalikan ke draf" : "Terbitkan"}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isPublished ? (
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+            )}
+          </button>
         )}
 
         <a
@@ -138,7 +149,10 @@ export function NewsActions({
       </div>
 
       {toggleError && (
-        <div role="alert" className="mt-4 rounded-md border border-red-100 bg-red-50 px-3.5 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mt-4 rounded-md border border-red-100 bg-red-50 px-3.5 py-3 text-sm text-red-700"
+        >
           {toggleError}
         </div>
       )}

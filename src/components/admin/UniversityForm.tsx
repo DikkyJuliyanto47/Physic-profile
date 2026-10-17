@@ -67,9 +67,7 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
     });
   }
 
-  async function handleImageUpload(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
 
     if (!file) {
@@ -97,7 +95,8 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
     }
 
     const dotIndex = file.name.lastIndexOf(".");
-    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const extension =
+      dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
     const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setUploadError("Format file tidak didukung.");
@@ -138,13 +137,13 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isSubmitting || uploading) return; 
+    if (isSubmitting || uploading) return;
 
     setError("");
     setIsSubmitting(true);
 
     try {
-      const result: ActionResponse = 
+      const result: ActionResponse =
         mode === "create"
           ? await createUniversity(form)
           : await updateUniversity(initialData!.id, form, draftVersion!);
@@ -154,17 +153,21 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/universities?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/universities?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error("[UniversityForm] Submit gagal:", error);
-        setError(
-        "Koneksi atau layanan bermasalah. Periksa daftar perguruan tinggi sebelum mencoba menyimpan kembali."
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar perguruan tinggi sebelum mencoba menyimpan kembali.",
       );
     } finally {
       setIsSubmitting(false);
+    }
   }
-}
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -176,7 +179,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label htmlFor={`${formId}-name`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-name`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Nama Kampus <span className="text-red-500">*</span>
           </label>
 
@@ -192,7 +198,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div>
-          <label htmlFor={`${formId}-shortName`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-shortName`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Singkatan
           </label>
 
@@ -207,7 +216,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor={`${formId}-address`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-address`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Alamat
           </label>
 
@@ -222,7 +234,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div>
-          <label htmlFor={`${formId}-deptUrl`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-deptUrl`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Departemen URL
           </label>
 
@@ -237,7 +252,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div>
-          <label htmlFor={`${formId}-websiteUrl`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-websiteUrl`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Website URL
           </label>
 
@@ -252,7 +270,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor={`${formId}-logo`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-logo`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Logo Kampus
           </label>
 
@@ -329,7 +350,10 @@ export function UniversityForm({ expectedVersion, mode, initialData }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor={`${formId}-description`} className="mb-1 block text-sm font-medium text-neutral-700">
+          <label
+            htmlFor={`${formId}-description`}
+            className="mb-1 block text-sm font-medium text-neutral-700"
+          >
             Deskripsi
           </label>
 

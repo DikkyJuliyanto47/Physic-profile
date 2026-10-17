@@ -8,8 +8,20 @@ export default async function ReviewPage({ searchParams }: {
   const session = await requireSuperAdmin();
   if (!session) notFound();
   return <div className="space-y-6 sm:space-y-8">
-    <header><h1 className="text-xl font-bold text-neutral-900 sm:text-2xl">Review Konten</h1>
-      <p className="mt-1 text-sm text-neutral-500">Tinjau perubahan dan penghapusan seluruh modul sebelum disetujui.</p></header>
-    <ContentReviewQueue actor={session.user} own={false} params={await searchParams} />
+    <header>
+      <h1 className="text-xl font-bold text-neutral-900 sm:text-2xl">
+        Review Konten
+      </h1>
+      <p 
+        className="mt-1 text-sm text-neutral-500">
+          Tinjau perubahan dan penghapusan seluruh modul sebelum disetujui.
+      </p>
+    </header>
+    
+    <ContentReviewQueue 
+      actor={session.user} 
+      own={false} 
+      params={await searchParams} 
+    />
   </div>;
 }

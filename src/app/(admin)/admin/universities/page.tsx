@@ -1,5 +1,9 @@
 import { ContentFeedback } from "@/components/admin/ContentFeedback";
-import { AdminPagination, ADMIN_PAGE_SIZE, adminPage } from "@/components/admin/AdminPagination";
+import {
+  AdminPagination,
+  ADMIN_PAGE_SIZE,
+  adminPage,
+} from "@/components/admin/AdminPagination";
 import { contentVersion, contentVersions } from "@/lib/content-approval";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,8 +36,13 @@ export default async function UniversitiesPage({
       }
     : {};
 
-  const total = await prisma.university.count({ where: { ...where, ...scope } });
-  const page = Math.min(adminPage(params.page), Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)));
+  const total = await prisma.university.count({
+    where: { ...where, ...scope },
+  });
+  const page = Math.min(
+    adminPage(params.page),
+    Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+  );
 
   const universities = await prisma.university.findMany({
     take: ADMIN_PAGE_SIZE,
@@ -52,7 +61,8 @@ export default async function UniversitiesPage({
             Perguruan Tinggi
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Kelola daftar kampus anggota Physical Society of Indonesia Cabang Surabaya.
+            Kelola daftar kampus anggota Physical Society of Indonesia Cabang
+            Surabaya.
           </p>
         </div>
         <Link
@@ -201,7 +211,11 @@ export default async function UniversitiesPage({
 
                     <td className="px-5 py-3 text-right">
                       <UniversityActions
-                        expectedVersion={contentVersion("university", uni, versions)}
+                        expectedVersion={contentVersion(
+                          "university",
+                          uni,
+                          versions,
+                        )}
                         universityId={uni.id}
                         universityName={uni.name}
                         memberCount={uni._count.members}

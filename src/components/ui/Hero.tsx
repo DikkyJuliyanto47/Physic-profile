@@ -16,7 +16,12 @@ type HeroProps = {
 
 const HERO_IMAGE = "/assets/hero/pertemuan-07-27-03.jpeg";
 
-export function Hero({ title, breadcrumbs = [], children, className = "" }: HeroProps) {
+export function Hero({
+  title,
+  breadcrumbs = [],
+  children,
+  className = "",
+}: HeroProps) {
   return (
     <section className={`relative isolate ${className}`}>
       <div className="absolute inset-0 overflow-hidden">
@@ -36,9 +41,15 @@ export function Hero({ title, breadcrumbs = [], children, className = "" }: Hero
             <nav aria-label="Breadcrumb">
               <ol className="flex flex-wrap items-center gap-2 text-sm font-medium text-white/80">
                 {breadcrumbs.map((item, index) => (
-                  <li key={`${item.label}-${index}`} className="flex items-center gap-2">
+                  <li
+                    key={`${item.label}-${index}`}
+                    className="flex items-center gap-2"
+                  >
                     {item.href ? (
-                      <a href={item.href} className="transition-colors hover:text-white">
+                      <a
+                        href={item.href}
+                        className="transition-colors hover:text-white"
+                      >
                         {item.label}
                       </a>
                     ) : (

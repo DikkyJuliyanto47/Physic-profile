@@ -57,7 +57,7 @@ export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
   function handleChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) {
     const { name, value } = e.target;
 
@@ -77,10 +77,10 @@ export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
     let navigating = false;
 
     try {
-      const result: ActionResponse = 
-       mode === "create"
-        ? await createPublication(form)
-        : await updatePublication(initialData!.id, form, draftVersion!);
+      const result: ActionResponse =
+        mode === "create"
+          ? await createPublication(form)
+          : await updatePublication(initialData!.id, form, draftVersion!);
 
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
@@ -88,12 +88,16 @@ export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
       }
 
       navigating = true;
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/publication?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/publication?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error("[PublicationForm] Submit gagal:", error);
-      setError (
-        "Koneksi atau layanan bermasalah. Periksa daftar publikasi sebelum mencoba menyimpan kembali."
+      setError(
+        "Koneksi atau layanan bermasalah. Periksa daftar publikasi sebelum mencoba menyimpan kembali.",
       );
     } finally {
       if (!navigating) {
@@ -143,9 +147,7 @@ export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
           <option value="HKI">HKI</option>
           <option value="PROSIDING">Prosiding</option>
         </select>
-        <p className="mt-1.5 text-xs text-neutral-400">
-          Pilih tipe publikasi.
-        </p>
+        <p className="mt-1.5 text-xs text-neutral-400">Pilih tipe publikasi.</p>
       </div>
 
       <div>
@@ -208,7 +210,8 @@ export function PublicationForm({ expectedVersion, mode, initialData }: Props) {
             className={inputClass}
           />
           <p className="mt-1.5 text-xs text-neutral-400">
-            Tautan menuju jurnal, DOI, penerbit, halaman publikasi, atau dokumen terkait.
+            Tautan menuju jurnal, DOI, penerbit, halaman publikasi, atau dokumen
+            terkait.
           </p>
         </div>
       </div>

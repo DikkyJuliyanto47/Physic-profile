@@ -21,7 +21,11 @@ type Props = {
   };
 };
 
-export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Props) {
+export function ManagementPeriodForm({
+  expectedVersion,
+  mode,
+  initialData,
+}: Props) {
   const [draftVersion] = useState(expectedVersion);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,18 +47,22 @@ export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Pro
         mode === "create"
           ? await createManagementPeriod(form)
           : await updateManagementPeriod(initialData!.id, form, draftVersion!);
-      
+
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
         return;
       }
 
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/managements?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/managements?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error("[ManagementPeriodForm] Submit gagal:", error);
       setError(
-        "Koneksi atau layanan bermasalah. Periksa daftar periode sebelum mencoba menyimpan kembali."
+        "Koneksi atau layanan bermasalah. Periksa daftar periode sebelum mencoba menyimpan kembali.",
       );
     } finally {
       setIsSubmitting(false);
@@ -77,7 +85,9 @@ export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Pro
         <input
           name="period"
           value={form.period}
-          onChange={(e) => setForm((prev) => ({ ...prev, period: e.target.value }))}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, period: e.target.value }))
+          }
           placeholder="2025/2026"
           required
           className="h-10 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 placeholder-neutral-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
@@ -103,7 +113,8 @@ export function ManagementPeriodForm({ expectedVersion, mode, initialData }: Pro
             Jadikan periode aktif
           </span>
           <span className="mt-0.5 block text-xs leading-5 text-neutral-500">
-            Periode ini akan digunakan sebagai struktur kepengurusan yang sedang berjalan.
+            Periode ini akan digunakan sebagai struktur kepengurusan yang sedang
+            berjalan.
           </span>
         </span>
       </label>

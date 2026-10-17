@@ -66,7 +66,10 @@ function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-neutral-700">
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-sm font-medium text-neutral-700"
+    >
       {children}
       {required && <span className="ml-1 text-red-500">*</span>}
     </label>
@@ -96,11 +99,14 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
     eventDate: initialData?.eventDate?.toISOString().slice(0, 10) ?? "",
   });
 
-  function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  function handleChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) {
     const { name, value } = e.target;
 
     setForm((prev) => {
-      if (name === "category") return { ...prev, category: value as NewsCategory };
+      if (name === "category")
+        return { ...prev, category: value as NewsCategory };
       if (name === "status") return { ...prev, status: value as ContentStatus };
 
       return { ...prev, [name]: value };
@@ -133,7 +139,8 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
     }
 
     const dotIndex = file.name.lastIndexOf(".");
-    const extension = dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
+    const extension =
+      dotIndex > 0 ? file.name.slice(dotIndex + 1).toLowerCase() : "";
     const allowedExtensions = ALLOWED_UPLOAD_TYPES[file.type];
     if (!allowedExtensions || !allowedExtensions.includes(extension)) {
       setError("Format file tidak didukung.");
@@ -188,19 +195,23 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
         mode === "create"
           ? await createNews(payload)
           : await updateNews(initialData!.id, payload, draftVersion!);
-      
+
       if (!result.success) {
         setError(result.error ?? "Terjadi kesalahan.");
         return;
       }
 
       navigating = true;
-      router.push(result.pending ? "/admin/submissions?result=submitted" : "/admin/news?result=saved");
+      router.push(
+        result.pending
+          ? "/admin/submissions?result=submitted"
+          : "/admin/news?result=saved",
+      );
       router.refresh();
     } catch (error) {
       console.error(" [NewsForm] Submit gagal:", error);
       setError(
-        "Koneksi atau layanan bermasalah. Periksa koneksi internet Anda atau coba lagi nanti."
+        "Koneksi atau layanan bermasalah. Periksa koneksi internet Anda atau coba lagi nanti.",
       );
     } finally {
       if (!navigating) {
@@ -219,7 +230,12 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
-      {actor.role === "ADMIN" && <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">Berita akan diajukan untuk review. Versi publik tetap berlaku sampai disetujui.</p>}
+      {actor.role === "ADMIN" && (
+        <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+          Berita akan diajukan untuk review. Versi publik tetap berlaku sampai
+          disetujui.
+        </p>
+      )}
       {isSuccess && (
         <div className="flex items-start justify-between gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
           <div className="flex items-start gap-2.5">
@@ -292,7 +308,9 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
 
       <section className="space-y-5">
         <div>
-          <FieldLabel htmlFor={`${formId}-title`} required>Judul</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-title`} required>
+            Judul
+          </FieldLabel>
           <input
             id={`${formId}-title`}
             name="title"
@@ -305,7 +323,9 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
         </div>
 
         <div>
-          <FieldLabel htmlFor={`${formId}-eventDate`}>Tanggal Kegiatan</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-eventDate`}>
+            Tanggal Kegiatan
+          </FieldLabel>
           <input
             type="date"
             id={`${formId}-eventDate`}
@@ -321,7 +341,9 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <div>
-            <FieldLabel htmlFor={`${formId}-category`} required>Kategori</FieldLabel>
+            <FieldLabel htmlFor={`${formId}-category`} required>
+              Kategori
+            </FieldLabel>
             <select
               id={`${formId}-category`}
               name="category"
@@ -341,22 +363,26 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
             </select>
           </div>
 
-          {actor.role === "SUPER_ADMIN" && <div>
-            <FieldLabel htmlFor={`${formId}-status`} required>Status</FieldLabel>
-            <select
-              id={`${formId}-status`}
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className={fieldClassName}
-            >
-              <option value={ContentStatus.DRAFT}>Draf</option>
-              <option value={ContentStatus.PUBLISHED}>Terbitkan</option>
-              {mode === "edit" && (
-                <option value={ContentStatus.ARCHIVED}>Arsipkan</option>
-              )}
-            </select>
-          </div>}
+          {actor.role === "SUPER_ADMIN" && (
+            <div>
+              <FieldLabel htmlFor={`${formId}-status`} required>
+                Status
+              </FieldLabel>
+              <select
+                id={`${formId}-status`}
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                className={fieldClassName}
+              >
+                <option value={ContentStatus.DRAFT}>Draf</option>
+                <option value={ContentStatus.PUBLISHED}>Terbitkan</option>
+                {mode === "edit" && (
+                  <option value={ContentStatus.ARCHIVED}>Arsipkan</option>
+                )}
+              </select>
+            </div>
+          )}
 
           <div>
             <FieldLabel htmlFor={`${formId}-image`}>Gambar</FieldLabel>
@@ -443,7 +469,9 @@ export function NewsForm({ expectedVersion, mode, initialData, actor }: Props) {
 
       <section className="border-t border-neutral-100 pt-7">
         <div>
-          <FieldLabel htmlFor={`${formId}-content`} required>Konten</FieldLabel>
+          <FieldLabel htmlFor={`${formId}-content`} required>
+            Konten
+          </FieldLabel>
           <textarea
             id={`${formId}-content`}
             name="content"

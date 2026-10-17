@@ -180,7 +180,10 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-medium text-neutral-900">
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-neutral-900"
+              >
                 Password
               </label>
 
@@ -198,17 +201,21 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  aria-label={
+                    showPassword ? "Sembunyikan password" : "Tampilkan password"
+                  }
                   aria-pressed={showPassword}
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-neutral-400 transition-colors hover:text-neutral-700 focus:outline-none focus:text-neutral-700"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
-
-
 
             <div className="flex items-center justify-between gap-4 pt-1">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-600">
